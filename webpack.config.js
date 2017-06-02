@@ -64,7 +64,7 @@ const config = {
     new ExtractTextPlugin('style/style.css', { allChunks: true }),
     new HtmlWebpackPlugin({
       css: 'styles/styles.css',
-      title: 'ThreeBolierplate',
+      title: 'ThreeJS Experiments',
       favicon: './resources/images/favicon.png',
       template: './resources/templates/template.ejs',
       inject: 'body',

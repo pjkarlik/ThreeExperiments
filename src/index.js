@@ -1,4 +1,4 @@
-import Render from './ObjectsMaterials.js';
+import Render from './FogMountainRender.js';
 import { description, version } from '../version.json';
 require('../resources/styles/styles.css');
 
