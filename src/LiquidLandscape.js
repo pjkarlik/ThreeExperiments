@@ -25,8 +25,7 @@ export default class Render {
     this.timer = 0;
     this.time = 0;
     this.frame = 0;
-    this.background = 0x8300b9;
-    this.fog = this.background;
+    this.fog = this.background = 0x8300b9;
     this.generator = new Generator(10);
     window.addEventListener('resize', this.resize, true);
     this.createGUI();
@@ -46,14 +45,14 @@ export default class Render {
     const folderRender = this.gui.addFolder('Render Options');
     folderRender.add(this.options, 'strength', 1, 100).step(1)
       .onFinishChange((value) => { this.strength = value; });
+    folderRender.add(this.options, 'iteration', 1, 100).step(1)
+      .onFinishChange((value) => { this.iteration = value * 0.002; });
     folderRender.addColor(this.options, 'color')
       .onChange((value) => {
         this.color = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
         // this.planeMesh.material.color.setHex(this.color);
         this.scene.fog.color.setHex(this.color);
       });
-    folderRender.add(this.options, 'iteration', 1, 100).step(1)
-      .onFinishChange((value) => { this.iteration = value * 0.002; });
     folderRender.open();
   };
 

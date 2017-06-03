@@ -1,5 +1,6 @@
 import THREE from './Three';
 import { Generator } from './SimplexNoise';
+import dat from 'dat-gui';
 
 // Skybox image imports //
 import xpos from '../resources/images/sky/posx.jpg';
@@ -17,22 +18,45 @@ export default class Render {
     this.far = 20000;
     this.amount = 20;
     this.size = 80;
-    this.strength = 0.5;
     this.time = 0;
     this.frame = 0;
     this.speed = 1.4;
-    this.iteration = 0.05;
+    this.strength = 70;
+    this.iteration = 0.04;
     this.background = 0x8fd8fa;
     this.fog = this.background; // 0xefd1b5;
     this.objects = [];
     this.generator = new Generator(10);
-    this.clock = new THREE.Clock();
     window.addEventListener('resize', this.resize, true);
-    window.addEventListener('click', this.stats, true);
+    // window.addEventListener('click', this.stats, true);
+    this.createGUI();
     this.setViewport();
     this.setRender();
     this.renderLoop();
   }
+
+  createGUI = () => {
+    this.options = {
+      strength: 45,
+      color: [143, 216, 250],
+      iteration: 50,
+    };
+    this.gui = new dat.GUI();
+
+    const folderRender = this.gui.addFolder('Render Options');
+    folderRender.add(this.options, 'strength', 1, 100).step(1)
+      .onFinishChange((value) => { this.strength = value; });
+    folderRender.add(this.options, 'iteration', 1, 100).step(1)
+      .onFinishChange((value) => { this.iteration = value * 0.0015; });
+    folderRender.addColor(this.options, 'color')
+      .onChange((value) => {
+        this.color = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
+        // this.planeMesh.material.color.setHex(this.color);
+        this.scene.fog.color.setHex(this.color);
+      });
+
+    folderRender.open();
+  };
 
   setRender = () => {
     // Set Render and Scene //
@@ -51,10 +75,6 @@ export default class Render {
         this.far
     );
     this.scene.add(this.camera);
-
-    // this.camera.position.set(92, -180, -330);
-    // this.camera.position.set(-142, -85, -345);
-    // this.camera.position.set(-530, 420, -745);
     this.camera.position.set(-1281, 514, -409);
 
     this.camera.lookAt(this.scene.position);
@@ -120,11 +140,10 @@ export default class Render {
     for (let y = 0; y < this.amount; y++) {
       for (let x = 0; x < this.amount; x++) {
         const object = this.objects[x + (y * this.amount)];
-        const noiseX = this.generator.simplex3(x * this.iteration, y * this.iteration + timeStop, 0);
+        const noiseX = this.generator.simplex3(x * this.iteration, y * this.iteration + timeStop, 0) * 7;
         const px = (-offset) + (x * size);
-        const py = noiseX * 555;
+        const py = noiseX * this.strength;
         const pz = (-offset) + (y * size);
-        // object.rotation.set(py * Math.PI / 180, 0, 0)
         object.position.set(px, py, pz - this.frame);
       }
     }
@@ -142,6 +161,11 @@ export default class Render {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
     this.effect.setSize(this.width, this.height);
+  };
+
+  rgbToHex = (r, g, b) => {
+    const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    return `0x${hex}`;
   };
 
   stats = () => {
