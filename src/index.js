@@ -1,4 +1,4 @@
-import Render from './FogMountainRender.js';
+import Render from './FogDriftRender.js';
 import { description, version } from '../version.json';
 require('../resources/styles/styles.css');
 
