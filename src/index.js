@@ -1,4 +1,4 @@
-import Render from './FogDriftRender.js';
+import Render from './ObjectsMaterials.js';
 import { description, version } from '../version.json';
 require('../resources/styles/styles.css');
 

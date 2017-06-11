@@ -2,14 +2,6 @@ import THREE from './Three';
 import { Generator } from './SimplexNoise';
 import dat from 'dat-gui';
 
-// Skybox image imports //
-// import xpos from '../resources/images/space/posx.jpg';
-// import xneg from '../resources/images/space/negx.jpg';
-// import ypos from '../resources/images/space/posy.jpg';
-// import yneg from '../resources/images/space/negy.jpg';
-// import zpos from '../resources/images/space/posz.jpg';
-// import zneg from '../resources/images/space/negz.jpg';
-
 
 // Render Class Object //
 export default class Render {
@@ -39,8 +31,6 @@ export default class Render {
     this.options = {
       strength: 65,
       iteration: 50,
-      color: [0, 50, 200],
-      mesh:  [200, 200, 200],
     };
     this.gui = new dat.GUI();
 
@@ -49,16 +39,6 @@ export default class Render {
       .onFinishChange((value) => { this.strength = value; });
     folderRender.add(this.options, 'iteration', 1, 100).step(1)
       .onFinishChange((value) => { this.iteration = value * 0.002; });
-    folderRender.addColor(this.options, 'color')
-      .onChange(value => {
-        this.color = this.rgbToHex(~~value[0], ~~value[1], ~~value[2]);
-        this.scene.fog.color.setHex(this.color);
-      });
-    folderRender.addColor(this.options, 'mesh')
-      .onChange(value => {
-        this.mesh = this.rgbToHex(~~value[0], ~~value[1], ~~value[2]);
-        this.meshMaterial.color.setHex(this.mesh);
-      });
     // folderRender.open();
   };
 
@@ -82,11 +62,6 @@ export default class Render {
     this.cameraPosition = { x: -800, y: 300, z: 330 };
     this.camera.position.set(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z);
     this.camera.lookAt(this.scene.position);
-
-    // this.controls = new THREE.OrbitControls(this.camera);
-    // this.controls.maxDistance = 3000;
-    // this.controls.minDistance = 0.1;
-
     // Set AmbientLight //
     this.ambient = new THREE.AmbientLight(0x999999);
     this.ambient.position.set(0, 0, 0);
@@ -97,25 +72,20 @@ export default class Render {
     this.spotLight.castShadow = true;
     this.scene.add(this.spotLight);
 
-    // const urls = [xpos, xneg, ypos, yneg, zpos, zneg];
-    // this.skybox = new THREE.CubeTextureLoader().load(urls);
-    // this.skybox.format = THREE.RGBFormat;
-    // this.skybox.mapping = THREE.CubeReflectionMapping; // CubeReflectionMapping || CubeRefractionMapping
-
     const skyBoxGeometry = new THREE.CubeGeometry(10000, 10000, 10000);
     const skyBoxMaterial = new THREE.MeshBasicMaterial({ color: this.background, side: THREE.BackSide });
     this.lowSkybox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
     this.scene.add(this.lowSkybox);
 
-    this.meshMaterial = new THREE.MeshBasicMaterial({
+    const meshMaterial = new THREE.MeshBasicMaterial({
       color: 0xFFFFFF,
       wireframe: true,
     });
-    this.meshMaterial.wrapS = this.meshMaterial.wrapT = THREE.RepeatWrapping;
+    meshMaterial.wrapS = meshMaterial.wrapT = THREE.RepeatWrapping;
     this.geometry = new THREE.PlaneBufferGeometry(this.size, this.size, this.amount, this.amount);
     this.planeMesh = new THREE.Mesh(
       this.geometry,
-      this.meshMaterial
+      meshMaterial
     );
 
     this.planeMesh.rotation.set(90 * Math.PI / 180, 0, 0);
