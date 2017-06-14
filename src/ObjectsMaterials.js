@@ -17,19 +17,19 @@ export default class Render {
     this.viewAngle = 55;
     this.near = 1;
     this.far = 10000;
-    this.amount = 55;
-    this.size = 1750;
-    this.strength = 65;
-    this.iteration = 0.35;
+    this.amount = 60;
+    this.size = 1700;
+    this.strength = 200;
+    this.iteration = 0.075;
     this.spacing = this.size / this.amount;
     this.timer = 0;
     this.time = 0;
     this.frame = 0;
-    this.background = 0x222222;
+    this.background = 0xaaaaaa;
     this.fog = this.background;
     this.generator = new Generator(10);
     window.addEventListener('resize', this.resize, true);
-    this.createGUI();
+    // this.createGUI();
     this.setViewport();
     this.setRender();
     this.renderLoop();
@@ -37,17 +37,17 @@ export default class Render {
 
   createGUI = () => {
     this.options = {
-      strength: 75,
-      iteration: 65,
+      strength: this.strength,
+      iteration: this.iteration * 0.002,
       color: [50, 50, 50],
       mesh: [200, 200, 200],
     };
     this.gui = new dat.GUI();
 
     const folderRender = this.gui.addFolder('Wave Options');
-    folderRender.add(this.options, 'strength', 1, 100).step(1)
+    folderRender.add(this.options, 'strength', 1, 200).step(1)
       .onFinishChange((value) => { this.strength = value; });
-    folderRender.add(this.options, 'iteration', 1, 100).step(1)
+    folderRender.add(this.options, 'iteration', 1, 200).step(1)
       .onFinishChange((value) => { this.iteration = value * 0.002; });
     folderRender.addColor(this.options, 'color')
       .onChange(value => {
@@ -71,7 +71,7 @@ export default class Render {
     document.body.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(this.fog, 0.00185);
+    this.scene.fog = new THREE.FogExp2(this.fog, 0.00145);
     this.camera = new THREE.PerspectiveCamera(
         this.viewAngle,
         this.aspect,
@@ -88,12 +88,12 @@ export default class Render {
     // this.controls.minDistance = 0.1;
 
     // Set AmbientLight //
-    this.ambient = new THREE.AmbientLight(0x999999);
-    this.ambient.position.set(0, 0, 0);
+    this.ambient = new THREE.AmbientLight(0x9999FF);
+    this.ambient.position.set(0, 20, 20);
     this.scene.add(this.ambient);
 
-    this.spotLight = new THREE.DirectionalLight(0x0666666);
-    this.spotLight.position.set(0, 10, 0);
+    this.spotLight = new THREE.DirectionalLight(0x0FF6666);
+    this.spotLight.position.set(0, 10, 30);
     this.spotLight.castShadow = true;
     this.scene.add(this.spotLight);
 
@@ -107,8 +107,9 @@ export default class Render {
     this.lowSkybox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
     this.scene.add(this.lowSkybox);
 
-    this.meshMaterial = new THREE.MeshBasicMaterial({
-      color: 0xFFFFFF,
+    this.meshMaterial = new THREE.MeshPhongMaterial({
+      color: 0x333333,
+      specular: 0xaaaaaa,
       side: THREE.DoubleSide,
     });
     this.meshMaterial.wrapS = this.meshMaterial.wrapT = THREE.RepeatWrapping;
@@ -126,28 +127,29 @@ export default class Render {
     // this.effect.setSize(this.width, this.height);
     this.composer = new THREE.EffectComposer(this.renderer);
     this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
-
-    // effect = new THREE.FilmPass(0.35, 0.5, 2048, true);
+    //
+    // effect = new THREE.ShaderPass(THREE.MirrorShader);
+    // effect.uniforms.side.value = 0;
     // this.composer.addPass(effect);
 
-    effect = new THREE.ShaderPass(THREE.MirrorShader);
-    effect.uniforms.side.value = 1;
-    this.composer.addPass(effect);
+    // effect = new THREE.FilmPass(0.8, 0.325, 2048, true);
+    // this.composer.addPass(effect);
 
     effect = new THREE.ShaderPass(THREE.DotScreenShader);
-    effect.uniforms.scale.value = 8;
+    effect.uniforms.scale.value = 2;
     this.composer.addPass(effect);
 
     effect = new THREE.ShaderPass(THREE.RGBShiftShader);
-    effect.uniforms.amount.value = 0.05;
+    effect.uniforms.amount.value = 0.025;
     effect.uniforms.angle.value = 0.0;
     effect.renderToScreen = true;
     this.composer.addPass(effect);
   };
 
   camearAnimation = () => {
-    this.camera.position.y = 225 + Math.sin(this.timer + Math.PI / 180) * 150;
-    this.camera.position.x = Math.sin(this.timer + Math.PI / 180) * 120;
+    this.camera.position.y = 225 + Math.sin(this.timer + 2 * Math.PI / 180) * 120;
+    // this.camera.position.x = Math.cos(this.timer + Math.PI / 180) * 120;
+    this.camera.position.z = 330 - Math.cos(this.timer + Math.PI / 180) * 230;
     this.camera.lookAt(this.scene.position);
   };
 
@@ -178,6 +180,11 @@ export default class Render {
   setViewport = () => {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
+    if (this.width > this.height) {
+      this.width = this.height;
+    } else {
+      this.height = this.width;
+    }
     this.aspect = this.width / this.height;
     this.devicePixelRatio = window.devicePixelRatio;
   };
@@ -186,7 +193,7 @@ export default class Render {
     this.setViewport();
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
-    this.effect.setSize(this.width, this.height);
+    // this.effect.setSize(this.width, this.height);
   };
 
   rgbToHex = (r, g, b) => {
