@@ -19,13 +19,13 @@ export default class Render {
     this.far = 10000;
     this.amount = 55;
     this.size = 1750;
-    this.strength = 45;
-    this.iteration = 0.15;
+    this.strength = 65;
+    this.iteration = 0.35;
     this.spacing = this.size / this.amount;
     this.timer = 0;
     this.time = 0;
     this.frame = 0;
-    this.background = 0x999999;
+    this.background = 0x222222;
     this.fog = this.background;
     this.generator = new Generator(10);
     window.addEventListener('resize', this.resize, true);
@@ -37,10 +37,10 @@ export default class Render {
 
   createGUI = () => {
     this.options = {
-      strength: 65,
-      iteration: 50,
-      color: [0, 50, 200],
-      mesh:  [200, 200, 200],
+      strength: 75,
+      iteration: 65,
+      color: [50, 50, 50],
+      mesh: [200, 200, 200],
     };
     this.gui = new dat.GUI();
 
@@ -109,7 +109,7 @@ export default class Render {
 
     this.meshMaterial = new THREE.MeshBasicMaterial({
       color: 0xFFFFFF,
-      wireframe: true,
+      side: THREE.DoubleSide,
     });
     this.meshMaterial.wrapS = this.meshMaterial.wrapT = THREE.RepeatWrapping;
     this.geometry = new THREE.PlaneBufferGeometry(this.size, this.size, this.amount, this.amount);
@@ -121,29 +121,40 @@ export default class Render {
     this.planeMesh.rotation.set(90 * Math.PI / 180, 0, 0);
     this.planeMesh.position.set(0, 0, 0);
     this.scene.add(this.planeMesh);
+    let effect;
+    // this.effect = new THREE.AnaglyphEffect(this.renderer);
+    // this.effect.setSize(this.width, this.height);
+    this.composer = new THREE.EffectComposer(this.renderer);
+    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
-    this.effect = new THREE.AnaglyphEffect(this.renderer);
-    this.effect.setSize(this.width, this.height);
+    // effect = new THREE.FilmPass(0.35, 0.5, 2048, true);
+    // this.composer.addPass(effect);
+
+    effect = new THREE.ShaderPass(THREE.MirrorShader);
+    effect.uniforms.side.value = 1;
+    this.composer.addPass(effect);
+
+    effect = new THREE.ShaderPass(THREE.DotScreenShader);
+    effect.uniforms.scale.value = 8;
+    this.composer.addPass(effect);
+
+    effect = new THREE.ShaderPass(THREE.RGBShiftShader);
+    effect.uniforms.amount.value = 0.05;
+    effect.uniforms.angle.value = 0.0;
+    effect.renderToScreen = true;
+    this.composer.addPass(effect);
   };
 
   camearAnimation = () => {
-    const ht = this.generator.simplex3(
-      Math.abs(((this.size / 2) - this.camera.position.x) / this.amount),
-      Math.abs(((this.size / 2) - this.camera.position.z) / this.amount) + this.timeStop,
-      0,
-    );
-
-    this.camera.position.y = 225 + Math.sin(this.timer + Math.PI / 180) * 150
-      + (ht * (this.strength / 2));
+    this.camera.position.y = 225 + Math.sin(this.timer + Math.PI / 180) * 150;
     this.camera.position.x = Math.sin(this.timer + Math.PI / 180) * 120;
     this.camera.lookAt(this.scene.position);
   };
 
   checkObjects = () => {
     this.timer += 0.005;
-    this.time += 0.1;
+    this.time += 0.2;
     this.timeStop = this.time * this.iteration;
-
     const offset = this.size / 2;
     const vertices = this.geometry.attributes.position.array;
     for (let y = 0; y < this.amount + 1; y ++) {
@@ -184,7 +195,8 @@ export default class Render {
   };
 
   renderScene = () => {
-    this.effect.render(this.scene, this.camera);
+    this.composer.render();
+    // this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
