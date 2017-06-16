@@ -1,14 +1,17 @@
 import THREE from './Three';
 import { Generator } from './SimplexNoise';
-import dat from 'dat-gui';
+// import dat from 'dat-gui';
 
 // Skybox image imports //
-import xpos from '../resources/images/church/posx.jpg';
-import xneg from '../resources/images/church/negx.jpg';
-import ypos from '../resources/images/church/posy.jpg';
-import yneg from '../resources/images/church/negy.jpg';
-import zpos from '../resources/images/church/posz.jpg';
-import zneg from '../resources/images/church/negz.jpg';
+import xpos from '../resources/images/sky/posx.jpg';
+import xneg from '../resources/images/sky/negx.jpg';
+import ypos from '../resources/images/sky/posy.jpg';
+import yneg from '../resources/images/sky/negy.jpg';
+import zpos from '../resources/images/sky/posz.jpg';
+import zneg from '../resources/images/sky/negz.jpg';
+// Mesh Textures //
+import grass01 from '../resources/images/grass02.jpg';
+import skullModel from '../resources/models/skull.json';
 
 // Render Class Object //
 export default class Render {
@@ -17,6 +20,7 @@ export default class Render {
     this.near = 1;
     this.far = 10000;
     this.frame = 0;
+    this.floor = -45;
     this.background = 0xDDDDDD;
     this.fog = this.background;
     this.generator = new Generator(10);
@@ -30,6 +34,7 @@ export default class Render {
     this.setRender();
     this.setCamera();
     this.setControls();
+    this.setSkyBox();
     this.setLights();
     this.setScene();
   };
@@ -53,7 +58,7 @@ export default class Render {
         this.far
     );
     this.scene.add(this.camera);
-    this.camera.position.set(0, 0, 0);
+    this.camera.position.set(0, 20, 50);
     this.camera.lookAt(this.scene.position);
   };
 
@@ -66,37 +71,84 @@ export default class Render {
   setLights = () => {
     // Set AmbientLight //
     this.ambient = new THREE.AmbientLight(0xAAAAAA);
-    this.ambient.position.set(0, 50, 0);
+    this.ambient.position.set(0, 45, 0);
     this.scene.add(this.ambient);
 
-    // this.spotLight = new THREE.DirectionalLight(0x0666666);
-    // this.spotLight.position.set(-600, 200, 230);
-    // this.spotLight.castShadow = true;
-    // this.scene.add(this.spotLight);
+    this.spotLight = new THREE.DirectionalLight(0x0666666);
+    this.spotLight.position.set(-6, 30, 80);
+    this.spotLight.castShadow = true;
+    this.scene.add(this.spotLight);
   };
-  setScene = () => {
-    // this.scene.fog = new THREE.FogExp2(this.fog, 0.00145);
 
+  setSkyBox = () => {
     const urls = [xpos, xneg, ypos, yneg, zpos, zneg];
     this.skybox = new THREE.CubeTextureLoader().load(urls);
     this.skybox.format = THREE.RGBFormat;
     this.skybox.mapping = THREE.CubeReflectionMapping; // CubeReflectionMapping || CubeRefractionMapping
     this.scene.background = this.skybox;
+  };
 
-    // this.meshMaterial = new THREE.MeshPhongMaterial({
-    //   envMap: this.skybox,
-    //   side: THREE.DoubleSide,
-    // });
-    // this.meshMaterial.wrapS = this.meshMaterial.wrapT = THREE.RepeatWrapping;
-    // this.geometry = new THREE.PlaneBufferGeometry(1000, 1000, 20, 20);
-    // this.planeMesh = new THREE.Mesh(
-    //   this.geometry,
-    //   this.meshMaterial
+  setScene = () => {
+    const texloader = new THREE.TextureLoader();
+    const grassMap = texloader.load(grass01);
+
+    grassMap.wrapS = grassMap.wrapT = THREE.RepeatWrapping;
+    grassMap.repeat.x = grassMap.repeat.y = 6;
+
+    this.planeMesh = new THREE.Mesh(
+      new THREE.PlaneBufferGeometry(500, 500, 20, 20),
+      new THREE.MeshPhongMaterial({
+        map: grassMap,
+        side: THREE.DoubleSide,
+      })
+    );
+
+    this.planeMesh.rotation.set(90 * Math.PI / 180, 0, 0);
+    this.planeMesh.position.set(0, this.floor, 0);
+    this.scene.add(this.planeMesh);
+
+    this.refractCamera = new THREE.CubeCamera(0.1, 5000, 512);
+    this.refractCamera.position.set(0, 0, 0);
+    this.scene.add(this.refractCamera);
+
+    this.fShader = THREE.FresnelShader;
+    const fresnelUniforms = {
+      mRefractionRatio: { type: 'f', value: 1.02 },
+      mFresnelBias: { type: 'f', value: 0.1 },
+      mFresnelPower: { type: 'f', value: 1.0 },
+      mFresnelScale: { type: 'f', value: 0.5 },
+    };
+    this.dynamicReflection = new THREE.ShaderMaterial({
+      uniforms: {
+        ...fresnelUniforms,
+        tCube: { type: 't', value: this.refractCamera.renderTarget.texture },
+      },
+      vertexShader: this.fShader.vertexShader,
+      fragmentShader: this.fShader.fragmentShader,
+    });
+
+    const objectLoader = new THREE.JSONLoader();
+    objectLoader.load(`${skullModel}`, (object) => {
+      const skull = new THREE.Mesh(
+        object,
+      );
+      this.scene.add(skull);
+    });
+
+    // this.skull = new THREE.Mesh(
+      // skullObject,
+      // new THREE.MeshFaceMaterial(),
+      // this.dynamicReflection
     // );
-    //
-    // this.planeMesh.rotation.set(90 * Math.PI / 180, 0, 0);
-    // this.planeMesh.position.set(0, 0, 0);
-    // this.scene.add(this.planeMesh);
+    // this.skull.position.set(0, 0, 0);
+    // this.scene.add(this.skull);
+
+    // this.sphereRing = new THREE.Mesh(
+    //   new THREE.TorusBufferGeometry(10, 1, 10, 50),
+    //   this.dynamicReflection
+    // );
+    // this.sphereRing.position.set(0, 0, 0);
+    // this.scene.add(this.sphereRing);
   };
 
   camearAnimation = () => {
@@ -128,6 +180,9 @@ export default class Render {
   };
 
   renderScene = () => {
+    // this.skull.visible = false;
+    // this.refractCamera.updateCubeMap(this.renderer, this.scene);
+    // this.skull.visible = true;
     this.renderer.render(this.scene, this.camera);
   };
 
