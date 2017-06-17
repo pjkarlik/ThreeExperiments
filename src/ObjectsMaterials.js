@@ -58,7 +58,7 @@ export default class Render {
         this.far
     );
     this.scene.add(this.camera);
-    this.camera.position.set(0, 20, 50);
+    this.camera.position.set(0, 20, -50);
     this.camera.lookAt(this.scene.position);
   };
 
@@ -127,19 +127,14 @@ export default class Render {
       fragmentShader: this.fShader.fragmentShader,
     });
 
-    const objectLoader = new THREE.JSONLoader();
-    objectLoader.load(`${skullModel}`, (object) => {
-      const skull = new THREE.Mesh(
-        object,
-      );
-      this.scene.add(skull);
-    });
+    const objectLoader = new THREE.ObjectLoader();
+    this.skullObject = objectLoader.parse(skullModel);
+    this.skullObject.children[0].geometry.dynamic = true;
+    this.skullObject.children[0].rotation.set(0, 0, -180 * Math.PI / 180);
+    this.skullObject.children[0].scale.set(4, 4, 4);
+    this.skullObject.children[0].material = this.dynamicReflection;
+    this.scene.add(this.skullObject);
 
-    // this.skull = new THREE.Mesh(
-      // skullObject,
-      // new THREE.MeshFaceMaterial(),
-      // this.dynamicReflection
-    // );
     // this.skull.position.set(0, 0, 0);
     // this.scene.add(this.skull);
 
@@ -180,9 +175,9 @@ export default class Render {
   };
 
   renderScene = () => {
-    // this.skull.visible = false;
-    // this.refractCamera.updateCubeMap(this.renderer, this.scene);
-    // this.skull.visible = true;
+    this.skullObject.visible = false;
+    this.refractCamera.updateCubeMap(this.renderer, this.scene);
+    this.skullObject.visible = true;
     this.renderer.render(this.scene, this.camera);
   };
 
