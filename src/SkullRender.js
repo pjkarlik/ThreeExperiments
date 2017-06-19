@@ -27,7 +27,6 @@ export default class Render {
     this.fog = this.background;
     this.generator = new Generator(10);
     window.addEventListener('resize', this.resize, true);
-    window.addEventListener('click', this.stats, true);
     // this.createGUI();
     this.setViewport();
     this.init();
@@ -41,9 +40,7 @@ export default class Render {
     this.setLights();
     this.setScene();
   };
-  stats = () => {
-    console.log(this.camera.position);
-  }
+
   setRender = () => {
     // Set Render and Scene //
     this.renderer = new THREE.WebGLRenderer();
@@ -63,7 +60,7 @@ export default class Render {
         this.far
     );
     this.scene.add(this.camera);
-    this.camera.position.set(0, -13, -24);
+    this.camera.position.set(0, 20, -50);
     this.camera.lookAt(this.scene.position);
   };
 
