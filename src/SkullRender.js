@@ -10,7 +10,6 @@ import yneg from '../resources/images/stairs/negy.jpg';
 import zpos from '../resources/images/stairs/posz.jpg';
 import zneg from '../resources/images/stairs/negz.jpg';
 // Mesh Textures //
-import grass01 from '../resources/images/grass02.jpg';
 import skullModel from '../resources/models/polyskull.json';
 
 // Render Class Object //
@@ -27,11 +26,13 @@ export default class Render {
     this.fog = this.background;
     this.generator = new Generator(10);
     window.addEventListener('resize', this.resize, true);
+    window.addEventListener('click', this.stats, true);
     // this.createGUI();
     this.setViewport();
     this.init();
     this.renderLoop();
   }
+
   init = () => {
     this.setRender();
     this.setCamera();
@@ -39,6 +40,10 @@ export default class Render {
     this.setSkyBox();
     this.setLights();
     this.setScene();
+  };
+
+  stats = () => {
+    console.log(this.camera.position);
   };
 
   setRender = () => {
@@ -60,7 +65,7 @@ export default class Render {
         this.far
     );
     this.scene.add(this.camera);
-    this.camera.position.set(0, 20, -50);
+    this.camera.position.set(0, -12, -24);
     this.camera.lookAt(this.scene.position);
   };
 
@@ -91,24 +96,6 @@ export default class Render {
   };
 
   setScene = () => {
-    const texloader = new THREE.TextureLoader();
-    const grassMap = texloader.load(grass01);
-
-    grassMap.wrapS = grassMap.wrapT = THREE.RepeatWrapping;
-    grassMap.repeat.x = grassMap.repeat.y = 6;
-
-    this.planeMesh = new THREE.Mesh(
-      new THREE.PlaneBufferGeometry(500, 500, 20, 20),
-      new THREE.MeshPhongMaterial({
-        map: grassMap,
-        side: THREE.DoubleSide,
-      })
-    );
-
-    // this.planeMesh.rotation.set(90 * Math.PI / 180, 0, 0);
-    // this.planeMesh.position.set(0, this.floor, 0);
-    // this.scene.add(this.planeMesh);
-
     this.refractCamera = new THREE.CubeCamera(0.1, 5000, 512);
     this.refractCamera.position.set(0, 0, 0);
     this.scene.add(this.refractCamera);
@@ -119,6 +106,10 @@ export default class Render {
       mFresnelBias: { type: 'f', value: 0.51 },
       mFresnelPower: { type: 'f', value: 1.0 },
       mFresnelScale: { type: 'f', value: 0.75 },
+      // mRefractionRatio: { type: 'f', value: 1.02 },
+      // mFresnelBias: { type: 'f', value: 0.1 },
+      // mFresnelPower: { type: 'f', value: 1.0 },
+      // mFresnelScale: { type: 'f', value: 0.5 },
     };
     this.dynamicReflection = new THREE.ShaderMaterial({
       uniforms: {
@@ -134,23 +125,6 @@ export default class Render {
     // this.skullObject.children[0].rotation.set(0, 0, this.zRotation);
     this.skullObject.children[0].material = this.dynamicReflection;
     this.scene.add(this.skullObject);
-
-    // this.skull.position.set(0, 0, 0);
-    // this.scene.add(this.skull);
-
-    // this.sphereRing = new THREE.Mesh(
-    //   new THREE.TorusBufferGeometry(10, 1, 10, 50),
-    //   this.dynamicReflection
-    // );
-    // this.sphereRing.position.set(0, 0, 0);
-    // this.scene.add(this.sphereRing);
-  };
-
-  camearAnimation = () => {
-    this.camera.position.y = 330 + Math.sin(this.timer + 2 * Math.PI / 180) * 150;
-    // this.camera.position.x = Math.cos(this.timer + Math.PI / 180) * 120;
-    this.camera.position.z = 330 - Math.cos(this.timer + Math.PI / 180) * 200;
-    this.camera.lookAt(this.scene.position);
   };
 
   checkObjects = () => {
