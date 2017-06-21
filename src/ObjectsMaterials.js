@@ -11,6 +11,7 @@ import zpos from '../resources/images/stairs/posz.jpg';
 import zneg from '../resources/images/stairs/negz.jpg';
 // Mesh Textures //
 import skullModel from '../resources/models/skull.json';
+// console.log(skullModel);
 
 // Render Class Object //
 export default class Render {
@@ -107,7 +108,6 @@ export default class Render {
     const objectLoader = new THREE.ObjectLoader();
     this.skullObject = objectLoader.parse(skullModel);
     this.skullObject.children[0].geometry.dynamic = true;
-    // this.skullObject.children[0].rotation.set(0, 0, this.zRotation);
     this.skullObject.children[0].material = this.meshMaterial;
     this.scene.add(this.skullObject);
   };
