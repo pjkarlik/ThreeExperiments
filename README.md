@@ -4,7 +4,7 @@
 
   Each render.js file is a mutation or experiment that can be pointed to in index.js
 
-  /src/Three.js is import file that combines Three.js package files..
+  /src/Three.js is the import file that combines all required Three.js package files..
 
   ```
   import * as THREE from 'three'; // build/three.js from node_module/three
