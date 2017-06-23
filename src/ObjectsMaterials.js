@@ -1,16 +1,19 @@
 import THREE from './Three';
 import { Generator } from './SimplexNoise';
+import fragmentShader from './shader/fragmentShader2.js';
+import vertexShader from './shader/vertexShader2.js';
 // import dat from 'dat-gui';
 
 // Skybox image imports //
-import xpos from '../resources/images/stairs/posx.jpg';
-import xneg from '../resources/images/stairs/negx.jpg';
-import ypos from '../resources/images/stairs/posy.jpg';
-import yneg from '../resources/images/stairs/negy.jpg';
-import zpos from '../resources/images/stairs/posz.jpg';
-import zneg from '../resources/images/stairs/negz.jpg';
+import xpos from '../resources/images/powerlines/posx.jpg';
+import xneg from '../resources/images/powerlines/negx.jpg';
+import ypos from '../resources/images/powerlines/posy.jpg';
+import yneg from '../resources/images/powerlines/negy.jpg';
+import zpos from '../resources/images/powerlines/posz.jpg';
+import zneg from '../resources/images/powerlines/negz.jpg';
+import explosion from '../resources/images/explosion.png';
 // Mesh Textures //
-import skullModel from '../resources/models/skull.json';
+// import skullModel from '../resources/models/skull.json';
 // console.log(skullModel);
 
 // Render Class Object //
@@ -24,6 +27,7 @@ export default class Render {
     this.background = 0xDDDDDD;
     this.zRotation = -180 * Math.PI / 180;
     this.xRotation = -33 * Math.PI / 180;
+    this.start = Date.now();
     this.fog = this.background;
     this.generator = new Generator(10);
     window.addEventListener('resize', this.resize, true);
@@ -66,7 +70,7 @@ export default class Render {
         this.far
     );
     this.scene.add(this.camera);
-    this.camera.position.set(0, -12, -24);
+    this.camera.position.set(0, -12, 24);
     this.camera.lookAt(this.scene.position);
   };
 
@@ -97,19 +101,32 @@ export default class Render {
   };
 
   setScene = () => {
-    this.meshMaterial = new THREE.MeshPhongMaterial({
-      specular: 0xaaaaaa,
-      envMap: this.skybox,
-      // side: THREE.DoubleSide,
-      // wireframe: true,
+    this.meshMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        tExplosion: {
+          type: 't',
+          value: THREE.ImageUtils.loadTexture(explosion)
+        },
+        time: {
+          type: 'f',
+          value: 0.0
+        }
+      },
+      vertexShader,
+      fragmentShader,
     });
-    this.meshMaterial.wrapS = this.meshMaterial.wrapT = THREE.RepeatWrapping;
+    const mesh = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(7, 6),
+        this.meshMaterial
+    );
+    this.scene.add(mesh);
 
-    const objectLoader = new THREE.ObjectLoader();
-    this.skullObject = objectLoader.parse(skullModel);
-    this.skullObject.children[0].geometry.dynamic = true;
-    this.skullObject.children[0].material = this.meshMaterial;
-    this.scene.add(this.skullObject);
+    // const objectLoader = new THREE.ObjectLoader();
+    // this.skullObject = objectLoader.parse(skullModel);
+    // this.skullObject.children[0].geometry.dynamic = true;
+    // this.skullObject.children[0].rotation.set(105 * Math.PI / 180, 0, 0);
+    // this.skullObject.children[0].material = this.meshMaterial;
+    // this.scene.add(this.skullObject);
   };
 
   checkObjects = () => {
@@ -144,7 +161,8 @@ export default class Render {
 
   renderLoop = () => {
     this.frame ++;
-    this.checkObjects();
+    this.meshMaterial.uniforms.time.value = 0.00025 * (Date.now() - this.start);
+    // this.checkObjects();
     this.renderScene();
     window.requestAnimationFrame(this.renderLoop);
   };
