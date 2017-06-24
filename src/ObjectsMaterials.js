@@ -5,13 +5,13 @@ import vertexShader from './shader/vertexShader2.js';
 // import dat from 'dat-gui';
 
 // Skybox image imports //
-import xpos from '../resources/images/powerlines/posx.jpg';
-import xneg from '../resources/images/powerlines/negx.jpg';
-import ypos from '../resources/images/powerlines/posy.jpg';
-import yneg from '../resources/images/powerlines/negy.jpg';
-import zpos from '../resources/images/powerlines/posz.jpg';
-import zneg from '../resources/images/powerlines/negz.jpg';
-import explosion from '../resources/images/explosion.png';
+import xpos from '../resources/images/tenerife/posx.jpg';
+import xneg from '../resources/images/tenerife/negx.jpg';
+import ypos from '../resources/images/tenerife/posy.jpg';
+import yneg from '../resources/images/tenerife/negy.jpg';
+import zpos from '../resources/images/tenerife/posz.jpg';
+import zneg from '../resources/images/tenerife/negz.jpg';
+import explosion from '../resources/images/rnd.png';
 // Mesh Textures //
 // import skullModel from '../resources/models/skull.json';
 // console.log(skullModel);
@@ -70,7 +70,7 @@ export default class Render {
         this.far
     );
     this.scene.add(this.camera);
-    this.camera.position.set(0, -12, 24);
+    this.camera.position.set(0, 12, 24);
     this.camera.lookAt(this.scene.position);
   };
 
@@ -105,21 +105,25 @@ export default class Render {
       uniforms: {
         tExplosion: {
           type: 't',
-          value: THREE.ImageUtils.loadTexture(explosion)
+          value: THREE.ImageUtils.loadTexture(explosion),
         },
         time: {
           type: 'f',
-          value: 0.0
+          value: 0.0,
+        },
+        timeScale: {
+          type: 'f',
+          value: 2.0,
         }
       },
       vertexShader,
       fragmentShader,
     });
-    const mesh = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(7, 6),
+    this.fireball = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(7, 4),
         this.meshMaterial
     );
-    this.scene.add(mesh);
+    this.scene.add(this.fireball);
 
     // const objectLoader = new THREE.ObjectLoader();
     // this.skullObject = objectLoader.parse(skullModel);
@@ -132,9 +136,10 @@ export default class Render {
   checkObjects = () => {
     const timeStop = this.frame * 0.2;
     const angleRotate = timeStop * Math.PI / 180;
-    const timeScale = 3 - Math.sin(angleRotate) * 0.5;
+    const timeScale = 1 - Math.sin(angleRotate) * 0.1;
     // this.skullObject.children[0].rotation.y = angleRotate;
-    this.skullObject.children[0].scale.set(timeScale, timeScale, timeScale);
+    // this.fireball.scale.set(timeScale, timeScale, timeScale);
+    this.meshMaterial.uniforms.timeScale.value = timeScale;
   };
 
   setViewport = () => {
@@ -162,7 +167,7 @@ export default class Render {
   renderLoop = () => {
     this.frame ++;
     this.meshMaterial.uniforms.time.value = 0.00025 * (Date.now() - this.start);
-    // this.checkObjects();
+    this.checkObjects();
     this.renderScene();
     window.requestAnimationFrame(this.renderLoop);
   };

@@ -146,6 +146,8 @@ float pnoise(vec3 P, vec3 rep)
 varying vec2 vUv;
 varying float noise;
 uniform float time;
+uniform float timeScale;
+
 float turbulence( vec3 p ) {
   float w = 100.0;
   float t = -.5;
@@ -158,8 +160,8 @@ float turbulence( vec3 p ) {
 void main() {
   vUv = uv;
   noise = 10.0 *  -.10 * turbulence( .5 * normal + time );
-  float b = 2.5 * pnoise( 0.05 * position + vec3( 2.0 * time ), vec3( 100.0 ) );
-  float displacement = - 6.02 * noise + b;
+  float b = 2.0 * pnoise( 0.05 * position + vec3( 2.0 * time ), vec3( 100.0 ) );
+  float displacement = - (timeScale * 3.) * noise + b;
   vec3 newPosition = position + normal * displacement;
   gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
 }`;
