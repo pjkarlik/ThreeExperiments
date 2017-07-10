@@ -1,5 +1,6 @@
-import Render from './ObjectsMaterials.js';
+import Render from './ObjectsMaterials';
 import { description, version } from '../version.json';
+
 require('../resources/styles/styles.css');
 
 // requestAnimationFrame polyfill
@@ -27,7 +28,7 @@ for (let x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
   window.cancelAnimationFrame = window[`${vendor}Cancel${af}`] || window[`${vendor}CancelRequest${af}`];
 }
 if (!window.requestAnimationFrame) {
-  window.requestAnimationFrame = callback => {
+  window.requestAnimationFrame = (callback) => {
     const currTime = Date.now;
     const timeToCall = Math.max(0, 16 - (currTime - lastTime));
     const id = window.setTimeout(() => callback(currTime + timeToCall), timeToCall);

@@ -1,3 +1,6 @@
+![travis ci build](https://travis-ci.org/pjkarlik/ThreeExperiments.svg?branch=master)
+![webpack2](https://img.shields.io/badge/webpack-2.0-brightgreen.svg) ![version](https://img.shields.io/badge/version-0.1.0-yellow.svg) ![frontend](https://img.shields.io/badge/webgl-GLSL-blue.svg)
+
 # ThreeJS Experiments
 
   My current THREE.js experiments and demos set up with a base sky light box and reflection/refraction maps. Currently getting some warnings but still renders.. texture issues..

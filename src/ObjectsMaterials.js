@@ -1,7 +1,7 @@
 import THREE from './Three';
 import { Generator } from './SimplexNoise';
-import fragmentShader from './shader/fragmentShader2.js';
-import vertexShader from './shader/vertexShader2.js';
+import fragmentShader from './shader/fragmentShader2';
+import vertexShader from './shader/vertexShader2';
 // import dat from 'dat-gui';
 
 // Skybox image imports //
