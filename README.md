@@ -25,6 +25,7 @@
 
   http://blacklavalamp.surge.sh/ - AbstractPortalRender.js
 
+[Build History](https://travis-ci.org/pjkarlik/ThreeExperiments/)
 
 ## Run the example
   Requires Node v7.0.0 or greater
