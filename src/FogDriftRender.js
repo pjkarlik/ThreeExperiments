@@ -1,6 +1,6 @@
+import dat from 'dat-gui';
 import THREE from './Three';
 import { Generator } from './SimplexNoise';
-import dat from 'dat-gui';
 
 // Skybox image imports //
 import xpos from '../resources/images/sky/posx.jpg';

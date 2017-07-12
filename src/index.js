@@ -1,4 +1,4 @@
-import Render from './ObjectsMaterials';
+import Render from './TreeLogicRender';
 import { description, version } from '../version.json';
 
 require('../resources/styles/styles.css');
