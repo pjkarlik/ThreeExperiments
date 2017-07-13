@@ -15,6 +15,7 @@ export default class Render {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.devicePixelRatio = window.devicePixelRatio;
+    // Configurations //
     this.cameraConfig = {
       position: [0, 1, 3],
       lookAt: [0, 1, 2],
@@ -29,15 +30,12 @@ export default class Render {
     };
     window.addEventListener('resize', this.resize, true);
 
-    this.setRender();
+    this.init();
+    this.createScene();
     this.renderLoop();
   }
 
   init = () => {
-    this.setViewport();
-  };
-
-  setRender = () => {
     // Set Render and Scene //
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(this.width, this.height);
@@ -56,6 +54,7 @@ export default class Render {
 
     this.camera.position.set(...this.cameraConfig.position);
     this.camera.lookAt(new THREE.Vector3(...this.cameraConfig.lookAt));
+    this.scene.add(this.camera);
 
     this.controls = new THREE.OrbitControls(this.camera);
     this.controls.maxDistance = 1500;
@@ -68,12 +67,14 @@ export default class Render {
 
     // Skybox //
     const urls = [xpos, xneg, ypos, yneg, zpos, zneg];
-    // const urls = [cright, cleft, ctop, cbottom, cfront, cback];
     this.skybox = new THREE.CubeTextureLoader().load(urls);
     this.skybox.format = THREE.RGBFormat;
-    this.skybox.mapping = THREE.CubeReflectionMapping; // CubeReflectionMapping || CubeRefractionMapping
+    // CubeReflectionMapping || CubeRefractionMapping//
+    this.skybox.mapping = THREE.CubeReflectionMapping;
     this.scene.background = this.skybox;
+  };
 
+  createScene = () => {
     // Create custom material for the shader
     this.metalMaterial = new THREE.MeshBasicMaterial({
       envMap: this.skybox,
@@ -87,8 +88,6 @@ export default class Render {
     this.special.position.set(0, 0, 0);
     this.special.rotation.set(-90 * Math.PI / 180, 0, 0);
     this.scene.add(this.special);
-    // this.effect = new THREE.AnaglyphEffect(this.renderer);
-    // this.effect.setSize(this.width, this.height);
   };
 
   resize = () => {
@@ -99,15 +98,13 @@ export default class Render {
   };
 
   renderScene = () => {
-    // this.special.visible = false;
-    // this.refractSphereCamera.updateCubeMap(this.renderer, this.scene);
-    // this.special.visible = true;
+    // Core three Render call //
     this.renderer.render(this.scene, this.camera);
-    // this.effect.render(this.scene, this.camera);
   };
+
   renderLoop = () => {
     if (this.frames % 1 === 0) {
-      // this.checkSpheres();
+      // some function here for throttling
     }
     this.renderScene();
     this.frames ++;
