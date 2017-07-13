@@ -6,3 +6,10 @@ node_js:
 script:
   - rm -rf dist
   - npm run webpack
+
+deploy:
+  provider: surge
+  project: ./dist/
+  domain: threeexperiments.surge.sh
+
+  skip_cleanup: true

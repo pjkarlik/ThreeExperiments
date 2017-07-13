@@ -17,15 +17,15 @@
   // ...etc for other items like Render Passes and Shaders
   ```
 
-  Current Mapping..
-  index.js points to => ObjectMaterials.js
+  Current Mapping --> ```index.js``` --> (render file) ```ObjectMaterials.js``` (or just about any other file in src)
 
 
   TODO:// Cleaning up default code, next to do some model loading and management.
 
-  http://blacklavalamp.surge.sh/ - AbstractPortalRender.js
-
-[Build History](https://travis-ci.org/pjkarlik/ThreeExperiments/)
+  [AbstractPortalRender.js](http://blacklavalamp.surge.sh/)
+  [LiquidLandscape.js](http://threeboilerplate-light.surge.sh/)
+  [SkullRender.js](http://threeexperiments-skull.surge.sh/)
+  [Build History](https://travis-ci.org/pjkarlik/ThreeExperiments/)
 
 ## Run the example
   Requires Node v7.0.0 or greater
