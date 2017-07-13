@@ -1,6 +1,6 @@
+import dat from 'dat-gui';
 import THREE from './Three';
 import { Generator } from './SimplexNoise';
-import dat from 'dat-gui';
 
 // Skybox image imports //
 import xpos from '../resources/images/space/posx.jpg';
@@ -9,7 +9,6 @@ import ypos from '../resources/images/space/posy.jpg';
 import yneg from '../resources/images/space/negy.jpg';
 import zpos from '../resources/images/space/posz.jpg';
 import zneg from '../resources/images/space/negz.jpg';
-
 
 // Render Class Object //
 export default class Render {
@@ -106,6 +105,7 @@ export default class Render {
       envMap: this.skybox,
       // side: THREE.DoubleSide,
     });
+    /* eslint no-multi-assign: 0 */
     meshMaterial.wrapS = meshMaterial.wrapT = THREE.RepeatWrapping;
     this.geometry = new THREE.PlaneBufferGeometry(this.size, this.size, this.amount, this.amount);
     this.planeMesh = new THREE.Mesh(
@@ -138,8 +138,8 @@ export default class Render {
 
     const offset = this.size / 2;
     const vertices = this.geometry.attributes.position.array;
-    for (let y = 0; y < this.amount + 1; y ++) {
-      for (let x = 0; x < this.amount + 1; x ++) {
+    for (let y = 0; y < this.amount + 1; y++) {
+      for (let x = 0; x < this.amount + 1; x++) {
         const vx = x * 3;
         const vy = y * ((this.amount + 1) * 3);
         const noiseX = this.generator.simplex3(
