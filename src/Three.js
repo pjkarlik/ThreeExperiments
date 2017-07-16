@@ -1,10 +1,11 @@
 import * as THREE from 'three';
 
 window.THREE = THREE;
-
+require('three/examples/js/CurveExtras.js');
 require('three/examples/js/controls/OrbitControls.js');
 require('three/examples/js/shaders/FresnelShader');
 require('three/examples/js/effects/AnaglyphEffect.js');
+
 // require('three/examples/js/controls/FirstPersonControls.js');
 require('three/examples/js/shaders/CopyShader.js');
 require('three/examples/js/shaders/FilmShader.js');

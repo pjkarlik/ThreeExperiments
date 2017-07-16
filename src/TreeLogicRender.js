@@ -74,6 +74,12 @@ export default class Render {
     this.scene.background = this.skybox;
   };
 
+  getRandomVector = () => {
+    const x = 0.0 + Math.random() * 15;
+    const y = 0.0 + Math.random() * 15;
+    const z = 0.0; // + Math.random() * 15;
+    return new THREE.Vector3(x, y, z);
+  }
   createScene = () => {
     // Create custom material for the shader
     this.metalMaterial = new THREE.MeshBasicMaterial({
@@ -88,6 +94,45 @@ export default class Render {
     this.special.position.set(0, 0, 0);
     this.special.rotation.set(-90 * Math.PI / 180, 0, 0);
     this.scene.add(this.special);
+
+    // Spline Creation //
+    const curve = new THREE.SplineCurve3([
+      this.getRandomVector(),
+      this.getRandomVector(),
+      this.getRandomVector(),
+      this.getRandomVector(),
+      this.getRandomVector(),
+      this.getRandomVector(),
+      this.getRandomVector()
+      // new THREE.Vector3(0.0, 0.0, 0.0),
+      // new THREE.Vector3(0.0, 20.0, 0.0),
+      // new THREE.Vector3(15.0, 15.0, 0.0),
+      // new THREE.Vector3(15.0, 5.0, 0.0),
+      // new THREE.Vector3(25.0, 10.0, 0.0),
+      // new THREE.Vector3(25.0, 30.0, 0.0)
+    ]);
+    const params = {
+      scale: 0.05,
+      extrusionSegments: 100,
+      radiusSegments: 6,
+      closed: false
+    };
+
+    const tubeGeometry = new THREE.TubeBufferGeometry(
+      curve,
+      params.extrusionSegments,
+      2,
+      params.radiusSegments,
+      params.closed
+    );
+
+    this.splineObject = new THREE.Mesh(
+      tubeGeometry,
+      this.metalMaterial
+    );
+    this.splineObject.scale.set(params.scale, params.scale, params.scale);
+    this.scene.add(this.splineObject);
+    console.log(this.splineObject);
   };
 
   resize = () => {
