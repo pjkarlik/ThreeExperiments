@@ -1,4 +1,4 @@
-import Render from './TreeLogicRender';
+import Render from './TunnelRender';
 import { description, version } from '../version.json';
 
 require('../resources/styles/styles.css');
