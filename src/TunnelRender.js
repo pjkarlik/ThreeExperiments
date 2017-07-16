@@ -1,13 +1,7 @@
 import THREE from './Three';
 
-// Skybox image imports //
-import xpos from '../resources/images/maskonaive/posx.jpg';
-import xneg from '../resources/images/maskonaive/negx.jpg';
-import ypos from '../resources/images/maskonaive/posy.jpg';
-import yneg from '../resources/images/maskonaive/negy.jpg';
-import zpos from '../resources/images/maskonaive/posz.jpg';
-import zneg from '../resources/images/maskonaive/negz.jpg';
 import stone from '../resources/images/grate.jpg';
+
 // Render Class Object //
 export default class Render {
   constructor() {
@@ -45,7 +39,7 @@ export default class Render {
 
     this.scene = new THREE.Scene();
     this.bufferScene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x9900AA, 0.0275);
+    // this.scene.fog = new THREE.FogExp2(0x000000, 0.0275);
     this.camera = new THREE.PerspectiveCamera(
         this.cameraConfig.viewAngle,
         this.cameraConfig.aspect,
@@ -57,23 +51,9 @@ export default class Render {
     // this.camera.lookAt(new THREE.Vector3(...this.cameraConfig.lookAt));
     this.scene.add(this.camera);
 
-    // this.controls = new THREE.OrbitControls(this.camera);
-    // this.controls.maxDistance = 1500;
-    // this.controls.minDistance = 0;
-
-    // Set AmbientLight //
-    // this.ambient = new THREE.AmbientLight(0xFFFFFF);
-    // this.ambient.position.set(0, 0, 0);
-    // this.scene.add(this.ambient);
-    this.light = new THREE.PointLight(0xAA00FF, 1, 50);
+    // Set Light //
+    this.light = new THREE.PointLight(0xAA88FF, 1, 50);
     this.scene.add(this.light);
-    // Skybox //
-    const urls = [xpos, xneg, ypos, yneg, zpos, zneg];
-    this.skybox = new THREE.CubeTextureLoader().load(urls);
-    this.skybox.format = THREE.RGBFormat;
-    // CubeReflectionMapping || CubeRefractionMapping//
-    this.skybox.mapping = THREE.CubeRefractionMapping;
-    // this.scene.background = this.skybox;
   };
 
   getRandomVector = () => {
@@ -84,11 +64,6 @@ export default class Render {
   }
 
   createScene = () => {
-    // Create custom material for the shader
-    this.metalMaterial = new THREE.MeshBasicMaterial({
-      envMap: this.skybox,
-      side: THREE.DoubleSide
-    });
     const texloader = new THREE.TextureLoader();
     /* eslint no-multi-assign: 0 */
     const texture = texloader.load(stone, () => {
@@ -98,6 +73,8 @@ export default class Render {
     });
     this.tunnelMaterial = new THREE.MeshLambertMaterial({
       map: texture,
+      bumpMap: texture,
+      bumpScale: 0.75,
       side: THREE.DoubleSide,
     });
     const initialPoints = [
@@ -141,7 +118,7 @@ export default class Render {
     if (this.frames % 1 === 0) {
       // some function here for throttling
       // Increase the percentage
-      const frame = this.frames * 0.0001;
+      const frame = this.frames * 0.00004;
       // Get the point at the specific percentage
       const p1 = this.path.getPointAt(frame % 1);
       const p2 = this.path.getPointAt((frame + 0.01) % 1);
