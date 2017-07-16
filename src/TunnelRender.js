@@ -7,7 +7,7 @@ import ypos from '../resources/images/maskonaive/posy.jpg';
 import yneg from '../resources/images/maskonaive/negy.jpg';
 import zpos from '../resources/images/maskonaive/posz.jpg';
 import zneg from '../resources/images/maskonaive/negz.jpg';
-
+import stone from '../resources/images/grate.jpg';
 // Render Class Object //
 export default class Render {
   constructor() {
@@ -45,7 +45,7 @@ export default class Render {
 
     this.scene = new THREE.Scene();
     this.bufferScene = new THREE.Scene();
-
+    this.scene.fog = new THREE.FogExp2(0x9900AA, 0.0275);
     this.camera = new THREE.PerspectiveCamera(
         this.cameraConfig.viewAngle,
         this.cameraConfig.aspect,
@@ -62,17 +62,18 @@ export default class Render {
     // this.controls.minDistance = 0;
 
     // Set AmbientLight //
-    this.ambient = new THREE.AmbientLight(0xFFFFFF);
-    this.ambient.position.set(0, 0, 0);
-    this.scene.add(this.ambient);
-
+    // this.ambient = new THREE.AmbientLight(0xFFFFFF);
+    // this.ambient.position.set(0, 0, 0);
+    // this.scene.add(this.ambient);
+    this.light = new THREE.PointLight(0xAA00FF, 1, 50);
+    this.scene.add(this.light);
     // Skybox //
     const urls = [xpos, xneg, ypos, yneg, zpos, zneg];
     this.skybox = new THREE.CubeTextureLoader().load(urls);
     this.skybox.format = THREE.RGBFormat;
     // CubeReflectionMapping || CubeRefractionMapping//
     this.skybox.mapping = THREE.CubeRefractionMapping;
-    this.scene.background = this.skybox;
+    // this.scene.background = this.skybox;
   };
 
   getRandomVector = () => {
@@ -88,7 +89,17 @@ export default class Render {
       envMap: this.skybox,
       side: THREE.DoubleSide
     });
-
+    const texloader = new THREE.TextureLoader();
+    /* eslint no-multi-assign: 0 */
+    const texture = texloader.load(stone, () => {
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+      texture.offset.set(0, 0);
+      texture.repeat.set(100, 6);
+    });
+    this.tunnelMaterial = new THREE.MeshLambertMaterial({
+      map: texture,
+      side: THREE.DoubleSide,
+    });
     const initialPoints = [
       [68.5, 185.5],
       [1, 262.5],
@@ -108,7 +119,7 @@ export default class Render {
     // Create a mesh
     const tube = new THREE.Mesh(
       new THREE.TubeGeometry(this.path, 300, 2, 20, true),
-      this.metalMaterial
+      this.tunnelMaterial
   );
     // Add tube into the scene
     this.scene.add(tube);
@@ -137,6 +148,7 @@ export default class Render {
       // Place the camera at the point
       this.camera.position.set(p1.x, p1.y, p1.z);
       this.camera.lookAt(p2);
+      this.light.position.set(p2.x, p2.y, p2.z);
     }
     this.renderScene();
     this.frames ++;
