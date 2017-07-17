@@ -1,6 +1,7 @@
 import THREE from './Three';
 
 import stone from '../resources/images/grate.jpg';
+import bmp from '../resources/images/grate_bmp.jpg';
 
 // Render Class Object //
 export default class Render {
@@ -15,7 +16,7 @@ export default class Render {
       lookAt: [0, 0, 0],
       aspect: this.width / this.height,
       viewAngle: 45,
-      near: 0.001,
+      near: 0.1,
       far: 10000
     };
     this.controlConfig = {
@@ -52,7 +53,9 @@ export default class Render {
     this.scene.add(this.camera);
 
     // Set Light //
-    this.light = new THREE.PointLight(0xAA88FF, 1, 50);
+    this.camlight = new THREE.PointLight(0xAAAAAA, 5, 80);
+    this.scene.add(this.camlight);
+    this.light = new THREE.PointLight(0xAAAAAA, 1, 150);
     this.scene.add(this.light);
   };
 
@@ -69,27 +72,28 @@ export default class Render {
     const texture = texloader.load(stone, () => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       texture.offset.set(0, 0);
-      texture.repeat.set(100, 6);
+      texture.repeat.set(150, 4);
     });
+    const bmpMap = texloader.load(bmp, () => {});
     this.tunnelMaterial = new THREE.MeshLambertMaterial({
       map: texture,
-      bumpMap: texture,
-      bumpScale: 0.75,
+      bumpMap: bmpMap,
+      bumpScale: 0.85,
       side: THREE.DoubleSide,
     });
     const initialPoints = [
-      [68.5, 185.5],
-      [1, 262.5],
-      [270.9, 281.9],
-      [345.5, 212.8],
-      [178, 155.7],
-      [240.3, 72.3],
-      [153.4, 0.6],
-      [52.6, 53.3],
-      [68.5, 185.5]
+      [68.5, 0.0, 185.5],
+      [1, 120.0, 262.5],
+      [270.9, 223.0, 281.9],
+      [345.5, 100.0, 212.8],
+      [178, -15.50, 155.7],
+      [240.3, 540.0, 72.3],
+      [153.4, -65.33, 0.6],
+      [52.6, 325.0, 53.3],
+      [68.5, 100.0, 185.5]
     ];
     const points = initialPoints.map((point) => {
-      const v3Point = new THREE.Vector3(point[0], 0.0, point[1]);
+      const v3Point = new THREE.Vector3(...point);
       return v3Point;
     });
     this.path = new THREE.CatmullRomCurve3(points);
@@ -100,6 +104,9 @@ export default class Render {
   );
     // Add tube into the scene
     this.scene.add(tube);
+
+    this.effect = new THREE.AnaglyphEffect(this.renderer);
+    this.effect.setSize(this.width, this.height);
   };
 
   resize = () => {
@@ -111,7 +118,8 @@ export default class Render {
 
   renderScene = () => {
     // Core three Render call //
-    this.renderer.render(this.scene, this.camera);
+    // this.renderer.render(this.scene, this.camera);
+    this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
@@ -123,6 +131,7 @@ export default class Render {
       const p1 = this.path.getPointAt(frame % 1);
       const p2 = this.path.getPointAt((frame + 0.01) % 1);
       // Place the camera at the point
+      this.camlight.position.set(p1.x, p1.y, p1.z);
       this.camera.position.set(p1.x, p1.y, p1.z);
       this.camera.lookAt(p2);
       this.light.position.set(p2.x, p2.y, p2.z);
