@@ -1,5 +1,5 @@
 ![travis ci build](https://travis-ci.org/pjkarlik/ThreeExperiments.svg?branch=master)
-![webpack2](https://img.shields.io/badge/webpack-2.0-brightgreen.svg) ![version](https://img.shields.io/badge/version-0.1.0-yellow.svg) ![frontend](https://img.shields.io/badge/webgl-GLSL-blue.svg)
+![webpack2](https://img.shields.io/badge/webpack-2.0-brightgreen.svg) ![version](https://img.shields.io/badge/version-0.1.1-yellow.svg) ![frontend](https://img.shields.io/badge/webgl-GLSL-blue.svg)
 
 # ThreeJS Experiments
 
@@ -17,11 +17,12 @@
   // ...etc for other items like Render Passes and Shaders
   ```
 
-  Current Mapping --> ```index.js``` --> (render file) ```ObjectMaterials.js``` (or just about any other file in src)
+  Current Mapping --> ```index.js``` --> (render file) ```TunnelRender.js``` (or just about any other file in src)
 
 
   TODO:// Cleaning up default code, next to do some model loading and management.
 
+  [TunnelLogicRender.js](http://tunneldemo.surge.sh/)
   [AbstractPortalRender.js](http://blacklavalamp.surge.sh/)
   [LiquidLandscape.js](http://threeboilerplate-light.surge.sh/)
   [SkullRender.js](http://threeexperiments-skull.surge.sh/)

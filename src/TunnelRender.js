@@ -1,7 +1,7 @@
 import THREE from './Three';
 
-import stone from '../resources/images/grate.jpg';
-import bmp from '../resources/images/grate_bmp.jpg';
+import stone from '../resources/images/matallo.jpg';
+import bmp from '../resources/images/matallo_bmp.jpg';
 
 // Render Class Object //
 export default class Render {
@@ -12,7 +12,7 @@ export default class Render {
     this.devicePixelRatio = window.devicePixelRatio;
     // Configurations //
     this.cameraConfig = {
-      position: [0, 0, -100],
+      position: [0, 0, 0],
       lookAt: [0, 0, 0],
       aspect: this.width / this.height,
       viewAngle: 45,
@@ -27,8 +27,6 @@ export default class Render {
     window.addEventListener('resize', this.resize, true);
 
     this.init();
-    this.createScene();
-    this.renderLoop();
   }
 
   init = () => {
@@ -49,7 +47,7 @@ export default class Render {
     );
 
     this.camera.position.set(...this.cameraConfig.position);
-    // this.camera.lookAt(new THREE.Vector3(...this.cameraConfig.lookAt));
+    this.camera.lookAt(new THREE.Vector3(...this.cameraConfig.lookAt));
     this.scene.add(this.camera);
 
     // Set Light //
@@ -57,12 +55,16 @@ export default class Render {
     this.scene.add(this.camlight);
     this.light = new THREE.PointLight(0xAAAAAA, 1, 150);
     this.scene.add(this.light);
+    this.farlight = new THREE.PointLight(0xFFFFFF, 1, 350);
+    this.scene.add(this.farlight);
+
+    this.createScene();
   };
 
   getRandomVector = () => {
-    const x = 0.0 + Math.random() * 25;
-    const y = 0.0 + Math.random() * 35;
-    const z = 0.0 + Math.random() * 15;
+    const x = 0.0 + Math.random() * 255;
+    const y = 0.0 + Math.random() * 255;
+    const z = 0.0 + Math.random() * 255;
     return new THREE.Vector3(x, y, z);
   }
 
@@ -72,25 +74,30 @@ export default class Render {
     const texture = texloader.load(stone, () => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       texture.offset.set(0, 0);
-      texture.repeat.set(150, 4);
+      texture.repeat.set(155, 3);
     });
-    const bmpMap = texloader.load(bmp, () => {});
-    this.tunnelMaterial = new THREE.MeshLambertMaterial({
+    const bmpMap = texloader.load(bmp, () => {
+      bmpMap.wrapS = bmpMap.wrapT = THREE.RepeatWrapping;
+      bmpMap.offset.set(0, 0);
+      bmpMap.repeat.set(155, 3);
+    });
+
+    this.tunnelMaterial = new THREE.MeshPhongMaterial({
       map: texture,
       bumpMap: bmpMap,
-      bumpScale: 0.85,
+      bumpScale: 0.09,
       side: THREE.DoubleSide,
     });
     const initialPoints = [
       [68.5, 0.0, 185.5],
-      [1, 120.0, 262.5],
-      [270.9, 223.0, 281.9],
-      [345.5, 100.0, 212.8],
-      [178, -15.50, 155.7],
-      [240.3, 540.0, 72.3],
-      [153.4, -65.33, 0.6],
-      [52.6, 325.0, 53.3],
-      [68.5, 100.0, 185.5]
+      [40, 50.0, 262.5],
+      [170.9, 100.0, 281.9],
+      [300, 120.0, 212.8],
+      [178, 20.0, 155.7],
+      [240.3, 150.0, 82.3],
+      [153.4, 70.0, 20.6],
+      [52.6, 20.0, 53.3],
+      [68.5, 0.0, 185.5]
     ];
     const points = initialPoints.map((point) => {
       const v3Point = new THREE.Vector3(...point);
@@ -99,7 +106,7 @@ export default class Render {
     this.path = new THREE.CatmullRomCurve3(points);
     // Create a mesh
     const tube = new THREE.Mesh(
-      new THREE.TubeGeometry(this.path, 300, 2, 20, true),
+      new THREE.TubeGeometry(this.path, 100, 1.5, 15, true),
       this.tunnelMaterial
   );
     // Add tube into the scene
@@ -107,6 +114,7 @@ export default class Render {
 
     this.effect = new THREE.AnaglyphEffect(this.renderer);
     this.effect.setSize(this.width, this.height);
+    this.renderLoop();
   };
 
   resize = () => {
@@ -117,27 +125,24 @@ export default class Render {
   };
 
   renderScene = () => {
+    // set Frame
+    const frame = this.frames * 0.00001;
+    // Get the point at the specific percentage
+    const p1 = this.path.getPointAt(frame % 1);
+    const p2 = this.path.getPointAt((frame + 0.001) % 1);
+    // Place objects on path
+    this.camlight.position.set(p1.x, p1.y, p1.z);
+    this.camera.position.set(p1.x, p1.y, p1.z);
+    this.camera.lookAt(p2);
+    this.light.position.set(p2.x, p2.y, p2.z);
     // Core three Render call //
     // this.renderer.render(this.scene, this.camera);
     this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
-    if (this.frames % 1 === 0) {
-      // some function here for throttling
-      // Increase the percentage
-      const frame = this.frames * 0.00004;
-      // Get the point at the specific percentage
-      const p1 = this.path.getPointAt(frame % 1);
-      const p2 = this.path.getPointAt((frame + 0.01) % 1);
-      // Place the camera at the point
-      this.camlight.position.set(p1.x, p1.y, p1.z);
-      this.camera.position.set(p1.x, p1.y, p1.z);
-      this.camera.lookAt(p2);
-      this.light.position.set(p2.x, p2.y, p2.z);
-    }
-    this.renderScene();
     this.frames ++;
+    this.renderScene();
     window.requestAnimationFrame(this.renderLoop);
   };
 }
