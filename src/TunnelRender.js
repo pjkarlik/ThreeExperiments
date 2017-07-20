@@ -7,6 +7,7 @@ import bmp from '../resources/images/matallo_bmp.jpg';
 export default class Render {
   constructor() {
     this.frames = 0;
+    this.stopFrame = 0;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.devicePixelRatio = window.devicePixelRatio;
@@ -53,10 +54,10 @@ export default class Render {
     // Set Light //
     this.camlight = new THREE.PointLight(0xAAAAAA, 5, 80);
     this.scene.add(this.camlight);
-    this.light = new THREE.PointLight(0xAAAAAA, 1, 150);
-    this.scene.add(this.light);
-    this.farlight = new THREE.PointLight(0xFFFFFF, 1, 350);
-    this.scene.add(this.farlight);
+    this.lightA = new THREE.PointLight(0xFFFFFF, 1, 250);
+    this.scene.add(this.lightA);
+    // this.lightB = new THREE.PointLight(0xFFFFFF, 1, 350);
+    // this.scene.add(this.lightB);
 
     this.createScene();
   };
@@ -74,18 +75,18 @@ export default class Render {
     const texture = texloader.load(stone, () => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       texture.offset.set(0, 0);
-      texture.repeat.set(155, 3);
+      texture.repeat.set(175, 3);
     });
     const bmpMap = texloader.load(bmp, () => {
       bmpMap.wrapS = bmpMap.wrapT = THREE.RepeatWrapping;
       bmpMap.offset.set(0, 0);
-      bmpMap.repeat.set(155, 3);
+      bmpMap.repeat.set(175, 3);
     });
 
     this.tunnelMaterial = new THREE.MeshPhongMaterial({
       map: texture,
       bumpMap: bmpMap,
-      bumpScale: 0.09,
+      bumpScale: 0.59,
       side: THREE.DoubleSide,
     });
     const initialPoints = [
@@ -125,16 +126,22 @@ export default class Render {
   };
 
   renderScene = () => {
-    // set Frame
-    const frame = this.frames * 0.00001;
+    // Get stopFrame
+    this.stopFrame += 0.00001;
+    const realTime = this.frames * 0.01;
     // Get the point at the specific percentage
-    const p1 = this.path.getPointAt(frame % 1);
-    const p2 = this.path.getPointAt((frame + 0.001) % 1);
-    // Place objects on path
-    this.camlight.position.set(p1.x, p1.y, p1.z);
-    this.camera.position.set(p1.x, p1.y, p1.z);
+    const p1 = this.path.getPointAt((this.stopFrame) % 1);
+    const p2 = this.path.getPointAt((this.stopFrame + 0.001) % 1);
+    // const p3 = this.path.getPointAt((stopFrame + 0.01) % 1);
+
+    const tempX = Math.cos(realTime + 1 * Math.PI / 180) * 0.05;
+    const tempY = Math.sin(realTime + 1 * Math.PI / 180) * 0.05;
+    // Camera
+    this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z);
     this.camera.lookAt(p2);
-    this.light.position.set(p2.x, p2.y, p2.z);
+    // Lights
+    this.lightA.position.set(p2.x, p2.y, p2.z);
+    // this.lightB.position.set(p3.x, p3.y, p3.z);
     // Core three Render call //
     // this.renderer.render(this.scene, this.camera);
     this.effect.render(this.scene, this.camera);
