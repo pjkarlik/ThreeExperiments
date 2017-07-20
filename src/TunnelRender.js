@@ -52,12 +52,12 @@ export default class Render {
     this.scene.add(this.camera);
 
     // Set Light //
-    this.camlight = new THREE.PointLight(0xAAAAAA, 5, 80);
-    this.scene.add(this.camlight);
+    // this.camlight = new THREE.PointLight(0xAAAAAA, 5, 80);
+    // this.scene.add(this.camlight);
     this.lightA = new THREE.PointLight(0xFFFFFF, 1, 250);
     this.scene.add(this.lightA);
-    // this.lightB = new THREE.PointLight(0xFFFFFF, 1, 350);
-    // this.scene.add(this.lightB);
+    this.lightB = new THREE.PointLight(0xFFFFFF, 1, 350);
+    this.scene.add(this.lightB);
 
     this.createScene();
   };
@@ -130,9 +130,9 @@ export default class Render {
     this.stopFrame += 0.00001;
     const realTime = this.frames * 0.01;
     // Get the point at the specific percentage
-    const p1 = this.path.getPointAt((this.stopFrame) % 1);
-    const p2 = this.path.getPointAt((this.stopFrame + 0.001) % 1);
-    // const p3 = this.path.getPointAt((stopFrame + 0.01) % 1);
+    const p1 = this.path.getPointAt(Math.abs((this.stopFrame) % 1));
+    const p2 = this.path.getPointAt(Math.abs((this.stopFrame + 0.001) % 1));
+    const p3 = this.path.getPointAt(Math.abs((this.stopFrame + 0.1) % 1));
 
     const tempX = Math.cos(realTime + 1 * Math.PI / 180) * 0.05;
     const tempY = Math.sin(realTime + 1 * Math.PI / 180) * 0.05;
@@ -141,15 +141,15 @@ export default class Render {
     this.camera.lookAt(p2);
     // Lights
     this.lightA.position.set(p2.x, p2.y, p2.z);
-    // this.lightB.position.set(p3.x, p3.y, p3.z);
+    this.lightB.position.set(p3.x, p3.y, p3.z);
     // Core three Render call //
     // this.renderer.render(this.scene, this.camera);
     this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
+    window.requestAnimationFrame(this.renderLoop.bind(this));
     this.frames ++;
     this.renderScene();
-    window.requestAnimationFrame(this.renderLoop);
   };
 }
