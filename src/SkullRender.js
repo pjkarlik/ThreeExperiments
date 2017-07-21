@@ -164,7 +164,7 @@ export default class Render {
     this.frame ++;
     this.checkObjects();
     this.renderScene();
-    window.requestAnimationFrame(this.renderLoop);
+    window.requestAnimationFrame(this.renderLoop.bind(this));
   };
 
   // DATGUI STUFF HERE //

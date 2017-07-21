@@ -169,7 +169,7 @@ export default class Render {
     this.meshMaterial.uniforms.time.value = 0.00025 * (Date.now() - this.start);
     this.checkObjects();
     this.renderScene();
-    window.requestAnimationFrame(this.renderLoop);
+    window.requestAnimationFrame(this.renderLoop.bind(this));
   };
 
   // DATGUI STUFF HERE //

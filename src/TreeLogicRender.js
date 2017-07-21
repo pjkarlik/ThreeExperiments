@@ -153,6 +153,6 @@ export default class Render {
     }
     this.renderScene();
     this.frames ++;
-    window.requestAnimationFrame(this.renderLoop);
+    window.requestAnimationFrame(this.renderLoop.bind(this));
   };
 }

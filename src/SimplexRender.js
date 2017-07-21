@@ -142,6 +142,6 @@ export default class Render {
   renderLoop = () => {
     this.checkObjects();
     this.renderScene();
-    window.requestAnimationFrame(this.renderLoop);
+    window.requestAnimationFrame(this.renderLoop.bind(this));
   };
 }
