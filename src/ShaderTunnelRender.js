@@ -1,6 +1,7 @@
 import THREE from './Three';
 
 import fragmentShader from './shader/position/fragmentShadert302';
+import fragmentShaderA from './shader/position/fragmentShadert302a';
 import vertexShader from './shader/position/vertexShadert3';
 
 // Render Class Object //
@@ -109,12 +110,15 @@ export default class Render {
     this.meshMaterial.transparent = true;
     this.meshMaterial.side = THREE.DoubleSide;
 
-    this.basicMaterial = new THREE.MeshPhongMaterial({
-      color: 0x999999,
-      side: THREE.DoubleSide
+    this.meshMaterial2 = new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader,
+      fragmentShader: fragmentShaderA,
     });
+    this.meshMaterial2.transparent = true;
+    this.meshMaterial2.side = THREE.DoubleSide;
     const initialPoints = [
-      [68.5, 0.0, 185.5],
+      [68.5, 0.0, 185.4],
       [1, 20.0, 262.5],
       [220.9, 60.0, 500.9],
       [345.5, 60.0, 212.8],
@@ -122,7 +126,7 @@ export default class Render {
       [240.3, 40.0, 72.3],
       [153.4, 0.0, 0.6],
       [102.6, 0.0, 153.3],
-      [68.5, 0.0, 185.5]
+      [68.4, 0.0, 185.5]
     ];
     const points = initialPoints.map((point) => {
       const v3Point = new THREE.Vector3(...point);
@@ -132,10 +136,14 @@ export default class Render {
     // Create a mesh
     const tube = new THREE.Mesh(
       new THREE.TubeGeometry(this.path, 300, 4, 24, true),
-      this.meshMaterial,
+      this.meshMaterial2,
     );
     this.scene.add(tube);
-
+    const tube2 = new THREE.Mesh(
+      new THREE.TubeGeometry(this.path, 300, 26, 24, true),
+      this.meshMaterial,
+    );
+    this.scene.add(tube2);
     // this.effect = new THREE.AnaglyphEffect(this.renderer);
     // this.effect.setSize(this.width, this.height);
     this.renderLoop();
@@ -150,18 +158,21 @@ export default class Render {
 
   renderScene = () => {
     // Shader Code //
-    this.meshMaterial.uniforms.time.value = (Date.now() - this.start) / 1000;
+    const timeNow = (Date.now() - this.start) / 1000;
+    this.meshMaterial.uniforms.time.value = timeNow;
     this.meshMaterial.uniforms.needsUpdate = true;
+    this.meshMaterial2.uniforms.time.value = timeNow;
+    this.meshMaterial2.uniforms.needsUpdate = true;
     // Get stopFrame
     this.stopFrame += 0.001;
     const realTime = this.frames * 0.01;
     // Get the point at the specific percentage
     const p1 = this.path.getPointAt(Math.abs((this.stopFrame) % 1));
-    const p2 = this.path.getPointAt(Math.abs((this.stopFrame + 0.001) % 1));
+    const p2 = this.path.getPointAt(Math.abs((this.stopFrame + 0.03) % 1));
     const p3 = this.path.getPointAt(Math.abs((this.stopFrame + 0.05) % 1));
 
-    const tempX = Math.cos(realTime + 1 * Math.PI / 180) * 0.05;
-    const tempY = 2 * Math.sin(realTime + 1 * Math.PI / 180) * 0.05;
+    const tempX = 45 * Math.cos(realTime + 1 * Math.PI / 180) * 0.5;
+    const tempY = 45 * Math.sin(realTime + 1 * Math.PI / 180) * 0.5;
     // Camera
     this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z);
     this.camera.lookAt(p2);
