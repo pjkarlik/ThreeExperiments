@@ -182,7 +182,7 @@ void main() {
     1.0 + time * 0.5
   ), vec3(0.0, 0.0, 0.0));
 
-  float o = (noise * 155.0);
+  float o = (noise * 255.0);
   float r = sin(noise * 15.0);
   float g = cos(noise * 15.0);
   float b = sin(noise * 25.0);

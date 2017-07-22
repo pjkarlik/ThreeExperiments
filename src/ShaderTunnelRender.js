@@ -12,6 +12,7 @@ export default class Render {
     this.dec = 55.0;
     this.frames = 0;
     this.stopFrame = 0;
+    this.isRnd = true;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.devicePixelRatio = window.devicePixelRatio;
@@ -106,17 +107,19 @@ export default class Render {
       uniforms,
       vertexShader,
       fragmentShader,
+      transparent: true,
+      side: THREE.BackSide
     });
-    this.meshMaterial.transparent = true;
-    this.meshMaterial.side = THREE.DoubleSide;
 
     this.meshMaterial2 = new THREE.ShaderMaterial({
       uniforms,
       vertexShader,
       fragmentShader: fragmentShaderA,
+      transparent: true,
+      side: THREE.DoubleSide,
+      blending: THREE.NormalBlending
     });
-    this.meshMaterial2.transparent = true;
-    this.meshMaterial2.side = THREE.DoubleSide;
+
     const initialPoints = [
       [68.5, 0.0, 185.4],
       [1, 20.0, 262.5],
@@ -132,23 +135,49 @@ export default class Render {
       const v3Point = new THREE.Vector3(...point);
       return v3Point;
     });
-    this.path = new THREE.CatmullRomCurve3(points);
+
+    this.path1 = new THREE.CatmullRomCurve3(points);
+    this.path2 = new THREE.CatmullRomCurve3(this.makeRandomPath(initialPoints));
+    this.path3 = new THREE.CatmullRomCurve3(this.makeRandomPath(initialPoints));
+
     // Create a mesh
-    const tube = new THREE.Mesh(
-      new THREE.TubeGeometry(this.path, 300, 4, 24, true),
-      this.meshMaterial2,
-    );
-    this.scene.add(tube);
-    const tube2 = new THREE.Mesh(
-      new THREE.TubeGeometry(this.path, 300, 26, 24, true),
+    const tube1 = new THREE.Mesh(
+      new THREE.TubeGeometry(this.path1, 300, 26, 24, true),
       this.meshMaterial,
     );
+    this.scene.add(tube1);
+
+    const tube2 = new THREE.Mesh(
+      new THREE.TubeGeometry(this.path2, 300, 2.5, 24, true),
+      this.meshMaterial2,
+    );
     this.scene.add(tube2);
+
+    const tube3 = new THREE.Mesh(
+      new THREE.TubeGeometry(this.path3, 300, 1.5, 24, true),
+      this.meshMaterial2,
+    );
+    this.scene.add(tube3);
+
     // this.effect = new THREE.AnaglyphEffect(this.renderer);
     // this.effect.setSize(this.width, this.height);
     this.renderLoop();
   };
 
+  makeRandomPath = (pointList) => {
+    const totalPoints = pointList.length;
+    const randomPoints = pointList.map((point, index) => {
+      const rx = 15 - Math.random() * 30;
+      const ry = 25 - Math.random() * 50;
+      const gate = index > 1 && index < totalPoints - 1;
+      const tx = gate ? point[0] + rx : point[0];
+      const ty = gate ? point[1] + ry : point[1];
+      const tz = point[2];
+      const v3Point = new THREE.Vector3(tx, ty, tz);
+      return v3Point;
+    });
+    return randomPoints;
+  }
   resize = () => {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -160,19 +189,25 @@ export default class Render {
     // Shader Code //
     const timeNow = (Date.now() - this.start) / 1000;
     this.meshMaterial.uniforms.time.value = timeNow;
-    this.meshMaterial.uniforms.needsUpdate = true;
     this.meshMaterial2.uniforms.time.value = timeNow;
+    this.meshMaterial.uniforms.needsUpdate = true;
     this.meshMaterial2.uniforms.needsUpdate = true;
     // Get stopFrame
     this.stopFrame += 0.001;
-    const realTime = this.frames * 0.01;
+    const realTime = this.frames * 0.005;
     // Get the point at the specific percentage
-    const p1 = this.path.getPointAt(Math.abs((this.stopFrame) % 1));
-    const p2 = this.path.getPointAt(Math.abs((this.stopFrame + 0.03) % 1));
-    const p3 = this.path.getPointAt(Math.abs((this.stopFrame + 0.05) % 1));
+    const lvc = this.isRnd ? 0.06 : -(0.06);
+    const p1 = this.path2.getPointAt(Math.abs((this.stopFrame) % 1));
+    const p2 = this.path1.getPointAt(Math.abs((this.stopFrame + lvc) % 1));
+    const p3 = this.path1.getPointAt(Math.abs((this.stopFrame + 0.09) % 1));
 
-    const tempX = 45 * Math.cos(realTime + 1 * Math.PI / 180) * 0.5;
-    const tempY = 45 * Math.sin(realTime + 1 * Math.PI / 180) * 0.5;
+    if (Math.random() * 255 > 253) {
+      this.isRnd = !this.isRnd;
+    }
+
+    const amps = 15 * Math.sin(realTime + 1 * Math.PI / 180);
+    const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.5;
+    const tempY = amps * Math.sin(realTime + 1 * Math.PI / 180) * 0.5;
     // Camera
     this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z);
     this.camera.lookAt(p2);
