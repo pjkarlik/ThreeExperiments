@@ -1,8 +1,7 @@
 import THREE from './Three';
 
-import fragmentShader from './shader/position/fragmentShadert302';
-import fragmentShaderA from './shader/position/fragmentShadert302a';
-import vertexShader from './shader/position/vertexShadert3';
+import stone from '../resources/images/matallo.jpg';
+import stone2 from '../resources/images/grate.jpg';
 
 // Render Class Object //
 export default class Render {
@@ -12,6 +11,7 @@ export default class Render {
     this.dec = 55.0;
     this.frames = 0;
     this.stopFrame = 0;
+    this.tubes = [];
     this.isRnd = true;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -72,54 +72,42 @@ export default class Render {
     const y = 0.0 + Math.random() * 255;
     const z = 0.0 + Math.random() * 255;
     return new THREE.Vector3(x, y, z);
-  }
+  };
+
+  makeTube = (points) => {
+    return new THREE.Mesh(
+      new THREE.TubeGeometry(
+        new THREE.CatmullRomCurve3(this.makeRandomPath(points)),
+          300,
+          0.5,
+          24,
+          true
+        ),
+      this.tunnelMaterial2,
+    );
+  };
 
   createScene = () => {
     /* eslint no-multi-assign: 0 */
-    const uniforms = THREE.UniformsUtils.merge([
-      THREE.UniformsLib.shadowmap,
-      {
-        map: {
-          type: 't',
-          value: 1,
-          texture: null,
-        },
-        time: {
-          type: 'f',
-          value: this.start,
-        },
-        angle: {
-          type: 'f',
-          value: this.angle,
-        },
-        dec: {
-          type: 'f',
-          value: this.dec,
-        },
-        resolution: {
-          type: 'v2',
-          value: new THREE.Vector3(),
-        },
-      },
-    ]);
-
-    this.meshMaterial = new THREE.ShaderMaterial({
-      uniforms,
-      vertexShader,
-      fragmentShader,
-      transparent: true,
-      side: THREE.BackSide
+    const texloader = new THREE.TextureLoader();
+    const texture = texloader.load(stone, () => {
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+      texture.offset.set(0, 0);
+      texture.repeat.set(25, 3);
     });
-
-    this.meshMaterial2 = new THREE.ShaderMaterial({
-      uniforms,
-      vertexShader,
-      fragmentShader: fragmentShaderA,
-      transparent: true,
+    const texture2 = texloader.load(stone2, () => {
+      texture2.wrapS = texture2.wrapT = THREE.RepeatWrapping;
+      texture2.offset.set(0, 0);
+      texture2.repeat.set(185, 3);
+    });
+    this.tunnelMaterial = new THREE.MeshPhongMaterial({
+      map: texture,
       side: THREE.DoubleSide,
-      blending: THREE.NormalBlending
     });
-
+    this.tunnelMaterial2 = new THREE.MeshPhongMaterial({
+      map: texture2,
+      side: THREE.DoubleSide,
+    });
     const initialPoints = [
       [68.5, 0.0, 185.4],
       [1, 20.0, 262.5],
@@ -136,28 +124,31 @@ export default class Render {
       return v3Point;
     });
 
+    // this.path2 = new THREE.CatmullRomCurve3(this.makeRandomPath(initialPoints));
     this.path1 = new THREE.CatmullRomCurve3(points);
-    this.path2 = new THREE.CatmullRomCurve3(this.makeRandomPath(initialPoints));
-    this.path3 = new THREE.CatmullRomCurve3(this.makeRandomPath(initialPoints));
 
     // Create a mesh
     const tube1 = new THREE.Mesh(
-      new THREE.TubeGeometry(this.path1, 300, 26, 24, true),
-      this.meshMaterial,
+      new THREE.TubeGeometry(
+        this.path1,
+        300,
+        26,
+        24,
+        true
+      ),
+      this.tunnelMaterial,
     );
     this.scene.add(tube1);
 
-    const tube2 = new THREE.Mesh(
-      new THREE.TubeGeometry(this.path2, 300, 2.5, 24, true),
-      this.meshMaterial2,
-    );
-    this.scene.add(tube2);
-
-    const tube3 = new THREE.Mesh(
-      new THREE.TubeGeometry(this.path3, 300, 1.5, 24, true),
-      this.meshMaterial2,
-    );
-    this.scene.add(tube3);
+    // const tube2 = this.makeTube(initialPoints);
+    // this.scene.add(tube2);
+    // const tube3 = this.makeTube(initialPoints);
+    // this.scene.add(tube3);
+    for (let i = 0; i < 10; i++) {
+      const tube = this.makeTube(initialPoints);
+      this.scene.add(tube);
+      this.tubes.push(tube);
+    }
 
     // this.effect = new THREE.AnaglyphEffect(this.renderer);
     // this.effect.setSize(this.width, this.height);
@@ -167,9 +158,11 @@ export default class Render {
   makeRandomPath = (pointList) => {
     const totalPoints = pointList.length;
     const randomPoints = pointList.map((point, index) => {
+      const gate = index > 0 && index < totalPoints - 1;
+
       const rx = 15 - Math.random() * 30;
       const ry = 15 - Math.random() * 30;
-      const gate = index > 1 && index < totalPoints - 1;
+
       const tx = gate ? point[0] + rx : point[0];
       const ty = gate ? point[1] + ry : point[1];
       const tz = point[2];
@@ -177,7 +170,8 @@ export default class Render {
       return v3Point;
     });
     return randomPoints;
-  }
+  };
+
   resize = () => {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -186,28 +180,22 @@ export default class Render {
   };
 
   renderScene = () => {
-    // Shader Code //
-    const timeNow = (Date.now() - this.start) / 1000;
-    this.meshMaterial.uniforms.time.value = timeNow;
-    this.meshMaterial2.uniforms.time.value = timeNow;
-    this.meshMaterial.uniforms.needsUpdate = true;
-    this.meshMaterial2.uniforms.needsUpdate = true;
     // Get stopFrame
     this.stopFrame += 0.001;
     const realTime = this.frames * 0.005;
     // Get the point at the specific percentage
     const lvc = this.isRnd ? 0.06 : -(0.06);
-    const p1 = this.path2.getPointAt(Math.abs((this.stopFrame) % 1));
+    const p1 = this.path1.getPointAt(Math.abs((this.stopFrame) % 1));
     const p2 = this.path1.getPointAt(Math.abs((this.stopFrame + lvc) % 1));
     const p3 = this.path1.getPointAt(Math.abs((this.stopFrame + 0.09) % 1));
 
-    if (Math.random() * 255 > 253) {
+    if (Math.random() * 255 > 254) {
       this.isRnd = !this.isRnd;
     }
 
-    const amps = 15 * Math.sin(realTime + 1 * Math.PI / 180);
-    const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.35;
-    const tempY = amps * Math.sin(realTime + 1 * Math.PI / 180) * 0.35;
+    const amps = 30 * Math.sin(realTime + 1 * Math.PI / 180);
+    const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.45;
+    const tempY = amps * Math.sin(realTime + 1 * Math.PI / 180) * 0.45;
     // Camera
     this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z);
     this.camera.lookAt(p2);
