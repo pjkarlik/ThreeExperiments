@@ -14,6 +14,8 @@ export default class Render {
     this.stopFrame = 0;
     this.tubes = [];
     this.isRnd = true;
+    this.allowChange = false;
+    this.timeout = 6000;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.devicePixelRatio = window.devicePixelRatio;
@@ -76,13 +78,14 @@ export default class Render {
   };
 
   makeTube = (points) => {
+    const size = 0.1 + Math.random();
     return new THREE.Mesh(
       new THREE.TubeGeometry(
         new THREE.CatmullRomCurve3(this.makeRandomPath(points)),
-          300,
-          0.5,
-          24,
-          true
+          600,
+          size,
+          16,
+          false
         ),
       this.meshMaterial2,
     );
@@ -135,15 +138,15 @@ export default class Render {
     });
 
     const initialPoints = [
-      [68.5, 0.0, 185.4],
-      [1, 20.0, 262.5],
-      [220.9, 60.0, 500.9],
-      [345.5, 60.0, 212.8],
-      [218.0, 100.0, 155.7],
-      [240.3, 40.0, 72.3],
-      [153.4, 0.0, 0.6],
-      [102.6, 0.0, 153.3],
-      [68.4, 0.0, 185.5]
+      [0.0, 0.0, 600.0],
+      [0.0, 0.0, 0.0],
+      [1200.0, 0.0, 0.0],
+      [1200.0, 1200.0, 0.0],
+      [1200.0, 1200.0, 600.0],
+      [1200.0, 600.0, 1200.0],
+      [1200.0, 0.0, 1200.0],
+      [0.0, 0.0, 1200.0],
+      [0.0, 0.0, 600.0]
     ];
 
     const points = initialPoints.map((point) => {
@@ -165,31 +168,38 @@ export default class Render {
     );
     this.scene.add(tube1);
 
-    for (let i = 0; i < 10; i++) {
-      const tube = this.makeTube(initialPoints);
-      this.scene.add(tube);
-      this.tubes.push(tube);
-    }
+    // for (let i = 0; i < 12; i++) {
+    //   const tube = this.makeTube(initialPoints);
+    //   this.scene.add(tube);
+    //   this.tubes.push(tube);
+    // }
 
     // this.effect = new THREE.AnaglyphEffect(this.renderer);
     // this.effect.setSize(this.width, this.height);
+    setTimeout(() => {
+      this.allowChange = true;
+    }, this.timeout);
     this.renderLoop();
   };
 
   makeRandomPath = (pointList) => {
-    const totalPoints = pointList.length;
-    const randomPoints = pointList.map((point, index) => {
-      const rx = 15 - Math.random() * 30;
-      const ry = 15 - Math.random() * 30;
-      const gate = index > 1 && index < totalPoints - 1;
-      const tx = gate ? point[0] + rx : point[0];
-      const ty = gate ? point[1] + ry : point[1];
+    this.pointsIndex = [];
+    // const totalItems = pointList.length;
+    const randomPoints = pointList.map((point) => {
+      const check = true; // index > 0 && index < totalItems;
+      const rx = 20 - Math.random() * 40;
+      const ry = 20 - Math.random() * 40;
+
+      const tx = check ? point[0] + rx : point[0];
+      const ty = check ? point[1] + ry : point[1];
       const tz = point[2];
       const v3Point = new THREE.Vector3(tx, ty, tz);
+      this.pointsIndex.push(v3Point);
       return v3Point;
     });
     return randomPoints;
-  }
+  };
+
   resize = () => {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -208,13 +218,17 @@ export default class Render {
     this.stopFrame += 0.001;
     const realTime = this.frames * 0.005;
     // Get the point at the specific percentage
-    const lvc = this.isRnd ? 0.06 : -(0.06);
+    const lvc = this.isRnd ? 0.03 : -(0.03);
     const p1 = this.path1.getPointAt(Math.abs((this.stopFrame) % 1));
     const p2 = this.path1.getPointAt(Math.abs((this.stopFrame + lvc) % 1));
-    const p3 = this.path1.getPointAt(Math.abs((this.stopFrame + 0.09) % 1));
+    const p3 = this.path1.getPointAt(Math.abs((this.stopFrame + 0.06) % 1));
 
-    if (Math.random() * 255 > 254) {
+    if (Math.random() * 255 > 254 && this.allowChange) {
       this.isRnd = !this.isRnd;
+      this.allowChange = false;
+      setTimeout(() => {
+        this.allowChange = true;
+      }, this.timeout);
     }
 
     const amps = 15 * Math.sin(realTime + 1 * Math.PI / 180);
