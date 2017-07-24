@@ -7,6 +7,7 @@ import stone2 from '../resources/images/grate.jpg';
 export default class Render {
   constructor() {
     this.start = Date.now();
+    this.stopFrame = 0.0;
     this.angle = 255.0;
     this.dec = 55.0;
     this.frames = 0;
@@ -31,7 +32,7 @@ export default class Render {
     };
 
     window.addEventListener('resize', this.resize, true);
-
+    window.addEventListener('keydown', this.checkMove, false);
     this.init();
   }
 
@@ -75,13 +76,14 @@ export default class Render {
   };
 
   makeTube = (points) => {
+    const size = 0.1 + Math.random();
     return new THREE.Mesh(
       new THREE.TubeGeometry(
         new THREE.CatmullRomCurve3(this.makeRandomPath(points)),
-          300,
-          0.5,
-          24,
-          true
+          600,
+          size,
+          16,
+          false
         ),
       this.tunnelMaterial2,
     );
@@ -93,12 +95,12 @@ export default class Render {
     const texture = texloader.load(stone, () => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       texture.offset.set(0, 0);
-      texture.repeat.set(25, 3);
+      texture.repeat.set(20, 4);
     });
     const texture2 = texloader.load(stone2, () => {
       texture2.wrapS = texture2.wrapT = THREE.RepeatWrapping;
       texture2.offset.set(0, 0);
-      texture2.repeat.set(185, 3);
+      texture2.repeat.set(200, 2);
     });
     this.tunnelMaterial = new THREE.MeshPhongMaterial({
       map: texture,
@@ -109,64 +111,69 @@ export default class Render {
       side: THREE.DoubleSide,
     });
     const initialPoints = [
-      [68.5, 0.0, 185.4],
-      [1, 20.0, 262.5],
-      [220.9, 60.0, 500.9],
-      [345.5, 60.0, 212.8],
-      [218.0, 100.0, 155.7],
-      [240.3, 40.0, 72.3],
-      [153.4, 0.0, 0.6],
-      [102.6, 0.0, 153.3],
-      [68.4, 0.0, 185.5]
+      [0.0, 0.0, 600.0],
+      [0.0, 0.0, 0.0],
+      [1200.0, 0.0, 0.0],
+      [1200.0, 1200.0, 0.0],
+      [1200.0, 1200.0, 600.0],
+      [1200.0, 600.0, 1200.0],
+      [1200.0, 0.0, 1200.0],
+      [0.0, 0.0, 1200.0],
+      [0.0, 0.0, 600.0]
+      // [68.5, 0.0, 185.5],
+      // [1, 20.0, 262.5],
+      // [220.9, 60.0, 500.9],
+      // [345.5, 90.0, 212.8],
+      // [218.0, 230.0, 155.7],
+      // [240.3, 120.0, 72.3],
+      // [153.4, 70.0, 0.6],
+      // [102.6, 0.0, 153.3],
+      // [68.5, 0.0, 185.5]
     ];
+
     const points = initialPoints.map((point) => {
       const v3Point = new THREE.Vector3(...point);
       return v3Point;
     });
 
-    // this.path2 = new THREE.CatmullRomCurve3(this.makeRandomPath(initialPoints));
     this.path1 = new THREE.CatmullRomCurve3(points);
 
-    // Create a mesh
     const tube1 = new THREE.Mesh(
       new THREE.TubeGeometry(
         this.path1,
-        300,
-        26,
-        24,
+        150,
+        40,
+        18,
         true
       ),
       this.tunnelMaterial,
     );
     this.scene.add(tube1);
 
-    // const tube2 = this.makeTube(initialPoints);
-    // this.scene.add(tube2);
-    // const tube3 = this.makeTube(initialPoints);
-    // this.scene.add(tube3);
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 24; i++) {
       const tube = this.makeTube(initialPoints);
       this.scene.add(tube);
       this.tubes.push(tube);
     }
 
-    // this.effect = new THREE.AnaglyphEffect(this.renderer);
-    // this.effect.setSize(this.width, this.height);
+    this.effect = new THREE.AnaglyphEffect(this.renderer);
+    this.effect.setSize(this.width, this.height);
     this.renderLoop();
   };
 
   makeRandomPath = (pointList) => {
-    const totalPoints = pointList.length;
-    const randomPoints = pointList.map((point, index) => {
-      const gate = index > 0 && index < totalPoints - 1;
-
+    this.pointsIndex = [];
+    // const totalItems = pointList.length;
+    const randomPoints = pointList.map((point) => {
+      const check = true; // index > 0 && index < totalItems;
       const rx = 15 - Math.random() * 30;
       const ry = 15 - Math.random() * 30;
 
-      const tx = gate ? point[0] + rx : point[0];
-      const ty = gate ? point[1] + ry : point[1];
+      const tx = check ? point[0] + rx : point[0];
+      const ty = check ? point[1] + ry : point[1];
       const tz = point[2];
       const v3Point = new THREE.Vector3(tx, ty, tz);
+      this.pointsIndex.push(v3Point);
       return v3Point;
     });
     return randomPoints;
@@ -179,12 +186,20 @@ export default class Render {
     this.renderer.setSize(this.width, this.height);
   };
 
+  checkMove = (e) => {
+    const keyis = e.keyCode;
+    if (keyis === 87) {
+      this.stopFrame += 1;
+    }
+    if (keyis === 83) {
+      this.stopFrame -= 1;
+    }
+  }
   renderScene = () => {
-    // Get stopFrame
-    this.stopFrame += 0.001;
     const realTime = this.frames * 0.005;
+    this.stopFrame += 0.0005;
     // Get the point at the specific percentage
-    const lvc = this.isRnd ? 0.06 : -(0.06);
+    const lvc = this.isRnd ? 0.01 : -(0.01);
     const p1 = this.path1.getPointAt(Math.abs((this.stopFrame) % 1));
     const p2 = this.path1.getPointAt(Math.abs((this.stopFrame + lvc) % 1));
     const p3 = this.path1.getPointAt(Math.abs((this.stopFrame + 0.09) % 1));
@@ -193,7 +208,7 @@ export default class Render {
       this.isRnd = !this.isRnd;
     }
 
-    const amps = 30 * Math.sin(realTime + 1 * Math.PI / 180);
+    const amps = 30 + Math.sin(realTime + 1 * Math.PI / 180) * 30;
     const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.45;
     const tempY = amps * Math.sin(realTime + 1 * Math.PI / 180) * 0.45;
     // Camera
@@ -203,8 +218,8 @@ export default class Render {
     this.lightA.position.set(p2.x, p2.y, p2.z);
     this.lightB.position.set(p3.x, p3.y, p3.z);
     // Core three Render call //
-    this.renderer.render(this.scene, this.camera);
-    // this.effect.render(this.scene, this.camera);
+    // this.renderer.render(this.scene, this.camera);
+    this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {

@@ -97,19 +97,19 @@ export default class Render {
 
     // Spline Creation //
     const curve = new THREE.SplineCurve3([
-      this.getRandomVector(),
-      this.getRandomVector(),
-      this.getRandomVector(),
-      this.getRandomVector(),
-      this.getRandomVector(),
-      this.getRandomVector(),
-      this.getRandomVector()
-      // new THREE.Vector3(0.0, 0.0, 0.0),
-      // new THREE.Vector3(0.0, 20.0, 0.0),
-      // new THREE.Vector3(15.0, 15.0, 0.0),
-      // new THREE.Vector3(15.0, 5.0, 0.0),
-      // new THREE.Vector3(25.0, 10.0, 0.0),
-      // new THREE.Vector3(25.0, 30.0, 0.0)
+      // this.getRandomVector(),
+      // this.getRandomVector(),
+      // this.getRandomVector(),
+      // this.getRandomVector(),
+      // this.getRandomVector(),
+      // this.getRandomVector(),
+      // this.getRandomVector()
+      new THREE.Vector3(0.0, 0.0, 0.0),
+      new THREE.Vector3(0.0, 20.0, 0.0),
+      new THREE.Vector3(15.0, 15.0, 0.0),
+      new THREE.Vector3(15.0, 5.0, 0.0),
+      new THREE.Vector3(25.0, 10.0, 0.0),
+      new THREE.Vector3(25.0, 30.0, 0.0)
     ]);
     const params = {
       scale: 0.05,

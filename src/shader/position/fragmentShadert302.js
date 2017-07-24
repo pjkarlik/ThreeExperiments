@@ -177,7 +177,7 @@ void main() {
   float xdec = dec * 0.45;
 
   float noise = pnoise(vec3(
-    (q.x * 3.0) * xdec,
+    (q.x * 5.0) * xdec,
     (q.y / 1.5) * xdec,
     1.0 + time * 0.5
   ), vec3(0.0, 0.0, 0.0));

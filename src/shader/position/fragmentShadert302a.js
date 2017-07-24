@@ -1,5 +1,5 @@
 const fragmentShaderA = `
-precision mediump float;
+precision highp float;
 uniform float time;
 uniform float angle;
 uniform float dec;

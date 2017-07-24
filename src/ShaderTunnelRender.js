@@ -12,6 +12,7 @@ export default class Render {
     this.dec = 55.0;
     this.frames = 0;
     this.stopFrame = 0;
+    this.tubes = [];
     this.isRnd = true;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -72,7 +73,20 @@ export default class Render {
     const y = 0.0 + Math.random() * 255;
     const z = 0.0 + Math.random() * 255;
     return new THREE.Vector3(x, y, z);
-  }
+  };
+
+  makeTube = (points) => {
+    return new THREE.Mesh(
+      new THREE.TubeGeometry(
+        new THREE.CatmullRomCurve3(this.makeRandomPath(points)),
+          300,
+          0.5,
+          24,
+          true
+        ),
+      this.meshMaterial2,
+    );
+  };
 
   createScene = () => {
     /* eslint no-multi-assign: 0 */
@@ -131,33 +145,31 @@ export default class Render {
       [102.6, 0.0, 153.3],
       [68.4, 0.0, 185.5]
     ];
+
     const points = initialPoints.map((point) => {
       const v3Point = new THREE.Vector3(...point);
       return v3Point;
     });
 
     this.path1 = new THREE.CatmullRomCurve3(points);
-    this.path2 = new THREE.CatmullRomCurve3(this.makeRandomPath(initialPoints));
-    this.path3 = new THREE.CatmullRomCurve3(this.makeRandomPath(initialPoints));
 
-    // Create a mesh
     const tube1 = new THREE.Mesh(
-      new THREE.TubeGeometry(this.path1, 300, 26, 24, true),
+      new THREE.TubeGeometry(
+        this.path1,
+        300,
+        26,
+        24,
+        true
+      ),
       this.meshMaterial,
     );
     this.scene.add(tube1);
 
-    const tube2 = new THREE.Mesh(
-      new THREE.TubeGeometry(this.path2, 300, 2.5, 24, true),
-      this.meshMaterial2,
-    );
-    this.scene.add(tube2);
-
-    const tube3 = new THREE.Mesh(
-      new THREE.TubeGeometry(this.path3, 300, 1.5, 24, true),
-      this.meshMaterial2,
-    );
-    this.scene.add(tube3);
+    for (let i = 0; i < 10; i++) {
+      const tube = this.makeTube(initialPoints);
+      this.scene.add(tube);
+      this.tubes.push(tube);
+    }
 
     // this.effect = new THREE.AnaglyphEffect(this.renderer);
     // this.effect.setSize(this.width, this.height);
@@ -197,11 +209,11 @@ export default class Render {
     const realTime = this.frames * 0.005;
     // Get the point at the specific percentage
     const lvc = this.isRnd ? 0.06 : -(0.06);
-    const p1 = this.path2.getPointAt(Math.abs((this.stopFrame) % 1));
+    const p1 = this.path1.getPointAt(Math.abs((this.stopFrame) % 1));
     const p2 = this.path1.getPointAt(Math.abs((this.stopFrame + lvc) % 1));
     const p3 = this.path1.getPointAt(Math.abs((this.stopFrame + 0.09) % 1));
 
-    if (Math.random() * 255 > 253) {
+    if (Math.random() * 255 > 254) {
       this.isRnd = !this.isRnd;
     }
 
