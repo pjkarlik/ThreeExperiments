@@ -156,8 +156,8 @@ export default class Render {
       this.tubes.push(tube);
     }
 
-    this.effect = new THREE.AnaglyphEffect(this.renderer);
-    this.effect.setSize(this.width, this.height);
+    // this.effect = new THREE.AnaglyphEffect(this.renderer);
+    // this.effect.setSize(this.width, this.height);
     this.renderLoop();
   };
 
@@ -218,8 +218,8 @@ export default class Render {
     this.lightA.position.set(p2.x, p2.y, p2.z);
     this.lightB.position.set(p3.x, p3.y, p3.z);
     // Core three Render call //
-    // this.renderer.render(this.scene, this.camera);
-    this.effect.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera);
+    // this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
