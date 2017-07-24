@@ -1,7 +1,7 @@
 import THREE from './Three';
 
 import stone from '../resources/images/matallo.jpg';
-import stone2 from '../resources/images/grate.jpg';
+import stone2 from '../resources/images/corrugated2.jpg';
 
 // Render Class Object //
 export default class Render {
@@ -45,7 +45,7 @@ export default class Render {
 
     this.scene = new THREE.Scene();
     this.bufferScene = new THREE.Scene();
-    // this.scene.fog = new THREE.FogExp2(0x000000, 0.0275);
+    // this.scene.fog = new THREE.FogExp2(0x000000, 0.00975);
     this.camera = new THREE.PerspectiveCamera(
         this.cameraConfig.viewAngle,
         this.cameraConfig.aspect,
@@ -95,12 +95,12 @@ export default class Render {
     const texture = texloader.load(stone, () => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       texture.offset.set(0, 0);
-      texture.repeat.set(20, 4);
+      texture.repeat.set(30, 4);
     });
     const texture2 = texloader.load(stone2, () => {
       texture2.wrapS = texture2.wrapT = THREE.RepeatWrapping;
       texture2.offset.set(0, 0);
-      texture2.repeat.set(200, 2);
+      texture2.repeat.set(500, 1);
     });
     this.tunnelMaterial = new THREE.MeshPhongMaterial({
       map: texture,
@@ -150,7 +150,7 @@ export default class Render {
     );
     this.scene.add(tube1);
 
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < 14; i++) {
       const tube = this.makeTube(initialPoints);
       this.scene.add(tube);
       this.tubes.push(tube);
@@ -166,8 +166,8 @@ export default class Render {
     // const totalItems = pointList.length;
     const randomPoints = pointList.map((point) => {
       const check = true; // index > 0 && index < totalItems;
-      const rx = 15 - Math.random() * 30;
-      const ry = 15 - Math.random() * 30;
+      const rx = 20 - Math.random() * 40;
+      const ry = 20 - Math.random() * 40;
 
       const tx = check ? point[0] + rx : point[0];
       const ty = check ? point[1] + ry : point[1];
@@ -197,9 +197,9 @@ export default class Render {
   }
   renderScene = () => {
     const realTime = this.frames * 0.005;
-    this.stopFrame += 0.0005;
+    this.stopFrame += 0.0003;
     // Get the point at the specific percentage
-    const lvc = this.isRnd ? 0.01 : -(0.01);
+    const lvc = this.isRnd ? 0.03 : -(0.03);
     const p1 = this.path1.getPointAt(Math.abs((this.stopFrame) % 1));
     const p2 = this.path1.getPointAt(Math.abs((this.stopFrame + lvc) % 1));
     const p3 = this.path1.getPointAt(Math.abs((this.stopFrame + 0.09) % 1));
