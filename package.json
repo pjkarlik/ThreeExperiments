@@ -54,7 +54,7 @@
     "postcss-color-rebeccapurple": "^3.0.0",
     "postcss-loader": "^2.0.6",
     "style-loader": "^0.18.1",
-    "three": "^0.85.2",
+    "three": "^0.86.0",
     "url-loader": "^0.5.7",
     "webpack": "^2.6.1",
     "webpack-dev-server": "^2.4.5",

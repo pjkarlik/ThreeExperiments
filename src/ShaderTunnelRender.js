@@ -94,6 +94,7 @@ export default class Render {
   createScene = () => {
     /* eslint no-multi-assign: 0 */
     const uniforms = THREE.UniformsUtils.merge([
+      THREE.UniformsLib.lights,
       THREE.UniformsLib.shadowmap,
       {
         map: {
@@ -166,6 +167,8 @@ export default class Render {
       ),
       this.meshMaterial,
     );
+    tube1.castShadow = true;
+    tube1.receiveShadow = true;
     this.scene.add(tube1);
 
     // for (let i = 0; i < 12; i++) {

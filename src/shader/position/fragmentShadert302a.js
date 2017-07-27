@@ -1,5 +1,8 @@
 const fragmentShaderA = `
-precision highp float;
+${window.THREE.ShaderChunk.common}
+${window.THREE.ShaderChunk.packing}
+${window.THREE.ShaderChunk.shadowmap_pars_fragment}
+
 uniform float time;
 uniform float angle;
 uniform float dec;
@@ -183,11 +186,13 @@ void main() {
   ), vec3(0.0, 0.0, 0.0));
 
   float o = (noise * 255.0);
-  float r = sin(noise * 15.0);
-  float g = cos(noise * 15.0);
-  float b = sin(noise * 25.0);
-  vec3 colorz = vec3(r, g, b);
+  // float r = sin(noise * 15.0);
+  // float g = sin(noise * 15.0);
+  // float b = sin(noise * 15.0);
+  vec3 colorz = vec3(o, o, o);
   gl_FragColor = vec4(colorz, 1.0);
+
+  ${window.THREE.ShaderChunk.shadowmap_fragment}
 }
 `;
 

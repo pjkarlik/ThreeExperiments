@@ -59,11 +59,11 @@ export default class Render {
     this.camera.lookAt(new THREE.Vector3(...this.cameraConfig.lookAt));
     this.scene.add(this.camera);
 
-    this.lightA = new THREE.PointLight(0xFFFFFF, 1, 150);
+    this.lightA = new THREE.PointLight(0xFFFFFF, 1, 650);
     this.scene.add(this.lightA);
     this.lightB = new THREE.PointLight(0xFF0000, 1, 350);
     this.scene.add(this.lightB);
-    this.lightC = new THREE.PointLight(0x0000FF, 1, 350);
+    this.lightC = new THREE.PointLight(0x0000FF, 1, 550);
     this.scene.add(this.lightC);
     this.createScene();
   };
@@ -189,7 +189,7 @@ export default class Render {
 
   renderScene = () => {
     // const realTime = this.frames * 0.005;
-    this.stopFrame += 0.0008;
+    this.stopFrame += 0.00065;
     // Get the point at the specific percentage
     const lvc = this.isRnd ? 0.03 : -(0.03);
     const p1 = this.path1.getPointAt(Math.abs((this.stopFrame) % 1));

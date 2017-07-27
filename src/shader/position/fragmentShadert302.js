@@ -1,13 +1,14 @@
-const fragmentShader = `
-precision highp float;
+const fragmentShaderA = `
+${window.THREE.ShaderChunk.common}
+${window.THREE.ShaderChunk.packing}
+${window.THREE.ShaderChunk.shadowmap_pars_fragment}
+
 uniform float time;
 uniform float angle;
 uniform float dec;
 uniform vec2 resolution;
 varying vec2 vUv;
 varying float noise;
-
-#define PI 3.14159265358979323846264
 
 vec3 mod289(vec3 x)
 {
@@ -177,18 +178,19 @@ void main() {
   float xdec = dec * 0.45;
 
   float noise = pnoise(vec3(
-    (q.x * 5.0) * xdec,
+    (q.x * 3.0) * xdec,
     (q.y / 1.5) * xdec,
     1.0 + time * 0.5
   ), vec3(0.0, 0.0, 0.0));
 
-  float o = (noise * 155.0);
-  float r = sin(noise * 15.0);
-  float g = sin(noise * 15.0);
-  float b = sin(noise * 15.0);
-  vec3 colorz = vec3(r, g, b);
+  float o = (noise * 255.0);
+  // float r = sin(noise * 15.0);
+  // float g = sin(noise * 15.0);
+  // float b = sin(noise * 15.0);
+  vec3 colorz = vec3(o, o, o);
   gl_FragColor = vec4(colorz, 1.0);
+
 }
 `;
 
-export default fragmentShader;
+export default fragmentShaderA;
