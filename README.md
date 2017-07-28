@@ -22,11 +22,11 @@
 
   TODO:// Cleaning up default code, next to do some model loading and management.
 
-  [TunnelLogicRender.js](http://tunneldemo.surge.sh/)
-  [AbstractPortalRender.js](http://blacklavalamp.surge.sh/)
-  [LiquidLandscape.js](http://threeboilerplate-light.surge.sh/)
-  [SkullRender.js](http://threeexperiments-skull.surge.sh/)
-  [Build History](https://travis-ci.org/pjkarlik/ThreeExperiments/)
+  - [TunnelLogicRender.js](http://tunneldemo.surge.sh/)
+  - [AbstractPortalRender.js](http://blacklavalamp.surge.sh/)
+  - [LiquidLandscape.js](http://threeboilerplate-light.surge.sh/)
+  - [SkullRender.js](http://threeexperiments-skull.surge.sh/)
+  - [Build History](https://travis-ci.org/pjkarlik/ThreeExperiments/)
 
 ## Run the example
   Requires Node v7.0.0 or greater
