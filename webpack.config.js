@@ -11,7 +11,6 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const { name, version, description } = pkgInfo;
 
-
 fs.writeFileSync('version.json', JSON.stringify({ name, version, description }));
 
 const DEV_PORT = 2021;
