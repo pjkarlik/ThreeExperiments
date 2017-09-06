@@ -61,9 +61,9 @@ export default class Render {
 
     this.lightA = new THREE.PointLight(0xFFFFFF, 1, 650);
     this.scene.add(this.lightA);
-    this.lightB = new THREE.PointLight(0xFF0000, 1, 350);
+    this.lightB = new THREE.PointLight(0xFFAA00, 1, 350);
     this.scene.add(this.lightB);
-    this.lightC = new THREE.PointLight(0x0000FF, 1, 550);
+    this.lightC = new THREE.PointLight(0x00FF00, 1, 550);
     this.scene.add(this.lightC);
     this.createScene();
   };
