@@ -17,7 +17,7 @@
   // ...etc for other items like Render Passes and Shaders
   ```
 
-  Current Mapping --> ```index.js``` --> (render file) ```TunnelRender.js``` (or just about any other file in src)
+  Current Mapping --> ```index.js``` --> (render file) ```ShaderTunnelRender.js``` (or just about any other file in src)
 
 
   TODO:// Cleaning up default code, next to do some model loading and management.
