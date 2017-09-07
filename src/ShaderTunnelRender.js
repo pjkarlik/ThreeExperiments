@@ -1,8 +1,16 @@
 import THREE from './Three';
 
-import fragmentShader from './shader/position/fragmentShadert302';
+import fragmentShader from './shader/position/fragmentShadert304';
 import fragmentShaderA from './shader/position/fragmentShadert302a';
 import vertexShader from './shader/position/vertexShadert3';
+
+// Skybox image imports //
+import xpos from '../resources/images/storforsen/posx.jpg';
+import xneg from '../resources/images/storforsen/negx.jpg';
+import ypos from '../resources/images/storforsen/posy.jpg';
+import yneg from '../resources/images/storforsen/negy.jpg';
+import zpos from '../resources/images/storforsen/posz.jpg';
+import zneg from '../resources/images/storforsen/negz.jpg';
 
 // Render Class Object //
 export default class Render {
@@ -43,6 +51,7 @@ export default class Render {
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(this.devicePixelRatio);
+    this.renderer.setFaceCulling(THREE.CullFaceNone);
     document.body.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
@@ -66,6 +75,13 @@ export default class Render {
     this.scene.add(this.lightA);
     this.lightB = new THREE.PointLight(0xFFFFFF, 1, 350);
     this.scene.add(this.lightB);
+
+    // Skybox //
+    const urls = [xpos, xneg, ypos, yneg, zpos, zneg];
+    const skybox = new THREE.CubeTextureLoader().load(urls);
+    skybox.format = THREE.RGBFormat;
+    skybox.mapping = THREE.CubeRefractionMapping;
+    this.scene.background = skybox;
 
     this.createScene();
   };
@@ -126,7 +142,7 @@ export default class Render {
       vertexShader,
       fragmentShader,
       transparent: true,
-      side: THREE.BackSide
+      side: THREE.DoubleSide
     });
 
     this.meshMaterial2 = new THREE.ShaderMaterial({
@@ -161,7 +177,7 @@ export default class Render {
       new THREE.TubeGeometry(
         this.path1,
         300,
-        26,
+        25,
         24,
         true
       ),

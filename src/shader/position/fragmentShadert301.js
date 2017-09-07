@@ -174,14 +174,19 @@ float dist(float a,float b,float c,float d) {
 void main() {
   vec2 q = vUv;
   vec2 rz = resolution.xy;
-  float adjustment = dec / 5.0;
-  float noise = cnoise(vec3(q.x * adjustment, q.y * adjustment, time));
-  noise += 10.0 *  -.10 * turbulence(vec3(q.x, q.y, time) * 0.5);
+  float xdec = dec * 0.45;
+  float stime =time * 0.1;
+  float noise = pnoise(vec3(
+    (q.x * 3.0) * xdec,
+    (q.y / 1.5) * xdec,
+    1.0 + time * 0.5
+  ), vec3(0.0, 0.0, 0.0));
 
-  float d = (sin(dist(q.x, q.y, rz.x, rz.y) * 5.0 - time));
-
+  noise += 10.0 *  -.10 * turbulence(vec3(q.x, q.y, stime) * 0.5);
+  float d = (sin(dist(q.x, q.y, rz.x, rz.y) * 5.0 - time * 0.1));
   float c = noise / d;
   c += (noise / 3.0 ) * 0.01;
+
   float r = (cos(c * 255.0 * PI / 180.0) * 1.0);
   float g = (sin(c * angle * PI / 180.0) * 1.0);
   float b = (sin(c * 255.0 * PI / 180.0) * 1.0);

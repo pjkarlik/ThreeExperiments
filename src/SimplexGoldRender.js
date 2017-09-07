@@ -70,7 +70,7 @@ export default class Render {
     this.skybox = new THREE.CubeTextureLoader().load(urls);
     this.skybox.format = THREE.RGBFormat;
     this.skybox.mapping = THREE.CubeReflectionMapping; // CubeReflectionMapping || CubeRefractionMapping
-    // this.scene.background = this.skybox;
+    this.scene.background = this.skybox;
 
     this.metalMaterial = new THREE.MeshBasicMaterial({
       envMap: this.skybox,

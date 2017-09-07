@@ -1,4 +1,4 @@
-import Render from './DriftTunnelRender';
+import Render from './ShaderTunnelRender';
 import { description, version } from '../version.json';
 
 require('../resources/styles/styles.css');

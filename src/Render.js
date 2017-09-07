@@ -1,13 +1,12 @@
 import THREE from './Three';
 
-require('three-orbit-controls');
 // Skybox image imports //
-import xpos from '../resources/images/brudslojan/posx.jpg';
-import xneg from '../resources/images/brudslojan/negx.jpg';
-import ypos from '../resources/images/brudslojan/posy.jpg';
-import yneg from '../resources/images/brudslojan/negy.jpg';
-import zpos from '../resources/images/brudslojan/posz.jpg';
-import zneg from '../resources/images/brudslojan/negz.jpg';
+import xpos from '../resources/images/chapel/posx.jpg';
+import xneg from '../resources/images/chapel/negx.jpg';
+import ypos from '../resources/images/chapel/posy.jpg';
+import yneg from '../resources/images/chapel/negy.jpg';
+import zpos from '../resources/images/chapel/posz.jpg';
+import zneg from '../resources/images/chapel/negz.jpg';
 
 // Render Class Object //
 export default class Render {
@@ -51,7 +50,7 @@ export default class Render {
     this.scene.add(this.ambient);
 
     // Skybox //
-    const urls = [cright, cleft, ctop, cbottom, cfront, cback];
+    const urls = [xpos, xneg, ypos, yneg, zpos, zneg];
     const skybox = new THREE.CubeTextureLoader().load(urls);
     skybox.format = THREE.RGBFormat;
     skybox.mapping = THREE.CubeRefractionMapping;

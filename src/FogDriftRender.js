@@ -16,14 +16,14 @@ export default class Render {
     this.viewAngle = 55;
     this.near = 0.1;
     this.far = 20000;
-    this.amount = 20;
-    this.size = 80;
+    this.amount = 30;
+    this.size = 70;
     this.time = 0;
     this.frame = 0;
     this.speed = 1.4;
-    this.strength = 70;
-    this.iteration = 0.04;
-    this.background = 0x8fd8fa;
+    this.strength = 80;
+    this.iteration = 60;
+    this.background = 0x14313e;
     this.fog = this.background; // 0xefd1b5;
     this.objects = [];
     this.generator = new Generator(10);
@@ -37,9 +37,9 @@ export default class Render {
 
   createGUI = () => {
     this.options = {
-      strength: 45,
-      color: [143, 216, 250],
-      iteration: 50,
+      strength: this.strength,
+      color: [20, 50, 65],
+      iteration: this.iteration,
     };
     this.gui = new dat.GUI();
 
@@ -47,7 +47,7 @@ export default class Render {
     folderRender.add(this.options, 'strength', 1, 100).step(1)
       .onFinishChange((value) => { this.strength = value; });
     folderRender.add(this.options, 'iteration', 1, 100).step(1)
-      .onFinishChange((value) => { this.iteration = value * 0.0015; });
+      .onFinishChange((value) => { this.iteration = value; });
     folderRender.addColor(this.options, 'color')
       .onChange((value) => {
         this.color = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
@@ -67,7 +67,7 @@ export default class Render {
     document.body.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(this.fog, 0.00175);
+    this.scene.fog = new THREE.FogExp2(this.fog, 0.00115);
     this.camera = new THREE.PerspectiveCamera(
         this.viewAngle,
         this.aspect,
@@ -126,6 +126,7 @@ export default class Render {
   };
 
   checkObjects = () => {
+    const iteration = this.iteration * 0.0015;
     const size = this.size * 1.25;
     const offset = this.amount * (size / 2) - (size / 2);
     // advance time and tick draw loop for time segment
@@ -136,11 +137,11 @@ export default class Render {
       this.time += 1;
       this.frame = 0;
     }
-    const timeStop = this.time * this.iteration;
+    const timeStop = this.time * iteration;
     for (let y = 0; y < this.amount; y++) {
       for (let x = 0; x < this.amount; x++) {
         const object = this.objects[x + (y * this.amount)];
-        const noiseX = this.generator.simplex3(x * this.iteration, y * this.iteration + timeStop, 0) * 7;
+        const noiseX = this.generator.simplex3(x * iteration, y * iteration + timeStop, 0) * 7;
         const px = (-offset) + (x * size);
         const py = noiseX * this.strength;
         const pz = (-offset) + (y * size);
