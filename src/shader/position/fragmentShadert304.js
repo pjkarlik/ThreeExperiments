@@ -185,6 +185,8 @@ void main() {
 
   float o = (noise * 255.0);
   float r = sin(noise * 15.0);
+  // float b = r;
+  // float g = b;
   float g = sin(noise * 13.0);
   float b = sin(noise * 12.0);
 

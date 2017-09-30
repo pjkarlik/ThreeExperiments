@@ -185,10 +185,10 @@ void main() {
 
   float o = (noise * 255.0);
   // float r = sin(noise * 15.0);
-  // float g = sin(noise * 15.0);
+  float g = sin(noise * 15.0);
   // float b = sin(noise * 15.0);
   vec3 colorz = vec3(o, o, o);
-  gl_FragColor = vec4(colorz, 1.0);
+  gl_FragColor = vec4(colorz, 1.0 - o);
 
 }
 `;

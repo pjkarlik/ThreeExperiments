@@ -1,4 +1,4 @@
-import Render from './ShaderTunnelRender';
+import Render from './ShaderEffectRender';
 import { description, version } from '../version.json';
 
 require('../resources/styles/styles.css');

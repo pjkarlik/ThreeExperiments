@@ -1,16 +1,16 @@
 import THREE from './Three';
 
-import fragmentShader from './shader/position/fragmentShadert304';
+import fragmentShader from './shader/position/fragmentShadert302';
 import fragmentShaderA from './shader/position/fragmentShadert302a';
 import vertexShader from './shader/position/vertexShadert3';
 
 // Skybox image imports //
-import xpos from '../resources/images/buddha/posx.jpg';
-import xneg from '../resources/images/buddha/negx.jpg';
-import ypos from '../resources/images/buddha/posy.jpg';
-import yneg from '../resources/images/buddha/negy.jpg';
-import zpos from '../resources/images/buddha/posz.jpg';
-import zneg from '../resources/images/buddha/negz.jpg';
+import xpos from '../resources/images/storforsen/posx.jpg';
+import xneg from '../resources/images/storforsen/negx.jpg';
+import ypos from '../resources/images/storforsen/posy.jpg';
+import yneg from '../resources/images/storforsen/negy.jpg';
+import zpos from '../resources/images/storforsen/posz.jpg';
+import zneg from '../resources/images/storforsen/negz.jpg';
 
 // Render Class Object //
 export default class Render {
@@ -51,7 +51,7 @@ export default class Render {
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(this.devicePixelRatio);
-
+    this.renderer.setFaceCulling(THREE.CullFaceNone);
     document.body.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
@@ -183,11 +183,11 @@ export default class Render {
       ),
       this.meshMaterial,
     );
-    tube1.geometry.computeVertexNormals();
     tube1.castShadow = true;
     tube1.receiveShadow = true;
     this.scene.add(tube1);
 
+    this.effectsSetup();
     // for (let i = 0; i < 12; i++) {
     //   const tube = this.makeTube(initialPoints);
     //   this.scene.add(tube);
@@ -200,6 +200,35 @@ export default class Render {
       this.allowChange = true;
     }, this.timeout);
     this.renderLoop();
+  };
+
+  effectsSetup = () => {
+    let effect;
+    // this.effect = new THREE.AnaglyphEffect(this.renderer);
+    // this.effect.setSize(this.width, this.height);
+    this.composer = new THREE.EffectComposer(this.renderer);
+    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
+
+    effect = new THREE.ShaderPass(THREE.MirrorShader);
+    effect.uniforms.side.value = 1;
+    this.composer.addPass(effect);
+
+    // effect = new THREE.ShaderPass(THREE.MirrorShader);
+    // effect.uniforms.side.value = 2;
+    // this.composer.addPass(effect);
+
+    // effect = new THREE.FilmPass(0.9, 0.9, 1000, true);
+    // this.composer.addPass(effect);
+
+    // effect = new THREE.ShaderPass(THREE.DotScreenShader);
+    // effect.uniforms.scale.value = 1.75;
+    // this.composer.addPass(effect);
+
+    effect = new THREE.ShaderPass(THREE.RGBShiftShader);
+    effect.uniforms.amount.value = 0.003;
+    effect.uniforms.angle.value = 0.0;
+    effect.renderToScreen = true;
+    this.composer.addPass(effect);
   };
 
   makeRandomPath = (pointList) => {
@@ -252,16 +281,18 @@ export default class Render {
     }
 
     const amps = 15 * Math.sin(realTime + 1 * Math.PI / 180);
-    const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.45;
-    const tempY = 3 * Math.sin(realTime + 1 * Math.PI / 180) * 0.25;
+    const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.35;
+    const tempY = 1 + amps * Math.sin(realTime + 1 * Math.PI / 180) * 0.35;
     // Camera
-    this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z - tempY);
+    this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z);
     this.camera.lookAt(p2);
     // Lights
     this.lightA.position.set(p2.x, p2.y, p2.z);
     this.lightB.position.set(p3.x, p3.y, p3.z);
     // Core three Render call //
-    this.renderer.render(this.scene, this.camera);
+
+    this.composer.render();
+    // this.renderer.render(this.scene, this.camera);
     // this.effect.render(this.scene, this.camera);
   };
 

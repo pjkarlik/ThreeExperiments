@@ -42,7 +42,7 @@ export default class Render {
 
     this.scene = new THREE.Scene();
     this.bufferScene = new THREE.Scene();
-    // this.scene.fog = new THREE.FogExp2(0x000000, 0.0275);
+    this.scene.fog = new THREE.FogExp2(0x000000, 0.01);
     this.camera = new THREE.PerspectiveCamera(
         this.cameraConfig.viewAngle,
         this.cameraConfig.aspect,
@@ -55,11 +55,11 @@ export default class Render {
     this.scene.add(this.camera);
 
     // Set Light //
-    this.lightA = new THREE.PointLight(0x999FF9, 1, 550);
+    this.lightA = new THREE.PointLight(0x888888, 1, 550);
     this.scene.add(this.lightA);
-    this.lightB = new THREE.PointLight(0x996600, 1, 250);
+    this.lightB = new THREE.PointLight(0x0000FF, 1, 350);
     this.scene.add(this.lightB);
-    this.lightC = new THREE.PointLight(0x668866, 1, 250);
+    this.lightC = new THREE.PointLight(0xFF0000, 1, 350);
     this.scene.add(this.lightC);
 
     this.createScene();
@@ -75,35 +75,36 @@ export default class Render {
   createScene = () => {
     const texloader = new THREE.TextureLoader();
     /* eslint no-multi-assign: 0 */
+    const rpt = 100;
     const texture = texloader.load(stone, () => {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       texture.offset.set(0, 0);
-      texture.repeat.set(65, 5);
+      texture.repeat.set(rpt, 4);
     });
     const bmpMap = texloader.load(bmp, () => {
       bmpMap.wrapS = bmpMap.wrapT = THREE.RepeatWrapping;
       bmpMap.offset.set(0, 0);
-      bmpMap.repeat.set(865, 5);
+      bmpMap.repeat.set(rpt, 4);
     });
 
     this.tunnelMaterial = new THREE.MeshPhongMaterial({
       map: texture,
       bumpMap: bmpMap,
-      bumpScale: 0.01,
+      bumpScale: 0.55,
       specularMap: bmpMap,
-      specular: new THREE.Color(0xff0000),
+      specular: new THREE.Color(0xAAAAFA),
       side: THREE.DoubleSide,
     });
     const initialPoints = [
-      [68.5, 0.0, 185.5],
-      [40, 50.0, 262.5],
-      [170.9, 100.0, 281.9],
-      [300, 120.0, 212.8],
-      [178, 20.0, 155.7],
-      [240.3, 150.0, 82.3],
-      [153.4, 70.0, 20.6],
-      [52.6, 20.0, 53.3],
-      [68.5, 0.0, 185.5]
+      [0.0, 0.0, 600.0],
+      [0.0, 0.0, 0.0],
+      [1200.0, 0.0, 0.0],
+      [1200.0, 1200.0, 0.0],
+      [1200.0, 1200.0, 600.0],
+      [1200.0, 600.0, 1200.0],
+      [1200.0, 0.0, 1200.0],
+      [0.0, 0.0, 1200.0],
+      [0.0, 0.0, 600.0]
     ];
     const points = initialPoints.map((point) => {
       const v3Point = new THREE.Vector3(...point);
@@ -112,7 +113,7 @@ export default class Render {
     this.path = new THREE.CatmullRomCurve3(points);
     // Create a mesh
     const tube = new THREE.Mesh(
-      new THREE.TubeGeometry(this.path, 100, 6.5, 15, true),
+      new THREE.TubeGeometry(this.path, 100, 15, 15, true),
       this.tunnelMaterial
   );
     // Add tube into the scene
@@ -135,13 +136,13 @@ export default class Render {
 
   renderScene = () => {
     // const realTime = this.frames * 0.005;
-    this.stopFrame += 0.0001;
+    this.stopFrame += 0.00001;
     // Get the point at the specific percentage
-    const lvc = this.isRnd ? 0.03 : -(0.03);
+    const lvc = this.isRnd ? 0.01 : -(0.01);
     const p1 = this.path.getPointAt(Math.abs((this.stopFrame) % 1));
     const p2 = this.path.getPointAt(Math.abs((this.stopFrame + lvc) % 1));
     const p3 = this.path.getPointAt(Math.abs((this.stopFrame + 0.05) % 1));
-    const p4 = this.path.getPointAt(Math.abs((this.stopFrame - 0.07) % 1));
+    const p4 = this.path.getPointAt(Math.abs((this.stopFrame + lvc - 0.05) % 1));
     if (Math.random() * 255 > 254 && this.allowChange) {
       this.isRnd = !this.isRnd;
       this.allowChange = false;
