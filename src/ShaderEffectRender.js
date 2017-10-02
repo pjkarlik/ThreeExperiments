@@ -177,7 +177,7 @@ export default class Render {
       new THREE.TubeGeometry(
         this.path1,
         300,
-        25,
+        55,
         24,
         true
       ),
@@ -188,14 +188,6 @@ export default class Render {
     this.scene.add(tube1);
 
     this.effectsSetup();
-    // for (let i = 0; i < 12; i++) {
-    //   const tube = this.makeTube(initialPoints);
-    //   this.scene.add(tube);
-    //   this.tubes.push(tube);
-    // }
-
-    // this.effect = new THREE.AnaglyphEffect(this.renderer);
-    // this.effect.setSize(this.width, this.height);
     setTimeout(() => {
       this.allowChange = true;
     }, this.timeout);
