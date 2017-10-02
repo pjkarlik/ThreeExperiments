@@ -4,8 +4,8 @@
   "description": "ThreeExperiments",
   "main": "index.js",
   "scripts": {
-    "webpack": "node node_modules/.bin/webpack --progress --colors",
-    "dev": "node node_modules/.bin/webpack-dev-server --progress --colors --content-base dist/",
+    "webpack": "webpack --progress --colors",
+    "dev": "webpack-dev-server --progress --colors --content-base dist/",
     "clean": "rm -rf dist",
     "build": "npm run clean && webpack --progress --colors"
   },
