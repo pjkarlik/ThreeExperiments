@@ -188,8 +188,8 @@ void main() {
   c += (noise / 3.0 ) * 0.01;
 
   float r = (cos(c * 255.0 * PI / 180.0) * 1.0);
-  float g =0.0;
-  float b = (sin(c * 255.0 * PI / 180.0) * 1.0);
+  float g = r;
+  float b = g;
 
   vec3 colorz = vec3(r , g, b);
   gl_FragColor = vec4(colorz, c / r);

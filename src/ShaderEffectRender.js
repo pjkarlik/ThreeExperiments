@@ -1,8 +1,8 @@
 import dat from 'dat-gui';
 import THREE from './Three';
 
-import fragmentShader from './shader/position/fragmentShadert301';
-import fragmentShaderA from './shader/position/fragmentShadert302a';
+import fragmentShader from './shader/position/fragmentShadert305';
+// import fragmentShaderA from './shader/position/fragmentShadert302a';
 import vertexShader from './shader/position/vertexShadert3';
 
 // Skybox image imports //
@@ -18,8 +18,9 @@ export default class Render {
   constructor() {
     this.start = Date.now();
     this.angle = 255.0;
-    this.dec = 55.0;
+    this.dec = 25.0;
     this.frames = 0;
+    this.speed = 30;
     this.sides = 2;
     this.hueShift = 65;
     this.vector = { x: 512, y: 512 };
@@ -27,6 +28,7 @@ export default class Render {
     this.tubes = [];
     this.isRnd = true;
     this.allowChange = false;
+    this.stopFrame = 0.00001;
     this.timeout = 6000;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -36,7 +38,7 @@ export default class Render {
       position: [0, 0, 0],
       lookAt: [0, 0, 0],
       aspect: this.width / this.height,
-      viewAngle: 45,
+      viewAngle: 65,
       near: 0.1,
       far: 10000
     };
@@ -46,7 +48,7 @@ export default class Render {
     };
 
     window.addEventListener('resize', this.resize, true);
-    // this.createGUI();
+    this.createGUI();
     this.init();
   }
 
@@ -94,22 +96,35 @@ export default class Render {
   createGUI = () => {
     this.options = {
       sides: this.sides,
-      hueShift: this.hueShift
+      speed: this.speed,
+      hueShift: this.hueShift,
+      dec: this.dec,
+      vectorX: this.vector.x,
+      vectorY: this.vector.y
     };
     this.gui = new dat.GUI();
 
     const folderRender = this.gui.addFolder('Render Options');
-    folderRender.add(this.options, 'sides', 2, 100).step(1)
+    folderRender.add(this.options, 'sides', 2, 32).step(1)
       .onFinishChange((value) => {
         this.sides = value;
         this.setOptions();
       });
-    folderRender.add(this.options, 'hueShift', 1, 512).step(1)
+    folderRender.add(this.options, 'speed', 1, 500).step(1)
       .onFinishChange((value) => {
-        this.hueShift = value;
+        this.speed = value;
         this.setOptions();
       });
-
+    folderRender.add(this.options, 'dec', 0, 100).step(1)
+      .onFinishChange((value) => {
+        this.dec = value;
+        this.setOptions();
+      });
+    // folderRender.add(this.options, 'vectorY', 0, 512).step(1)
+    //   .onFinishChange((value) => {
+    //     this.vector.y = value;
+    //     this.setOptions();
+    //   });
     // folderRender.add(this.options, 'iteration', 1, 100).step(1)
     //   .onFinishChange((value) => { this.iteration = value; });
     // folderRender.addColor(this.options, 'color')
@@ -125,9 +140,9 @@ export default class Render {
   setOptions() {
     this.effect.uniforms.sides.value = this.sides;
     this.huez.uniforms.amount.value = this.hueShift * 0.0001;
-    this.edge.uniforms.aspect.value = new THREE.Vector2(
-      this.vector.x * 0.1, this.vector.y
-    );
+    // this.edge.uniforms.aspect.value = new THREE.Vector2(
+    //   this.vector.x * 0.1, this.vector.y
+    // );
   }
   getRandomVector = () => {
     const x = 0.0 + Math.random() * 255;
@@ -187,15 +202,15 @@ export default class Render {
       transparent: true,
       side: THREE.DoubleSide
     });
-
-    this.meshMaterial2 = new THREE.ShaderMaterial({
-      uniforms,
-      vertexShader,
-      fragmentShader: fragmentShaderA,
-      transparent: true,
-      side: THREE.DoubleSide,
-      blending: THREE.NormalBlending
-    });
+    //
+    // this.meshMaterial2 = new THREE.ShaderMaterial({
+    //   uniforms,
+    //   vertexShader,
+    //   fragmentShader: fragmentShaderA,
+    //   transparent: true,
+    //   side: THREE.DoubleSide,
+    //   blending: THREE.NormalBlending
+    // });
 
     const initialPoints = [
       [0.0, 0.0, 600.0],
@@ -249,9 +264,9 @@ export default class Render {
     // effect.uniforms.side.value = 1;
     // this.composer.addPass(effect);
 
-    this.edge = new THREE.ShaderPass(THREE.EdgeShader2);
-    this.edge.uniforms.aspect.value = new THREE.Vector2( 512, 512 );
-    this.composer.addPass(this.edge);
+    // this.edge = new THREE.ShaderPass(THREE.EdgeShader2);
+    // this.edge.uniforms.aspect.value = new THREE.Vector2( 512, 512 );
+    // this.composer.addPass(this.edge);
 
     this.effect = new THREE.ShaderPass(THREE.KaleidoShader);
     this.effect.uniforms.sides.value = 19;
@@ -299,11 +314,12 @@ export default class Render {
     // Shader Code //
     const timeNow = (Date.now() - this.start) / 1000;
     this.meshMaterial.uniforms.time.value = timeNow;
-    this.meshMaterial2.uniforms.time.value = timeNow;
+    // this.meshMaterial2.uniforms.time.value = timeNow;
+    this.meshMaterial.uniforms.dec.value = this.dec;
     this.meshMaterial.uniforms.needsUpdate = true;
-    this.meshMaterial2.uniforms.needsUpdate = true;
+    // this.meshMaterial2.uniforms.needsUpdate = true;
     // Get stopFrame
-    this.stopFrame += 0.0003;
+    this.stopFrame += (this.speed * 0.00001);
     const realTime = this.frames * 0.005;
     // Get the point at the specific percentage
     const lvc = this.isRnd ? 0.03 : -(0.03);
@@ -319,9 +335,9 @@ export default class Render {
       }, this.timeout);
     }
 
-    const amps = 15 * Math.sin(realTime + 1 * Math.PI / 180);
-    const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.35;
-    const tempY = 1 + amps * Math.sin(realTime + 1 * Math.PI / 180) * 0.35;
+    const amps = 12 * Math.sin(realTime + 1 * Math.PI / 180);
+    const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.25;
+    const tempY = 1 + amps * Math.sin(realTime + 1 * Math.PI / 180) * 0.25;
 
     this.huez.uniforms.amount.value = tempX / tempY * 0.01;
     this.huez.uniforms.angle.value = Math.sin(tempX * Math.PI / 180) * 255;
