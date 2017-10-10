@@ -6,22 +6,23 @@ import fragmentShader from './shader/position/fragmentShadert305';
 import vertexShader from './shader/position/vertexShadert3';
 
 // Skybox image imports //
-import xpos from '../resources/images/space/posx.jpg';
-import xneg from '../resources/images/space/negx.jpg';
-import ypos from '../resources/images/space/posy.jpg';
-import yneg from '../resources/images/space/negy.jpg';
-import zpos from '../resources/images/space/posz.jpg';
-import zneg from '../resources/images/space/negz.jpg';
+import xpos from '../resources/images/yokohama2/posx.jpg';
+import xneg from '../resources/images/yokohama2/negx.jpg';
+import ypos from '../resources/images/yokohama2/posy.jpg';
+import yneg from '../resources/images/yokohama2/negy.jpg';
+import zpos from '../resources/images/yokohama2/posz.jpg';
+import zneg from '../resources/images/yokohama2/negz.jpg';
+
 
 // Render Class Object //
 export default class Render {
   constructor() {
     this.start = Date.now();
     this.angle = 255.0;
-    this.dec = 25.0;
+    this.dec = 68.0;
     this.frames = 0;
-    this.speed = 30;
-    this.sides = 2;
+    this.speed = 62;
+    this.sides = 8;
     this.hueShift = 65;
     this.vector = { x: 512, y: 512 };
     this.stopFrame = 0;
@@ -38,7 +39,7 @@ export default class Render {
       position: [0, 0, 0],
       lookAt: [0, 0, 0],
       aspect: this.width / this.height,
-      viewAngle: 65,
+      viewAngle: 75,
       near: 0.1,
       far: 10000
     };
@@ -88,7 +89,7 @@ export default class Render {
     skybox.format = THREE.RGBFormat;
     skybox.mapping = THREE.CubeRefractionMapping;
     this.scene.background = skybox;
-
+    this.skybox = skybox;
     this.createScene();
     this.setOptions();
   };
@@ -239,7 +240,7 @@ export default class Render {
         24,
         true
       ),
-      this.meshMaterial,
+      this.meshMaterial
     );
     tube1.castShadow = true;
     tube1.receiveShadow = true;
@@ -339,8 +340,8 @@ export default class Render {
     const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.25;
     const tempY = 1 + amps * Math.sin(realTime + 1 * Math.PI / 180) * 0.25;
 
-    this.huez.uniforms.amount.value = tempX / tempY * 0.01;
-    this.huez.uniforms.angle.value = Math.sin(tempX * Math.PI / 180) * 255;
+    this.huez.uniforms.amount.value = tempX * 0.1;
+    this.huez.uniforms.angle.value = 0; //Math.sin(tempX * Math.PI / 180) * 255;
     // Camera
     this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z);
     this.camera.lookAt(p2);
