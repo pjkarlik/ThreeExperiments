@@ -6,12 +6,12 @@ import fragmentShader from './shader/position/fragmentShadert305';
 import vertexShader from './shader/position/vertexShadert3';
 
 // Skybox image imports //
-import xpos from '../resources/images/yokohama2/posx.jpg';
-import xneg from '../resources/images/yokohama2/negx.jpg';
-import ypos from '../resources/images/yokohama2/posy.jpg';
-import yneg from '../resources/images/yokohama2/negy.jpg';
-import zpos from '../resources/images/yokohama2/posz.jpg';
-import zneg from '../resources/images/yokohama2/negz.jpg';
+import xpos from '../resources/images/yokohama/posx.jpg';
+import xneg from '../resources/images/yokohama/negx.jpg';
+import ypos from '../resources/images/yokohama/posy.jpg';
+import yneg from '../resources/images/yokohama/negy.jpg';
+import zpos from '../resources/images/yokohama/posz.jpg';
+import zneg from '../resources/images/yokohama/negz.jpg';
 
 
 // Render Class Object //
@@ -140,7 +140,7 @@ export default class Render {
 
   setOptions() {
     this.effect.uniforms.sides.value = this.sides;
-    this.huez.uniforms.amount.value = this.hueShift * 0.0001;
+    //this.huez.uniforms.amount.value = this.hueShift * 0.0001;
     // this.edge.uniforms.aspect.value = new THREE.Vector2(
     //   this.vector.x * 0.1, this.vector.y
     // );
@@ -269,21 +269,21 @@ export default class Render {
     // this.edge.uniforms.aspect.value = new THREE.Vector2( 512, 512 );
     // this.composer.addPass(this.edge);
 
-    this.effect = new THREE.ShaderPass(THREE.KaleidoShader);
-    this.effect.uniforms.sides.value = 19;
-    this.composer.addPass(this.effect);
+    // this.composer.addPass(this.effect);
 
     // effect = new THREE.ShaderPass(THREE.DotScreenShader);
     // effect.uniforms.scale.value = 5.75;
     // effect.uniforms.scale.angle = 1.75;
     // this.composer.addPass(effect);
 
-    this.huez = new THREE.ShaderPass(THREE.RGBShiftShader);
-    this.huez.uniforms.amount.value = 0.0065;
-    this.huez.uniforms.angle.value = 0.0;
+    // this.huez = new THREE.ShaderPass(THREE.RGBShiftShader);
+    // this.huez.uniforms.amount.value = 0.0065;
+    // this.huez.uniforms.angle.value = 0.0;
 
-    this.huez.renderToScreen = true;
-    this.composer.addPass(this.huez);
+    this.effect = new THREE.ShaderPass(THREE.KaleidoShader);
+    this.effect.uniforms.sides.value = 19;
+    this.effect.renderToScreen = true;
+    this.composer.addPass(this.effect);
   };
 
   makeRandomPath = (pointList) => {
@@ -340,8 +340,8 @@ export default class Render {
     const tempX = amps * Math.cos(realTime + 1 * Math.PI / 180) * 0.25;
     const tempY = 1 + amps * Math.sin(realTime + 1 * Math.PI / 180) * 0.25;
 
-    this.huez.uniforms.amount.value = tempX * 0.1;
-    this.huez.uniforms.angle.value = 0; //Math.sin(tempX * Math.PI / 180) * 255;
+    // this.huez.uniforms.amount.value = tempX * 0.1;
+    // this.huez.uniforms.angle.value = 0; //Math.sin(tempX * Math.PI / 180) * 255;
     // Camera
     this.camera.position.set(p1.x + tempX, p1.y + tempY, p1.z);
     this.camera.lookAt(p2);
