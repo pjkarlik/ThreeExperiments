@@ -242,8 +242,8 @@ export default class Render {
       ),
       this.meshMaterial
     );
-    tube1.castShadow = true;
-    tube1.receiveShadow = true;
+    // tube1.castShadow = true;
+    // tube1.receiveShadow = true;
     this.scene.add(tube1);
 
     this.effectsSetup();
