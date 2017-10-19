@@ -32,6 +32,7 @@ export default class Render {
 
     this.init();
     this.createScene();
+    this.effectsSetup();
     this.renderLoop();
   }
 
@@ -74,11 +75,11 @@ export default class Render {
     this.scene.background = this.skybox;
   };
 
-  getRandomVector = () => {
-    const x = 0.0 + Math.random() * 25;
-    const y = 0.0 + Math.random() * 35;
-    const z = 0.0 + Math.random() * 15;
-    return new THREE.Vector3(x, y, z);
+  getRandomVector = (a, b, c) => {
+    const x = (a || 0.0) + (10 - Math.random() * 20);
+    const y = (b || 0.0) + (10 - Math.random() * 20);
+    const z = (c || 0.0) + (10 - Math.random() * 20);
+    return {x, y, z};
   }
   createScene = () => {
     // Create custom material for the shader
@@ -87,30 +88,38 @@ export default class Render {
       side: THREE.DoubleSide
     });
 
-    this.special = new THREE.Mesh(
-      new THREE.PlaneGeometry(2, 2, 2, 2),
-      this.metalMaterial
-    );
-    this.special.position.set(0, 0, 0);
-    this.special.rotation.set(-90 * Math.PI / 180, 0, 0);
-    this.scene.add(this.special);
+    // this.special = new THREE.Mesh(
+    //   new THREE.PlaneGeometry(2, 2, 2, 2),
+    //   this.metalMaterial
+    // );
+    // this.special.position.set(0, 0, 0);
+    // this.special.rotation.set(-90 * Math.PI / 180, 0, 0);
+    // this.scene.add(this.special);
 
     // Spline Creation //
-    const curve = new THREE.SplineCurve3([
-      // this.getRandomVector(),
-      // this.getRandomVector(),
-      // this.getRandomVector(),
-      // this.getRandomVector(),
-      // this.getRandomVector(),
-      // this.getRandomVector(),
-      // this.getRandomVector()
-      new THREE.Vector3(0.0, 0.0, 0.0),
-      new THREE.Vector3(0.0, 20.0, 0.0),
-      new THREE.Vector3(15.0, 15.0, 0.0),
-      new THREE.Vector3(15.0, 5.0, 0.0),
-      new THREE.Vector3(25.0, 10.0, 0.0),
-      new THREE.Vector3(25.0, 30.0, 0.0)
-    ]);
+    const vcs = 10 + Math.abs(Math.random() * 25);
+    let tempArray = [];
+    let newChamber;
+    let chamber = {x:0, y:0, z:0};
+    tempArray.push(new THREE.Vector3(chamber.x, chamber.y, chamber.z));
+    for(let i = 0; i < vcs; i++) {
+      newChamber = this.getRandomVector(
+        chamber.x, chamber.y, chamber.z
+      );
+      chamber = newChamber;
+      tempArray.push(new THREE.Vector3(chamber.x, chamber.y, chamber.z));
+    }
+    // CatmullRomCurve3
+    console.log(tempArray);
+    const curve = new THREE.SplineCurve3([...tempArray]);
+
+      // new THREE.Vector3(0.0, 0.0, 0.0),
+      // new THREE.Vector3(0.0, 20.0, 0.0),
+      // new THREE.Vector3(15.0, 15.0, 0.0),
+      // new THREE.Vector3(15.0, 5.0, 0.0),
+      // new THREE.Vector3(25.0, 10.0, 0.0),
+      // new THREE.Vector3(25.0, 30.0, 0.0)
+
     const params = {
       scale: 0.05,
       extrusionSegments: 100,
@@ -126,13 +135,61 @@ export default class Render {
       params.closed
     );
 
-    this.splineObject = new THREE.Mesh(
-      tubeGeometry,
-      this.metalMaterial
-    );
-    this.splineObject.scale.set(params.scale, params.scale, params.scale);
-    this.scene.add(this.splineObject);
-    console.log(this.splineObject);
+    this.splineObject = [];
+    const amount = 3;
+    const adef = 360 / amount;
+    for(let i = 0; i < 6; i++) {
+      const tempSpline = new THREE.Mesh(
+        tubeGeometry,
+        this.metalMaterial
+      );
+      tempSpline.scale.set(params.scale, params.scale, params.scale);
+      // tempSpline.rotation.x = (10 - Math.random() * 20) * Math.PI / 180;
+      // tempSpline.rotation.y = (10 - Math.random() * 20) * Math.PI / 180;
+      // tempSpline.rotation.z = (10 - Math.random() * 20) * Math.PI / 180;
+      tempSpline.rotation.set(0, i * adef, i * adef);
+      console.log(tempSpline.rotation.z);
+      this.splineObject.push(tempSpline);
+      this.scene.add(tempSpline);
+    }
+
+  };
+
+  effectsSetup = () => {
+    let effect;
+    this.composer = new THREE.EffectComposer(this.renderer);
+    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
+
+    const renderPass = new THREE.RenderPass(this.scene, this.camera);
+    this.composer.addPass(renderPass);
+
+    // effect = new THREE.ShaderPass(THREE.MirrorShader);
+    // effect.uniforms.side.value = 1;
+    // this.composer.addPass(effect);
+
+    // this.edge = new THREE.ShaderPass(THREE.EdgeShader2);
+    // this.edge.uniforms.aspect.value = new THREE.Vector2( 512, 512 );
+    // this.edge.renderToScreen = true;
+    // this.composer.addPass(this.edge);
+
+    // this.composer.addPass(this.effect);
+
+    // effect = new THREE.ShaderPass(THREE.DotScreenShader);
+    // effect.uniforms.scale.value = 5.75;
+    // effect.uniforms.scale.angle = 1.75;
+    // effect.renderToScreen = true;
+    // this.composer.addPass(effect);
+
+    this.huez = new THREE.ShaderPass(THREE.RGBShiftShader);
+    this.huez.uniforms.amount.value = 0.0065;
+    this.huez.uniforms.angle.value = 0.0;
+    this.huez.renderToScreen = true;
+    this.composer.addPass(this.huez);
+
+    // this.effect = new THREE.ShaderPass(THREE.KaleidoShader);
+    // this.effect.uniforms.sides.value = 2;
+    // this.effect.renderToScreen = true;
+    //this.composer.addPass(this.effect);
   };
 
   resize = () => {
@@ -144,7 +201,8 @@ export default class Render {
 
   renderScene = () => {
     // Core three Render call //
-    this.renderer.render(this.scene, this.camera);
+    this.composer.render();
+    // this.renderer.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
