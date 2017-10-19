@@ -17,7 +17,11 @@ export default class Render {
     this.devicePixelRatio = window.devicePixelRatio;
     // Configurations //
     this.cameraConfig = {
-      position: [-0.389120833984, -1.1477218111444, -1.582233486361],
+      position: [
+        -0.61856619533,
+        -0.37075002657,
+        -1.10822670381
+      ],
       lookAt: [0, 1, 2],
       aspect: this.width / this.height,
       viewAngle: 85,
@@ -28,7 +32,7 @@ export default class Render {
       max: 1500,
       min: 0
     };
-    this.amount = 6;
+    this.amount = 8;
     this.adef = 360 / this.amount;
     this.splineObject = [];
 
@@ -149,7 +153,7 @@ export default class Render {
 
     effect = new THREE.ShaderPass(THREE.MirrorShader);
     effect.uniforms.side.value = 1;
-    effect.renderToScreen = true;
+    // effect.renderToScreen = true;
     this.composer.addPass(effect);
 
     // this.edge = new THREE.ShaderPass(THREE.EdgeShader2);
@@ -163,11 +167,11 @@ export default class Render {
     // effect.renderToScreen = true;
     // this.composer.addPass(effect);
 
-    // this.huez = new THREE.ShaderPass(THREE.RGBShiftShader);
-    // this.huez.uniforms.amount.value = 0.0265;
-    // this.huez.uniforms.angle.value = 0.0;
-    // this.huez.renderToScreen = true;
-    // this.composer.addPass(this.huez);
+    this.huez = new THREE.ShaderPass(THREE.RGBShiftShader);
+    this.huez.uniforms.amount.value = 0.0025;
+    this.huez.uniforms.angle.value = 0.0;
+    this.huez.renderToScreen = true;
+    this.composer.addPass(this.huez);
 
     // this.effect = new THREE.ShaderPass(THREE.KaleidoShader);
     // this.effect.uniforms.sides.value = 6;
@@ -196,10 +200,11 @@ export default class Render {
     this.frames ++;
     for(let i = 0; i < this.amount; i++) {
       const tempSpline = this.splineObject[i];
+      const evenItem = (i % 2 === 0);
       tempSpline.rotation.set(
-        0,
-        i % 2 === 0 ? ((i * this.adef) + this.frames) * Math.PI / 180 : 0,
-        i % 2 === 0 ? 0 : ((i * this.adef) - this.frames * 0.5) * Math.PI / 180
+        ( (i * this.adef) + this.frames) * Math.PI / 180,
+        evenItem ? 0 : ((i * this.adef) + this.frames) * Math.PI / 180,
+        !evenItem ? 0 : ((i * this.adef) + this.frames) * Math.PI / 180
       );
     }
 
