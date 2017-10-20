@@ -1,4 +1,6 @@
-import THREE from './Three';
+require('./shader/EdgeFragment');
+import dat from 'dat-gui';
+import THREE from './ThreeLight';
 
 // Skybox image imports //
 import xpos from '../resources/images/maskonaive/posx.jpg';
@@ -12,6 +14,7 @@ import zneg from '../resources/images/maskonaive/negz.jpg';
 export default class Render {
   constructor() {
     this.frames = 0;
+    this.mirror = 1;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.devicePixelRatio = window.devicePixelRatio;
@@ -32,15 +35,36 @@ export default class Render {
       max: 1500,
       min: 0
     };
-    this.amount = 8;
+    this.amount = 2 + Math.abs(Math.random() * 26);
     this.adef = 360 / this.amount;
     this.splineObject = [];
-
+    this.camPosition = {
+      x: -1.61856619533,
+      y: -1.37075002657,
+      z: -1.10822670381
+    };
+    this.trsPosition = {
+      x: -0.61856619533,
+      y: -0.37075002657,
+      z: -1.10822670381
+    };
+    this.camTimeoutx = true;
+    this.camTimeouty = true;
+    this.camTimeoutz = true;
+    setTimeout(
+      () => {
+        this.camTimeoutx = false;
+        this.camTimeouty = false;
+        this.camTimeoutz = false;
+      },
+      1000
+    );
     window.addEventListener('resize', this.resize, true);
     window.addEventListener('click', () => {
       console.log(this.camera.position);
     }, true);
     this.init();
+    this.createGUI();
     this.createScene();
     this.effectsSetup();
     this.renderLoop();
@@ -67,10 +91,6 @@ export default class Render {
     this.camera.lookAt(new THREE.Vector3(...this.cameraConfig.lookAt));
     this.scene.add(this.camera);
 
-    this.controls = new THREE.OrbitControls(this.camera);
-    this.controls.maxDistance = 1500;
-    this.controls.minDistance = 0;
-
     // Set AmbientLight //
     this.ambient = new THREE.AmbientLight(0xFFFFFF);
     this.ambient.position.set(0, 0, 0);
@@ -85,12 +105,34 @@ export default class Render {
     this.scene.background = this.skybox;
   };
 
+  createGUI = () => {
+    this.options = {
+      diffusion: this.diffusion,
+      mirror: this.mirror
+    };
+    this.gui = new dat.GUI();
+
+    const folderRender = this.gui.addFolder('Render Options');
+    folderRender.add(this.options, 'mirror', 0, 4).step(1)
+      .onFinishChange((value) => {
+        this.mirror = value;
+        this.setOptions();
+      });
+    // folderRender.open();
+  };
+
+  setOptions() {
+    this.effect.uniforms.side.value = this.mirror;
+    console.log(this.dotz.uniforms.scale.value);
+  };
+
   getRandomVector = (a, b, c) => {
     const x = (a || 0.0) + (10 - Math.random() * 20);
     const y = (b || 0.0) + (20 - Math.random() * 40);
     const z = (c || 0.0) + (10 - Math.random() * 20);
     return {x, y, z};
-  }
+  };
+
   createScene = () => {
     // Create custom material for the shader
     this.metalMaterial = new THREE.MeshBasicMaterial({
@@ -99,7 +141,7 @@ export default class Render {
     });
 
     // Spline Creation //
-    const vcs = 10 + Math.abs(Math.random() * 25);
+    const vcs = 14 + Math.abs(Math.random() * 24);
     let tempArray = [];
     let newChamber;
     let chamber = {x:0, y:0, z:0};
@@ -116,7 +158,7 @@ export default class Render {
     const curve = new THREE.CatmullRomCurve3([...tempArray]);
 
     const params = {
-      scale: 0.02,
+      scale: 0.015,
       extrusionSegments: 300,
       radiusSegments: 12,
       closed: false
@@ -151,32 +193,15 @@ export default class Render {
     const renderPass = new THREE.RenderPass(this.scene, this.camera);
     this.composer.addPass(renderPass);
 
-    effect = new THREE.ShaderPass(THREE.MirrorShader);
-    effect.uniforms.side.value = 1;
-    // effect.renderToScreen = true;
-    this.composer.addPass(effect);
-
-    // this.edge = new THREE.ShaderPass(THREE.EdgeShader2);
-    // this.edge.uniforms.aspect.value = new THREE.Vector2( 512, 512 );
-    // this.edge.renderToScreen = true;
-    // this.composer.addPass(this.edge);
-
-    // effect = new THREE.ShaderPass(THREE.DotScreenShader);
-    // effect.uniforms.scale.value = 5.75;
-    // effect.uniforms.scale.angle = 1.75;
-    // effect.renderToScreen = true;
-    // this.composer.addPass(effect);
-
-    this.huez = new THREE.ShaderPass(THREE.RGBShiftShader);
-    this.huez.uniforms.amount.value = 0.0025;
-    this.huez.uniforms.angle.value = 0.0;
-    this.huez.renderToScreen = true;
-    this.composer.addPass(this.huez);
-
-    // this.effect = new THREE.ShaderPass(THREE.KaleidoShader);
-    // this.effect.uniforms.sides.value = 6;
+    this.effect = new THREE.ShaderPass(THREE.MirrorShader);
+    this.effect.uniforms.side.value = this.mirror;
     // this.effect.renderToScreen = true;
-    // this.composer.addPass(this.effect);
+    this.composer.addPass(this.effect);
+
+    this.edge = new THREE.ShaderPass(THREE.EdgeFragment);
+    this.edge.uniforms.aspect.value = new THREE.Vector2( 1024, 1024);
+    this.edge.renderToScreen = true;
+    this.composer.addPass(this.edge);
   };
 
   resize = () => {
@@ -192,12 +217,54 @@ export default class Render {
     // this.renderer.render(this.scene, this.camera);
   };
 
+  cameraLoop = () => {
+    this.camPosition.x = this.camPosition.x - (this.camPosition.x - this.trsPosition.x) * 0.01;
+    this.camPosition.y = this.camPosition.y - (this.camPosition.y - this.trsPosition.y) * 0.01;
+    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.01;
+    this.camera.position.set(
+      this.camPosition.x,
+      this.camPosition.y,
+      this.camPosition.z
+    );
+    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    if(!this.camTimeoutx && Math.random() * 255 > 254) {
+      this.trsPosition.x = this.cameraRange();
+      this.camTimeoutx = true;
+      setTimeout(
+        () => { this.camTimeoutx = false; },
+        3000
+      );
+    }
+    if(!this.camTimeouty && Math.random() * 255 > 254) {
+      this.trsPosition.y = this.cameraRange();
+      this.camTimeouty = true;
+      setTimeout(
+        () => { this.camTimeouty = false; },
+        3000
+      );
+    }
+    if(!this.camTimeoutz && Math.random() * 255 > 254) {
+      this.trsPosition.z = this.cameraRange();
+      this.camTimeoutz = true;
+      setTimeout(
+        () => { this.camTimeoutz = false; },
+        3000
+      );
+    }
+  };
+
+  cameraRange = () => {
+    return (3 - Math.random() * 6);
+  };
   renderLoop = () => {
     if (this.frames % 1 === 0) {
       // some function here for throttling
     }
     this.renderScene();
+    this.cameraLoop();
     this.frames ++;
+
     for(let i = 0; i < this.amount; i++) {
       const tempSpline = this.splineObject[i];
       const evenItem = (i % 2 === 0);
