@@ -49,7 +49,7 @@ THREE.EdgeFragment = {
 			"float cnv[2];",
       "float fcAmount;",
 			"vec3 sample;",
-
+			"vec2 q = vUv;",
 			"G[0] = g0;",
 			"G[1] = g1;",
 
@@ -66,7 +66,7 @@ THREE.EdgeFragment = {
 				"cnv[i] = dp3 * dp3; ",
 			"}",
 			"fcAmount = sqrt(cnv[0]*cnv[0]+cnv[1]*cnv[1]);",
-			"gl_FragColor = vec4(0.5 * fcAmount, fcAmount, 0, 1);",
+			"gl_FragColor = vec4(q.x * fcAmount, q.y * fcAmount, q.y / q.x * fcAmount, 1.0);",
 		"} "
 
 	].join( "\n" )
