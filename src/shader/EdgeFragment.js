@@ -65,8 +65,19 @@ THREE.EdgeFragment = {
 				"float dp3 = dot(G[i][0], I[0]) + dot(G[i][1], I[1]) + dot(G[i][2], I[2]);",
 				"cnv[i] = dp3 * dp3; ",
 			"}",
-			"fcAmount = sqrt(cnv[0]*cnv[0]+cnv[1]*cnv[1]);",
-			"gl_FragColor = vec4(q.x * fcAmount, q.y * fcAmount, q.y / q.x * fcAmount, 1.0);",
+			"fcAmount = sqrt(cnv[0]*cnv[0]+cnv[1]*cnv[1]) * 0.2;",
+			"gl_FragColor = vec4(",
+				"fcAmount - (1.0 - sin(fcAmount - 6.25 * q.x)) / 2.0,",
+				"fcAmount - (1.0 + cos(fcAmount + 6.25 * q.x)) / 2.0,",
+				"fcAmount - (1.0 - sin(fcAmount + 6.25 * q.x)) / 2.0,",
+				// "fcAmount - (1.0 - sin(fcAmount - 6.1 * q.x)) / 2.0,",
+				// "fcAmount - (1.0 - sin(fcAmount + 6.1 * q.x)) / 2.0,",
+				// "fcAmount - (1.0 + cos(fcAmount + 6.1 * q.x)) / 2.0,",
+				// "fcAmount - sin(fcAmount - 2.65 * q.x),",
+				// "fcAmount + cos(fcAmount + 2.65 * q.x),",
+				// "fcAmount - sin(fcAmount + 2.65 * q.x),",
+			"1.0);",
+			/* "gl_FragColor = vec4(q.y * fcAmount, q.xø * fcAmount, q.y / q.x * fcAmount, 1.0);", */
 		"} "
 
 	].join( "\n" )

@@ -1,4 +1,4 @@
-require('./shader/EdgeFragment');
+require('./shader/RasterizeFragment');
 import dat from 'dat-gui';
 import THREE from './ThreeLight';
 
@@ -195,13 +195,13 @@ export default class Render {
 
     this.effect = new THREE.ShaderPass(THREE.MirrorShader);
     this.effect.uniforms.side.value = this.mirror;
-    // this.effect.renderToScreen = true;
     this.composer.addPass(this.effect);
 
-    this.edge = new THREE.ShaderPass(THREE.EdgeFragment);
-    this.edge.uniforms.aspect.value = new THREE.Vector2( 1024, 1024);
-    this.edge.renderToScreen = true;
-    this.composer.addPass(this.edge);
+    this.effect = new THREE.ShaderPass(THREE.RasterFragment);
+    this.effect.uniforms.scale.value = 5.75;
+    this.effect.uniforms.scale.angle = 1.75;
+    this.effect.renderToScreen = true;
+    this.composer.addPass(this.effect);
   };
 
   resize = () => {
@@ -255,7 +255,7 @@ export default class Render {
   };
 
   cameraRange = () => {
-    return (2.5 - Math.random() * 5);
+    return (1.5 - Math.random() * 3);
   };
   renderLoop = () => {
     if (this.frames % 1 === 0) {
@@ -269,7 +269,7 @@ export default class Render {
       const tempSpline = this.splineObject[i];
       const evenItem = (i % 2 === 0);
       tempSpline.rotation.set(
-        ( (i * this.adef) + this.frames) * Math.PI / 180,
+        ((i * this.adef) + this.frames) * Math.PI / 180,
         evenItem ? 0 : ((i * this.adef) + this.frames) * Math.PI / 180,
         !evenItem ? 0 : ((i * this.adef) + this.frames) * Math.PI / 180
       );
