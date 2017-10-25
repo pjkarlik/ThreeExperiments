@@ -45,7 +45,7 @@ THREE.RasterFragment = {
 				"float s = sin( 1.75 ), c = cos( 1.75 );",
 
 				"vec2 tex = vUv * tSize - center;",
-				"vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * (ratio / 128.0);",
+				"vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * (ratio / 32.0);",
 
 				"return ( sin( point.x ) * sin( point.y ) ) * 4.0;",
 
