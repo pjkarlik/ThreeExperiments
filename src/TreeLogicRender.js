@@ -1,4 +1,5 @@
 require('./shader/RasterizeFragment');
+//require('./shader/EdgeFragment');
 import dat from 'dat-gui';
 import THREE from './ThreeLight';
 
@@ -15,6 +16,8 @@ export default class Render {
   constructor() {
     this.frames = 0;
     this.mirror = 1;
+    this.scale = 2;
+    this.ratio = 512;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.devicePixelRatio = window.devicePixelRatio;
@@ -107,7 +110,8 @@ export default class Render {
 
   createGUI = () => {
     this.options = {
-      diffusion: this.diffusion,
+      scale: this.scale,
+      ratio: this.ratio,
       mirror: this.mirror
     };
     this.gui = new dat.GUI();
@@ -118,12 +122,23 @@ export default class Render {
         this.mirror = value;
         this.setOptions();
       });
+    folderRender.add(this.options, 'scale', 1, 25).step(0.2)
+      .onFinishChange((value) => {
+        this.scale = value * 1.0;
+        this.setOptions();
+      });
+    folderRender.add(this.options, 'ratio', 64, 512).step(2)
+      .onFinishChange((value) => {
+        this.ratio = value * 1.0;
+        this.setOptions();
+      });
     // folderRender.open();
   };
 
   setOptions() {
     this.effect.uniforms.side.value = this.mirror;
-    console.log(this.dotz.uniforms.scale.value);
+    this.rfrag.uniforms.scale.value = this.scale;
+    this.rfrag.uniforms.ratio.value = this.ratio;
   };
 
   getRandomVector = (a, b, c) => {
@@ -193,15 +208,22 @@ export default class Render {
     const renderPass = new THREE.RenderPass(this.scene, this.camera);
     this.composer.addPass(renderPass);
 
+    // this.edge = new THREE.ShaderPass(THREE.EdgeFragment);
+    // this.edge.uniforms.aspect.value = new THREE.Vector2( 1024, 1024);
+    // this.composer.addPass(this.edge);
+    //
+
     this.effect = new THREE.ShaderPass(THREE.MirrorShader);
     this.effect.uniforms.side.value = this.mirror;
+
     this.composer.addPass(this.effect);
 
-    this.effect = new THREE.ShaderPass(THREE.RasterFragment);
-    this.effect.uniforms.scale.value = 5.75;
-    this.effect.uniforms.scale.angle = 1.75;
-    this.effect.renderToScreen = true;
-    this.composer.addPass(this.effect);
+    this.rfrag = new THREE.ShaderPass(THREE.RasterFragment);
+    this.rfrag.uniforms.scale.value = 2.0;
+    this.rfrag.uniforms.ratio.value = 512.0;
+    this.rfrag.renderToScreen = true;
+    this.composer.addPass(this.rfrag);
+
   };
 
   resize = () => {

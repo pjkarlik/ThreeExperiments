@@ -7,14 +7,14 @@
  * aspect: vec2 of (1/width, 1/height)
  */
 /* eslint-disable */
-THREE.RasterFragment = {
+THREE.VertLinesFragment = {
   	uniforms: {
 
   		"tDiffuse": { value: null },
   		"tSize":    { value: new THREE.Vector2( 256, 256 ) },
   		"center":   { value: new THREE.Vector2( 0.5, 0.5 ) },
-  		"ratio":    { value: 512.0 },
-  		"scale":    { value: 2.0 }
+  		"angle":    { value: 1.57 },
+  		"scale":    { value: 1.0 }
 
   	},
 
@@ -34,36 +34,39 @@ THREE.RasterFragment = {
   	fragmentShader: [
 
   		"uniform vec2 center;",
+  		"uniform float angle;",
   		"uniform float scale;",
-			"uniform float ratio;",
   		"uniform vec2 tSize;",
+
   		"uniform sampler2D tDiffuse;",
+
   		"varying vec2 vUv;",
 
-			"float pattern() {",
+  		"float pattern() {",
 				"vec2 q = vUv;",
-				"float s = sin( 1.75 ), c = cos( 1.75 );",
+  			"float s = sin( angle ), c = cos( angle );",
 
-				"vec2 tex = vUv * tSize - center;",
-				"vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * (ratio / 128.0);",
+  			"vec2 tex = vUv * tSize - center;",
+  			"vec2 point = vec2( c * tex.x - s * q.y, s * tex.x + c * q.x ) * scale;",
 
-				"return ( sin( point.x ) * sin( point.y ) ) * 4.0;",
+  			"return ( sin( point.x ) * sin( point.y ) ) * 4.0;",
 
-			"}",
+  		"}",
 
   		"void main() {",
 				"vec2 q = vUv;",
-				"float Pixels = ratio;",
-        "float dx = scale * (1.0 / Pixels);",
-        "float dy = scale * (1.0 / Pixels);",
-        "vec2 Coord = vec2(dx * floor(q.x / dx), dy * floor(q.y / dy));",
-  			"vec4 color = texture2D( tDiffuse, Coord);",
-				"float average = ( color.r + color.g + color.b ) / 3.0;",
-				// "gl_FragColor = vec4( vec3( average * 10.0 - 5.0 + pattern() ), color.a );",
+  			"vec4 color = texture2D( tDiffuse, vUv );",
+
+  			"float average = ( color.r + color.g + color.b ) / 3.0;",
+				//"gl_FragColor = vec4( vec3( average * 10.0 - 5.0 + pattern() ), color.a );",
   			"gl_FragColor = vec4(",
-					"color.r * 10.0 - 5.0 + pattern(),",
-					"color.g * 8.0 - 4.0 + pattern(), ",
-					"color.b * 5.0 - 3.0 + pattern(),",
+					"color.r * 12.0 - 5.0 - pattern(), ",
+					"color.g * 8.0 - 5.0 - pattern(), ",
+					"color.b * 6.0 - 5.0 - pattern(), ",
+					//"average - (255.0 * cos(average + 6.0 * q.x)) / 2.0,",
+					// "(255.0 * sin(average * q.x * 3.125 / 180.0)),",
+					// "(255.0 * sin(average * q.x * 3.125 / 180.0)),",
+					// "(255.0 * sin(average * q.x * 3.125 / 180.0)),",
 					"color.a",
 				");",
 
