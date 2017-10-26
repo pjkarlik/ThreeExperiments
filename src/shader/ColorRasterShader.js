@@ -58,14 +58,13 @@ THREE.RasterFragment = {
         "float dy = scale * (1.0 / Pixels);",
         "vec2 Coord = vec2(dx * floor(q.x / dx), dy * floor(q.y / dy));",
   			"vec4 color = texture2D( tDiffuse, Coord);",
-				"float average = ( color.r + color.g + color.b ) / 2.0;",
-				"gl_FragColor = vec4( vec3( average * 10.0 - 5.0), color.a );",
-  			// "gl_FragColor = vec4(",
-				// 	"color.r * 10.0 - 5.0,",
-				// 	"color.g * 8.0 - 4.0, ",
-				// 	"color.b * 5.0 - 3.0,",
-				// 	"color.a",
-				// ");",
+				"float average = ( color.r + color.g + color.b ) / 3.0;",
+  			"gl_FragColor = vec4(",
+					"color.r * 10.0 - 5.0 + pattern(),",
+					"color.g * 8.0 - 4.0 + pattern(), ",
+					"color.b * 5.0 - 3.0 + pattern(),",
+					"color.a",
+				");",
 
   		"}"
 

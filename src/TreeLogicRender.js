@@ -15,9 +15,9 @@ import zneg from '../resources/images/maskonaive/negz.jpg';
 export default class Render {
   constructor() {
     this.frames = 0;
-    this.mirror = 1;
-    this.scale = 2;
-    this.ratio = 512;
+    this.mirror = 4;
+    this.scale = 5.2;
+    this.ratio = 1024;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.devicePixelRatio = window.devicePixelRatio;
@@ -122,12 +122,12 @@ export default class Render {
         this.mirror = value;
         this.setOptions();
       });
-    folderRender.add(this.options, 'scale', 1, 25).step(0.2)
+    folderRender.add(this.options, 'scale', 1, 20).step(0.1)
       .onFinishChange((value) => {
         this.scale = value * 1.0;
         this.setOptions();
       });
-    folderRender.add(this.options, 'ratio', 64, 512).step(2)
+    folderRender.add(this.options, 'ratio', 512, 1024).step(1)
       .onFinishChange((value) => {
         this.ratio = value * 1.0;
         this.setOptions();
