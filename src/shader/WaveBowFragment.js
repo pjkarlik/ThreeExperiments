@@ -59,13 +59,13 @@ THREE.WaveBowFragment = {
         "vec2 Coord = vec2(dx * floor(q.x / dx), dy * floor(q.y / dy));",
   			"vec4 color = texture2D( tDiffuse, Coord);",
 				"float average = ( color.r + color.g + color.b ) / 2.0;",
-				// "gl_FragColor = vec4( vec3(sin(average * 10.0 - 5.0 / q.y) * 255.0), color.a );",
-  			"gl_FragColor = vec4(",
-					"sin(color.r * 10.0 - 5.0 / q.y) * 255.0,",
-					"sin(color.g * 8.0 - 4.0 / q.y) * 255.0, ",
-					"sin(color.b * 6.0 - 3.0 / q.y) * 255.0,",
-					"color.a",
-				");",
+				"gl_FragColor = vec4( vec3(sin(average * 10.0 - 5.0 / q.y) * 255.0), color.a );",
+  			// "gl_FragColor = vec4(",
+				// 	"sin(color.r * 10.0 - 5.0 / q.y) * 255.0,",
+				// 	"sin(color.g * 8.0 - 4.0 / q.y) * 255.0, ",
+				// 	"sin(color.b * 6.0 - 3.0 / q.y) * 255.0,",
+				// 	"color.a",
+				// ");",
 
   		"}"
 
