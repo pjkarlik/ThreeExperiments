@@ -1,7 +1,13 @@
 /**
+ * @author zz85 / https://github.com/zz85 | https://www.lab4games.net/zz85/blog
+ *
+ * Edge Detection Shader using Sobel filter
+ * Based on http://rastergrid.com/blog/2011/01/frei-chen-edge-detector
+ *
+ * aspect: vec2 of (1/width, 1/height)
  */
 /* eslint-disable */
-THREE.RasterFragment = {
+THREE.WaveBowFragment = {
   	uniforms: {
 
   		"tDiffuse": { value: null },
@@ -53,7 +59,14 @@ THREE.RasterFragment = {
         "vec2 Coord = vec2(dx * floor(q.x / dx), dy * floor(q.y / dy));",
   			"vec4 color = texture2D( tDiffuse, Coord);",
 				"float average = ( color.r + color.g + color.b ) / 2.0;",
-				"gl_FragColor = vec4( vec3(average * 10.0 - 5.0), color.a );",
+				// "gl_FragColor = vec4( vec3(sin(average * 10.0 - 5.0 / q.y) * 255.0), color.a );",
+  			"gl_FragColor = vec4(",
+					"sin(color.r * 10.0 - 5.0 / q.y) * 255.0,",
+					"sin(color.g * 8.0 - 4.0 / q.y) * 255.0, ",
+					"sin(color.b * 6.0 - 3.0 / q.y) * 255.0,",
+					"color.a",
+				");",
+
   		"}"
 
   	].join( "\n" )

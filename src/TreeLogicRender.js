@@ -1,4 +1,4 @@
-require('./shader/RasterizeFragment');
+require('./shader/WaveBowFragment');
 //require('./shader/EdgeFragment');
 import dat from 'dat-gui';
 import THREE from './ThreeLight';
@@ -15,8 +15,8 @@ import zneg from '../resources/images/maskonaive/negz.jpg';
 export default class Render {
   constructor() {
     this.frames = 0;
-    this.mirror = 4;
-    this.scale = 5.2;
+    this.mirror = 1;
+    this.scale = 2.5;
     this.ratio = 1024;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -169,12 +169,11 @@ export default class Render {
       tempArray.push(new THREE.Vector3(chamber.x, chamber.y, chamber.z));
     }
     // CatmullRomCurve3
-    console.log(tempArray);
     const curve = new THREE.CatmullRomCurve3([...tempArray]);
 
     const params = {
       scale: 0.015,
-      extrusionSegments: 300,
+      extrusionSegments: 150,
       radiusSegments: 12,
       closed: false
     };
@@ -208,19 +207,14 @@ export default class Render {
     const renderPass = new THREE.RenderPass(this.scene, this.camera);
     this.composer.addPass(renderPass);
 
-    // this.edge = new THREE.ShaderPass(THREE.EdgeFragment);
-    // this.edge.uniforms.aspect.value = new THREE.Vector2( 1024, 1024);
-    // this.composer.addPass(this.edge);
-    //
-
     this.effect = new THREE.ShaderPass(THREE.MirrorShader);
     this.effect.uniforms.side.value = this.mirror;
 
     this.composer.addPass(this.effect);
 
-    this.rfrag = new THREE.ShaderPass(THREE.RasterFragment);
-    this.rfrag.uniforms.scale.value = 2.0;
-    this.rfrag.uniforms.ratio.value = 512.0;
+    this.rfrag = new THREE.ShaderPass(THREE.WaveBowFragment);
+    this.rfrag.uniforms.scale.value = this.scale;
+    this.rfrag.uniforms.ratio.value = this.ratio;
     this.rfrag.renderToScreen = true;
     this.composer.addPass(this.rfrag);
 
