@@ -18,6 +18,7 @@ export default class Render {
     this.mirror = 1;
     this.scale = 2.5;
     this.ratio = 1024;
+    this.frenz = 1024;
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.devicePixelRatio = window.devicePixelRatio;
@@ -105,7 +106,7 @@ export default class Render {
     this.skybox.format = THREE.RGBFormat;
     // CubeReflectionMapping || CubeRefractionMapping//
     this.skybox.mapping = THREE.CubeReflectionMapping;
-    // this.scene.background = this.skybox;
+    this.scene.background = this.skybox;
   };
 
   createGUI = () => {
@@ -215,6 +216,7 @@ export default class Render {
     this.rfrag = new THREE.ShaderPass(THREE.WaveBowFragment);
     this.rfrag.uniforms.scale.value = this.scale;
     this.rfrag.uniforms.ratio.value = this.ratio;
+    this.rfrag.uniforms.frenz.value = this.frenz;
     this.rfrag.renderToScreen = true;
     this.composer.addPass(this.rfrag);
 
@@ -276,6 +278,8 @@ export default class Render {
   renderLoop = () => {
     if (this.frames % 1 === 0) {
       // some function here for throttling
+      this.frenz = Math.sin((this.frames * 0.02) + Math.PI / 180) * 1024.0;
+      this.rfrag.uniforms.frenz.value = this.frenz;
     }
     this.renderScene();
     this.cameraLoop();
