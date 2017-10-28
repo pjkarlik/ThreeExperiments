@@ -106,7 +106,7 @@ export default class Render {
     this.skybox.format = THREE.RGBFormat;
     // CubeReflectionMapping || CubeRefractionMapping//
     this.skybox.mapping = THREE.CubeReflectionMapping;
-    this.scene.background = this.skybox;
+    // this.scene.background = this.skybox;
   };
 
   createGUI = () => {
