@@ -16,7 +16,7 @@ export default class Render {
   constructor() {
     this.frames = 0;
     this.mirror = 1;
-    this.scale = 2.5;
+    this.scale = 1.0;
     this.ratio = 1024;
     this.frenz = 1024;
     this.width = window.innerWidth;
@@ -106,7 +106,7 @@ export default class Render {
     this.skybox.format = THREE.RGBFormat;
     // CubeReflectionMapping || CubeRefractionMapping//
     this.skybox.mapping = THREE.CubeReflectionMapping;
-    // this.scene.background = this.skybox;
+    this.scene.background = this.skybox;
   };
 
   createGUI = () => {
@@ -213,7 +213,7 @@ export default class Render {
 
     this.composer.addPass(this.effect);
 
-    this.rfrag = new THREE.ShaderPass(THREE.WaveBowFragment);
+    this.rfrag = new THREE.ShaderPass(THREE.RenderFragment);
     this.rfrag.uniforms.scale.value = this.scale;
     this.rfrag.uniforms.ratio.value = this.ratio;
     this.rfrag.uniforms.frenz.value = this.frenz;

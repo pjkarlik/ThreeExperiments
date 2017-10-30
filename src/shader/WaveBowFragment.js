@@ -1,13 +1,5 @@
-/**
- * @author zz85 / https://github.com/zz85 | https://www.lab4games.net/zz85/blog
- *
- * Edge Detection Shader using Sobel filter
- * Based on http://rastergrid.com/blog/2011/01/frei-chen-edge-detector
- *
- * aspect: vec2 of (1/width, 1/height)
- */
 /* eslint-disable */
-THREE.WaveBowFragment = {
+THREE.RenderFragment = {
   	uniforms: {
 
   		"tDiffuse": { value: null },
@@ -44,7 +36,7 @@ THREE.WaveBowFragment = {
 
 			"float pattern() {",
 				"vec2 q = vUv;",
-				"float s = sin( 1.75 ), c = cos( 1.75 );",
+				"float s = sin( 1.57 ), c = cos( 1.57 );",
 
 				"vec2 tex = vUv * tSize - center;",
 				"vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * (ratio / 32.0);",
@@ -63,14 +55,14 @@ THREE.WaveBowFragment = {
         "vec2 Coord = vec2(dx * floor(q.x / dx), dy * floor(q.y / dy));",
         "float Dist = sqrt(((q.x - Adj) * (q.x - Adj) + (q.y - Adj) * (q.y - Adj)));",
   			"vec4 color = texture2D( tDiffuse, Coord);",
-				"float average = ( color.r + color.g + color.b ) / 2.0;",
-				"gl_FragColor = vec4( vec3(average + sin((average * 5.0 - 5.0) / Dist - Coord.y) * 0.25), color.a );",
-  			// "gl_FragColor = vec4(",
-				// 	"color.r - sin((color.r * 10.0 - 5.0) / Dist - Coord.x) * 0.25,",
-				// 	"color.g - sin((color.g * 10.0 - 4.0) / Dist - Coord.x) * 0.25, ",
-				// 	"color.b - sin((color.b * 10.0 - 3.0) / Dist - Coord.x) * 0.25,",
-				// 	"color.a",
-				// ");",
+				"float average = ( color.r + color.g + color.b ) / 32.0;",
+				// "gl_FragColor = vec4( vec3(average + sin((average * 8.0 - 5.0)) * 0.25), color.a );",
+  			"gl_FragColor = vec4(",
+					"color.r + sin((color.r * 10.0 - 5.0)) * 0.25,",
+					"color.g + sin((color.g * 9.0 - 4.0)) * 0.25, ",
+					"color.b + sin((color.b * 8.0 - 3.0)) * 0.25,",
+					"color.a",
+				");",
 
   		"}"
 

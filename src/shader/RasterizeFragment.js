@@ -1,7 +1,5 @@
-/**
- */
 /* eslint-disable */
-THREE.RasterFragment = {
+THREE.RenderFragment = {
   	uniforms: {
 
   		"tDiffuse": { value: null },

@@ -1,13 +1,5 @@
-/**
- * @author zz85 / https://github.com/zz85 | https://www.lab4games.net/zz85/blog
- *
- * Edge Detection Shader using Sobel filter
- * Based on http://rastergrid.com/blog/2011/01/frei-chen-edge-detector
- *
- * aspect: vec2 of (1/width, 1/height)
- */
 /* eslint-disable */
-THREE.EdgeFragment = {
+THREE.RenderFragment = {
 
 	uniforms: {
 
