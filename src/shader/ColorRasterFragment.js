@@ -36,12 +36,12 @@ THREE.RenderFragment = {
 
 			"float pattern() {",
 				"vec2 q = vUv;",
-				"float s = sin( 1.75 ), c = cos( 1.75 );",
+				"float s = sin( 1.57 ), c = cos( 1.57 );",
 
 				"vec2 tex = vUv * tSize - center;",
-				"vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * (ratio / 32.0);",
+				"vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * 3.0;",
 
-				"return ( sin( point.x ) * sin( point.y ) ) * 4.0;",
+				"return ( sin( point.x ) * sin( point.y ) ) * 3.0;",
 
 			"}",
 
@@ -52,8 +52,14 @@ THREE.RenderFragment = {
         "float dy = scale * (1.0 / Pixels);",
         "vec2 Coord = vec2(dx * floor(q.x / dx), dy * floor(q.y / dy));",
   			"vec4 color = texture2D( tDiffuse, Coord);",
-				"float average = ( color.r + color.g + color.b ) / 2.0;",
-				"gl_FragColor = vec4( vec3(average * 10.0 - 5.0), color.a );",
+				"float average = ( color.r + color.g + color.b ) / 3.0;",
+  			"gl_FragColor = vec4(",
+					"color.r * 10.0 - 5.0 - pattern(),",
+					"color.g * 10.0 - 5.0 - pattern(), ",
+					"color.b * 10.0 - 5.0 - pattern(),",
+					"color.a",
+				");",
+
   		"}"
 
   	].join( "\n" )

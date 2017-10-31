@@ -13,7 +13,7 @@ const { name, version, description } = pkgInfo;
 
 fs.writeFileSync('version.json', JSON.stringify({ name, version, description }));
 
-const DEV_PORT = 2021;
+const DEV_PORT = 2020;
 const marker = 'debug';
 
 const config = {
