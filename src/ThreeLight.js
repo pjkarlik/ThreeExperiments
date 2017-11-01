@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-
+// lightweight //
 window.THREE = THREE;
 require('three/examples/js/CurveExtras.js');
 require('three/examples/js/controls/OrbitControls.js');

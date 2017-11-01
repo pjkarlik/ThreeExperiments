@@ -6,7 +6,7 @@ require('three/examples/js/controls/OrbitControls.js');
 require('three/examples/js/shaders/FresnelShader');
 require('three/examples/js/effects/AnaglyphEffect.js');
 require('three/examples/js/effects/StereoEffect.js');
-
+// Can comment out what is not needed //
 // require('three/examples/js/controls/FirstPersonControls.js');
 require('three/examples/js/shaders/CopyShader.js');
 require('three/examples/js/shaders/KaleidoShader.js');
