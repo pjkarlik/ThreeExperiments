@@ -1,13 +1,13 @@
 ![travis ci build](https://travis-ci.org/pjkarlik/ThreeExperiments.svg?branch=master)
-![webpack2](https://img.shields.io/badge/webpack-2.0-brightgreen.svg) ![version](https://img.shields.io/badge/version-0.1.1-yellow.svg) ![frontend](https://img.shields.io/badge/webgl-GLSL-blue.svg)
+![webpack3](https://img.shields.io/badge/webpack-3.0-brightgreen.svg) ![version](https://img.shields.io/badge/version-0.1.2-yellow.svg) ![webgl](https://img.shields.io/badge/webgl-GLSL-blue.svg)
 
 # ThreeJS Experiments
 
   My current THREE.js experiments and demos set up with a base sky light box and reflection/refraction maps. Currently getting some warnings but still renders.. texture issues..
 
-  Each render.js file is a mutation or experiment that can be pointed to in index.js
+  Each subfolder/index.js file is a mutation or experiment that can be pointed to from the parent src/index.js
 
-  /src/Three.js is the import file that combines all required Three.js package files..
+  /src/Three.js is the import file that combines all required Three.js package files into a window global.
 
   ```
   import * as THREE from 'three'; // build/three.js from node_module/three
@@ -17,7 +17,7 @@
   // ...etc for other items like Render Passes and Shaders
   ```
 
-  Current Mapping --> ```index.js``` --> (render file) ```ShaderTunnelRender.js``` (or just about any other file in src)
+  Current Mapping --> ```index.js``` --> (render file) ```SimplexRender\index.js```
 
 
   TODO:// Cleaning up default code, next to do some model loading and management.
