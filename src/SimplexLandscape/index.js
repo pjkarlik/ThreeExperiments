@@ -1,13 +1,22 @@
 import dat from 'dat-gui';
-import THREE from './Three';
-import { Generator } from './SimplexNoise';
+import THREE from '../Three';
+import { Generator } from '../utils/SimplexNoise';
 
+// Skybox image imports //
+import xpos from '../../resources/images/space/posx.jpg';
+import xneg from '../../resources/images/space/negx.jpg';
+import ypos from '../../resources/images/space/posy.jpg';
+import yneg from '../../resources/images/space/negy.jpg';
+import zpos from '../../resources/images/space/posz.jpg';
+import zneg from '../../resources/images/space/negz.jpg';
+
+// Render Class Object //
 export default class Render {
   constructor() {
     this.viewAngle = 55;
     this.near = 1;
     this.far = 10000;
-    this.amount = 55;
+    this.amount = 155;
     this.size = 1750;
     this.strength = 45;
     this.iteration = 0.15;
@@ -15,8 +24,7 @@ export default class Render {
     this.timer = 0;
     this.time = 0;
     this.frame = 0;
-    this.background = 0x999999;
-    this.fog = this.background;
+    this.fog = this.background = 0x8300b9;
     this.generator = new Generator(10);
     window.addEventListener('resize', this.resize, true);
     this.createGUI();
@@ -28,16 +36,23 @@ export default class Render {
   createGUI = () => {
     this.options = {
       strength: 65,
+      color: [131, 0, 185],
       iteration: 50,
     };
     this.gui = new dat.GUI();
 
-    const folderRender = this.gui.addFolder('Wave Options');
+    const folderRender = this.gui.addFolder('Render Options');
     folderRender.add(this.options, 'strength', 1, 100).step(1)
       .onFinishChange((value) => { this.strength = value; });
     folderRender.add(this.options, 'iteration', 1, 100).step(1)
       .onFinishChange((value) => { this.iteration = value * 0.002; });
-    // folderRender.open();
+    folderRender.addColor(this.options, 'color')
+      .onChange((value) => {
+        this.color = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
+        // this.planeMesh.material.color.setHex(this.color);
+        this.scene.fog.color.setHex(this.color);
+      });
+    folderRender.open();
   };
 
   setRender = () => {
@@ -60,26 +75,37 @@ export default class Render {
     this.cameraPosition = { x: -800, y: 300, z: 330 };
     this.camera.position.set(this.cameraPosition.x, this.cameraPosition.y, this.cameraPosition.z);
     this.camera.lookAt(this.scene.position);
+
+    // this.controls = new THREE.OrbitControls(this.camera);
+    // this.controls.maxDistance = 3000;
+    // this.controls.minDistance = 0.1;
+
     // Set AmbientLight //
-    this.ambient = new THREE.AmbientLight(0x999999);
+    this.ambient = new THREE.AmbientLight(0xff0000);
     this.ambient.position.set(0, 0, 0);
     this.scene.add(this.ambient);
 
-    this.spotLight = new THREE.DirectionalLight(0x0666666);
+    this.spotLight = new THREE.DirectionalLight(0x0990f9);
     this.spotLight.position.set(0, 10, 0);
     this.spotLight.castShadow = true;
     this.scene.add(this.spotLight);
+
+    const urls = [xpos, xneg, ypos, yneg, zpos, zneg];
+    this.skybox = new THREE.CubeTextureLoader().load(urls);
+    this.skybox.format = THREE.RGBFormat;
+    this.skybox.mapping = THREE.CubeReflectionMapping; // CubeReflectionMapping || CubeRefractionMapping
 
     const skyBoxGeometry = new THREE.CubeGeometry(10000, 10000, 10000);
     const skyBoxMaterial = new THREE.MeshBasicMaterial({ color: this.background, side: THREE.BackSide });
     this.lowSkybox = new THREE.Mesh(skyBoxGeometry, skyBoxMaterial);
     this.scene.add(this.lowSkybox);
 
-    const meshMaterial = new THREE.MeshBasicMaterial({
-      color: 0xFFFFFF,
-      wireframe: true,
+    const meshMaterial = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      envMap: this.skybox,
+      // side: THREE.DoubleSide,
     });
-    /* eslint no-multi-assign :0 */
+    /* eslint no-multi-assign: 0 */
     meshMaterial.wrapS = meshMaterial.wrapT = THREE.RepeatWrapping;
     this.geometry = new THREE.PlaneBufferGeometry(this.size, this.size, this.amount, this.amount);
     this.planeMesh = new THREE.Mesh(
@@ -90,9 +116,6 @@ export default class Render {
     this.planeMesh.rotation.set(90 * Math.PI / 180, 0, 0);
     this.planeMesh.position.set(0, 0, 0);
     this.scene.add(this.planeMesh);
-
-    this.effect = new THREE.AnaglyphEffect(this.renderer);
-    this.effect.setSize(this.width, this.height);
   };
 
   camearAnimation = () => {
@@ -144,7 +167,11 @@ export default class Render {
     this.setViewport();
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
-    this.effect.setSize(this.width, this.height);
+    // this.effect.setSize(this.width, this.height);
+  };
+
+  stats = () => {
+    // console.log(this.camera.position);
   };
 
   rgbToHex = (r, g, b) => {
@@ -153,7 +180,7 @@ export default class Render {
   };
 
   renderScene = () => {
-    this.effect.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera);
   };
 
   renderLoop = () => {

@@ -1,20 +1,16 @@
-import THREE from './Three';
-import { Generator } from './SimplexNoise';
-import fragmentShader from './shader/fragmentShader2';
-import vertexShader from './shader/vertexShader2';
+import THREE from '../Three';
+import { Generator } from '../utils/SimplexNoise';
 // import dat from 'dat-gui';
 
 // Skybox image imports //
-import xpos from '../resources/images/tenerife/posx.jpg';
-import xneg from '../resources/images/tenerife/negx.jpg';
-import ypos from '../resources/images/tenerife/posy.jpg';
-import yneg from '../resources/images/tenerife/negy.jpg';
-import zpos from '../resources/images/tenerife/posz.jpg';
-import zneg from '../resources/images/tenerife/negz.jpg';
-import explosion from '../resources/images/rnd.png';
+import xpos from '../../resources/images/stairs/posx.jpg';
+import xneg from '../../resources/images/stairs/negx.jpg';
+import ypos from '../../resources/images/stairs/posy.jpg';
+import yneg from '../../resources/images/stairs/negy.jpg';
+import zpos from '../../resources/images/stairs/posz.jpg';
+import zneg from '../../resources/images/stairs/negz.jpg';
 // Mesh Textures //
-// import skullModel from '../resources/models/skull.json';
-// console.log(skullModel);
+import skullModel from '../../resources/models/polyskull.json';
 
 // Render Class Object //
 export default class Render {
@@ -27,7 +23,6 @@ export default class Render {
     this.background = 0xDDDDDD;
     this.zRotation = -180 * Math.PI / 180;
     this.xRotation = -33 * Math.PI / 180;
-    this.start = Date.now();
     this.fog = this.background;
     this.generator = new Generator(10);
     window.addEventListener('resize', this.resize, true);
@@ -70,7 +65,7 @@ export default class Render {
         this.far
     );
     this.scene.add(this.camera);
-    this.camera.position.set(0, 12, 24);
+    this.camera.position.set(0, -12, -24);
     this.camera.lookAt(this.scene.position);
   };
 
@@ -101,45 +96,43 @@ export default class Render {
   };
 
   setScene = () => {
-    this.meshMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        tExplosion: {
-          type: 't',
-          value: THREE.ImageUtils.loadTexture(explosion),
-        },
-        time: {
-          type: 'f',
-          value: 0.0,
-        },
-        timeScale: {
-          type: 'f',
-          value: 2.0,
-        }
-      },
-      vertexShader,
-      fragmentShader,
-    });
-    this.fireball = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(7, 4),
-        this.meshMaterial
-    );
-    this.scene.add(this.fireball);
+    this.refractCamera = new THREE.CubeCamera(0.1, 5000, 512);
+    this.refractCamera.position.set(0, 0, 0);
+    this.scene.add(this.refractCamera);
 
-    // const objectLoader = new THREE.ObjectLoader();
-    // this.skullObject = objectLoader.parse(skullModel);
-    // this.skullObject.children[0].geometry.dynamic = true;
-    // this.skullObject.children[0].rotation.set(105 * Math.PI / 180, 0, 0);
-    // this.skullObject.children[0].material = this.meshMaterial;
-    // this.scene.add(this.skullObject);
+    this.fShader = THREE.FresnelShader;
+    const fresnelUniforms = {
+      mRefractionRatio: { type: 'f', value: 1.502 },
+      mFresnelBias: { type: 'f', value: 0.51 },
+      mFresnelPower: { type: 'f', value: 1.0 },
+      mFresnelScale: { type: 'f', value: 0.75 },
+      // mRefractionRatio: { type: 'f', value: 1.02 },
+      // mFresnelBias: { type: 'f', value: 0.1 },
+      // mFresnelPower: { type: 'f', value: 1.0 },
+      // mFresnelScale: { type: 'f', value: 0.5 },
+    };
+    this.dynamicReflection = new THREE.ShaderMaterial({
+      uniforms: {
+        ...fresnelUniforms,
+        tCube: { type: 't', value: this.refractCamera.renderTarget.texture },
+      },
+      vertexShader: this.fShader.vertexShader,
+      fragmentShader: this.fShader.fragmentShader,
+    });
+    const objectLoader = new THREE.ObjectLoader();
+    this.skullObject = objectLoader.parse(skullModel);
+    this.skullObject.children[0].geometry.dynamic = true;
+    // this.skullObject.children[0].rotation.set(0, 0, this.zRotation);
+    this.skullObject.children[0].material = this.dynamicReflection;
+    this.scene.add(this.skullObject);
   };
 
   checkObjects = () => {
     const timeStop = this.frame * 0.2;
     const angleRotate = timeStop * Math.PI / 180;
-    const timeScale = 1 - Math.sin(angleRotate) * 0.1;
+    const timeScale = 3 - Math.sin(angleRotate) * 0.5;
     // this.skullObject.children[0].rotation.y = angleRotate;
-    // this.fireball.scale.set(timeScale, timeScale, timeScale);
-    this.meshMaterial.uniforms.timeScale.value = timeScale;
+    this.skullObject.children[0].scale.set(timeScale, timeScale, timeScale);
   };
 
   setViewport = () => {
@@ -161,12 +154,14 @@ export default class Render {
   };
 
   renderScene = () => {
+    this.skullObject.visible = false;
+    this.refractCamera.updateCubeMap(this.renderer, this.scene);
+    this.skullObject.visible = true;
     this.renderer.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
     this.frame ++;
-    this.meshMaterial.uniforms.time.value = 0.00025 * (Date.now() - this.start);
     this.checkObjects();
     this.renderScene();
     window.requestAnimationFrame(this.renderLoop.bind(this));

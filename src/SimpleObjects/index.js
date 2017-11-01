@@ -1,12 +1,12 @@
-import THREE from './Three';
+import THREE from '../Three';
 
 // Skybox image imports //
-import xpos from '../resources/images/church/posx.jpg';
-import xneg from '../resources/images/church/negx.jpg';
-import ypos from '../resources/images/church/posy.jpg';
-import yneg from '../resources/images/church/negy.jpg';
-import zpos from '../resources/images/church/posz.jpg';
-import zneg from '../resources/images/church/negz.jpg';
+import xpos from '../../resources/images/church/posx.jpg';
+import xneg from '../../resources/images/church/negx.jpg';
+import ypos from '../../resources/images/church/posy.jpg';
+import yneg from '../../resources/images/church/negy.jpg';
+import zpos from '../../resources/images/church/posz.jpg';
+import zneg from '../../resources/images/church/negz.jpg';
 
 // Render Class Object //
 export default class Render {

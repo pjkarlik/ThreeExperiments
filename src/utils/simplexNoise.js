@@ -13,7 +13,9 @@
  * attribution is appreciated.
  *
  */
-
+/* eslint no-multi-assign: 0 */
+/* eslint no-lonely-if: 0 */
+/* eslint indent: 0 */
 export class Grad {
   constructor(x, y, z) {
     this.x = x; this.y = y; this.z = z;
