@@ -1,5 +1,5 @@
 import THREE from '../Three';
-import { Generator } from '../utils/SimplexNoise';
+import { Generator } from '../utils/SimplexGenerator';
 // import dat from 'dat-gui';
 
 // Skybox image imports //
