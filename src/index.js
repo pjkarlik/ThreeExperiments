@@ -1,5 +1,5 @@
 //import Render from './BasicSkyBox';
-import Render from './SimplexRender/index';
+import Render from './ShaderTunnel/index';
 import { description, version } from '../version.json';
 
 require('../resources/styles/styles.css');
