@@ -48,12 +48,8 @@
     "postcss-loader": "^2.0.6",
     "style-loader": "^0.18.1",
     "three": "^0.86.0",
-    "three-vrcontrols-module": "^2.1.0",
-    "three-vreffect-module": "^2.1.0",
     "webpack": "^3.6.0",
     "webpack-dev-server": "^2.8.2",
-    "webpack-sources": "^1.0.1",
-    "webvr-polyfill": "^0.9.40",
-    "webvr-ui": "^0.10.0"
+    "webpack-sources": "^1.0.1"
   }
 }
