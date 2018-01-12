@@ -5,63 +5,60 @@ import Vector from './Vector';
 **/
 export default class Particle {
   constructor(config) {
-    this.id = config.id;
     this.size = config.size;
-    this.mass = this.size * 0.2;
     this.ref = config.ref;
-    this.vector = new Vector({
-      x: config.x,
-      y: config.y,
-      z: config.z
-    });
-
-    // this.fixed = config.fixed || false; Not used yet - trying to make static points
-    this.vx = -0.001;
-    this.vy = -0.7;
-    this.vz = -0.001;
+    this.life = 0;
+    this.x = config.x;
+    this.y = config.y;
+    this.z = config.z;
+    const min = config.min || 5;
+    const max = config.max || 10;
+    this.vx = (Math.abs(Math.random() * max) - min);
+    this.vy = (Math.abs(Math.random() * max) - min);
+    this.vz = (Math.abs(Math.random() * max) - min);
+    
     this.settings = config.settings;
     this.box = config.box;
-  }
-
-  objectHit = (direction, reflect) => {
-    const { bounce } = this.settings;
-    if (direction === 'y') {
-      this.vy *= -bounce;
-      this.vx *= bounce;
-      this.vector.y = reflect;
-    }
-    if (direction === 'x') {
-      this.vy *= bounce;
-      this.vx *= -bounce;
-      this.vector.x = reflect;
-    }
-    // if (direction === 'z') {
-    //   this.vz *= bounce;
-    //   this.vector.z= reflect;
-    // }
+    this.update();
   }
 
   update = () => {
-    const { gravity } = this.settings;
-    if ((this.vector.y + this.size) > this.box.bottom) {
-      this.objectHit('y', this.box.bottom - this.size);
+    const { gravity, bounce } = this.settings;
+    if (this.y > this.box.top + 1) {
+      this.vy *= -bounce;
+      this.vx *= bounce;
+      this.vz *= bounce;
+      this.y = this.box.top - 1;
     }
+    if (this.y < this.box.bottom - 1) {
+      this.vy *= -bounce;
+      this.vx *= bounce;
+      this.vz *= bounce;
+      this.y = this.box.bottom + 1;
+    }
+    if (this.x < this.box.left - 1) {
+      this.vx *= -bounce;
+      this.x = this.box.left + 1;
+    }
+    if (this.x > this.box.right + 1) {
+      this.vx *= -bounce;
+      this.x = this.box.right - 1;
+    }
+    if (this.z < this.box.left - 1) {
+      this.vz *= -bounce;
+      this.z = this.box.left + 1;
+    }
+    if (this.z > this.box.right + 1) {
+      this.vz *= -bounce;
+      this.z = this.box.right - 1;
+    }
+    this.x += this.vx;
+    this.y += this.vy;
+    this.z += this.vz;
 
-    if ((this.vector.x + this.size) > this.box.right) {
-      this.objectHit('x', this.box.right - this.size);
-    }
-    if ((this.vector.x - this.size) < this.box.left) {
-      this.objectHit('x', this.box.left + this.size);
-    }
-    // if ((this.vector.z + this.size) > this.box.right) {
-    //   this.objectHit('z', this.box.left + this.size);
-    // }
-    // if ((this.vector.z - this.size) < this.box.left) {
-    //   this.objectHit('z', this.box.left + this.size);
-    // }
-    this.vector.x += this.vx;
-    this.vector.y += this.vy;
-    // this.vector.z += this.vyz;
-    this.vy += gravity;
+    this.vy -= gravity;
+
+    this.size -= (this.life * 0.0005);
+    this.life++;
   }
 }
