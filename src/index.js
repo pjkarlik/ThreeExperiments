@@ -1,4 +1,4 @@
-import Render from './ShaderTunnel/index';
+import Render from './Particle/index-alt';
 
 import { description, version } from '../version.json';
 

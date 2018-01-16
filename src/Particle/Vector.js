@@ -7,18 +7,9 @@ export default class Vector {
     this.x = config.x;
     this.y = config.y;
     this.z = config.z;
-
-    this.add = this.add.bind(this);
-    this.subtract = this.subtract.bind(this);
-    this.scale = this.scale.bind(this);
-    this.divide = this.divide.bind(this);
-
-    this.mix = this.mix.bind(this);
-    this.square = this.square.bind(this);
-    this.normalize = this.normalize.bind(this);
   }
 
-  add(v) {
+  add = (v) =>  {
     return {
       x: v.x ? this.x + v.x : this.x,
       y: v.y ? this.y + v.y : this.y,
@@ -26,7 +17,7 @@ export default class Vector {
     };
   }
 
-  subtract(v) {
+  subtract = (v) =>  {
     return {
       x: v.x ? this.x - v.x : this.x,
       y: v.y ? this.y - v.y : this.y,
@@ -34,7 +25,7 @@ export default class Vector {
     };
   }
 
-  scale(v) {
+  scale = (v) =>  {
     return {
       x: v.x ? this.x * v.x : this.x,
       y: v.y ? this.y * v.y : this.y,
@@ -42,7 +33,7 @@ export default class Vector {
     };
   }
 
-  divide(v) {
+  divide = (v) =>  {
     return {
       x: v.x ? this.x / v.x : this.x,
       y: v.y ? this.y / v.y : this.y,
@@ -50,7 +41,7 @@ export default class Vector {
     };
   }
 
-  square() {
+  square = () => {
     return {
       x: this.x * this.x,
       y: this.y * this.y,
@@ -58,12 +49,12 @@ export default class Vector {
     };
   }
 
-  normalize() {
+  normalize = () => {
     const sqrt = 1 / this.square();
     return new Vector(this.x * sqrt, this.y * sqrt, this.z * sqrt);
   }
 
-  mix(v, amount) {
+  mix = (v, amount) => {
     const amt = amount || 0.5;
     const mixX = v.x ? (1 - amt) * this.x + amt * v.x : this.x;
     const mixY = v.y ? (1 - amt) * this.y + amt * v.y : this.y;

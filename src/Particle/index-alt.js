@@ -1,12 +1,13 @@
 import dat from 'dat-gui';
 import THREE from '../Three';
-import Particle from './Particle';
+import Particle from './Particle-alt';
 
 // Render Class Object //
 export default class Render {
   constructor() {
     this.frames = 360;
     this.size = 5;
+    this.speed = 5.0;
     this.controls = undefined;
     this.scene = undefined;
     this.camera = undefined;
@@ -24,16 +25,21 @@ export default class Render {
     // Particles Stuff //
     this.amount = 30;
     this.particles = [];
-    this.particleColor = '0xFFFFFF';
+    this.particleColor = 360;
+    this.emitter = {
+      x: 0,
+      y: 0,
+      z: -600
+    };
     this.box = {
-      top: 3000,
-      left: -3000,
-      bottom: -200,
-      right: 3000,
+      top: 5000,
+      left: -5000,
+      bottom: -400,
+      right: 5000,
     };
     this.settings = {
-      gravity: 0.9,
-      bounce: 0.35,
+      gravity: 0.0,
+      bounce: 0.45,
     };
     window.addEventListener('resize', this.resize, true);
     this.setRender();
@@ -55,7 +61,7 @@ export default class Render {
       bounce: this.settings.bounce * 100,
       color: [0, 255, 51],
       light: [255, 255, 255],
-      cube: [255, 255, 255]
+      speed: this.speed
     };
     this.gui = new dat.GUI();
     const folderRender = this.gui.addFolder('Particle Options');
@@ -67,6 +73,10 @@ export default class Render {
       .onFinishChange((value) => {
         this.settings.bounce = value * 0.01;
       });
+    folderRender.add(this.options, 'speed', 0, 50).step(1)
+    .onFinishChange((value) => {
+      this.speed = value;
+    });
     folderRender.addColor(this.options, 'color')
       .onChange((value) => {
         const hue = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
@@ -76,11 +86,6 @@ export default class Render {
     .onChange((value) => {
       const hue = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
       this.pointLight.color.setHex(hue);
-    });
-    folderRender.addColor(this.options, 'cube')
-    .onChange((value) => {
-      const hue = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
-      this.particleColor = hue;
     });
   }
 
@@ -106,68 +111,86 @@ export default class Render {
         this.far
     );
 
-    this.camera.position.set(0, 250, 500);
-    this.camera.lookAt(new THREE.Vector3(0, 50, 0));
+    this.camera.position.set(0, 50, 800);
+    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     this.controls = new THREE.OrbitControls(this.camera);
     this.controls.maxDistance = 2500;
     this.controls.minDistance = 0;
 
     // Set AmbientLight //
-    this.pointLight = new THREE.PointLight(0xFFFFFF);
-    this.pointLight.position.set(20, 350, 300);
-    this.scene.add(this.pointLight);
+    let pointLight = new THREE.PointLight(0xFFFFFF);
+    pointLight.position.set(20, 350, 300);
+    this.scene.add(pointLight);
+    pointLight = new THREE.PointLight(0xFFFFFF);
+    pointLight.position.set(-20, -350, 700);
+    this.scene.add(pointLight);
 
     this.ambient = new THREE.AmbientLight(0x00FF33);
-    this.ambient.position.set(-30, 300, -100);
+    this.ambient.position.set(-30, 300, -200);
     this.scene.add(this.ambient);
-
-    this.basicMaterial = new THREE.MeshPhongMaterial({
-      color: this.particleColor
-    }); 
   };
 
   setEffects = () => {
-    let effect;
+    this.effect = new THREE.AnaglyphEffect(this.renderer);
+    this.effect.setSize(this.width, this.height);
+    // let effect;
  
-    this.composer = new THREE.EffectComposer(this.renderer);
-    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
+    // this.composer = new THREE.EffectComposer(this.renderer);
+    // this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
-    effect = new THREE.ShaderPass(THREE.MirrorShader);
-    effect.uniforms.side.value = 0;
-    this.composer.addPass(effect);
+    // effect = new THREE.ShaderPass(THREE.MirrorShader);
+    // effect.uniforms.side.value = 4;
+    // this.composer.addPass(effect);
 
-    effect = new THREE.ShaderPass(THREE.RGBShiftShader);
-    effect.uniforms.amount.value = 0.001;
-    effect.uniforms.angle.value = 0.0;
-    effect.renderToScreen = true;
-    this.composer.addPass(effect);
+    // effect = new THREE.ShaderPass(THREE.RGBShiftShader);
+    // effect.uniforms.amount.value = 0.001;
+    // effect.uniforms.angle.value = 0.0;
+    // effect.renderToScreen = true;
+    // this.composer.addPass(effect);
   }
-
+  
   hitRnd = () => {
-    const amount = Math.abs(Math.random() * 10);
-    for (let i = 0; i < amount; i++) {
-      this.makeParticle(0, 300, 0);
-    }
+    const { x, y, z } = this.emitter;
+    const amps = 150;
+    this.frames++;
+    const sVar = amps * Math.sin(this.frames * 2.0 * Math.PI / 180);
+    const cVar = amps * Math.cos(this.frames * 2.0 * Math.PI / 180);
+    this.makeParticle(x + sVar, y + cVar, z);
+    this.makeParticle(x - sVar, y + cVar, z);
+
+    this.makeParticle(x + sVar, y - cVar, z);
+    this.makeParticle(x - sVar, y - cVar, z);
   }
 
   makeParticle = (mx, my, mz) => {
+    const particleColor = Math.sin(this.frames * 2.0 * Math.PI / 180) * 0.15;
+
     const sphere = new THREE.Mesh(
       new THREE.BoxBufferGeometry(this.size, this.size, this.size),
-      this.basicMaterial,
+      new THREE.MeshPhongMaterial(
+        { color: new THREE.Color(`hsl(${this.particleColor}, 100%, 50%)`) }
+      )
     );
     sphere.castShadow = true;
     sphere.receiveShadow = true;
+
     const point = new Particle({
       size: this.size - Math.random() * 1,
       x: mx,
       y: my,
       z: mz,
+      vx: 0.01,
+      vy: 0.01,
+      vz: this.speed,
       box: this.box,
       settings: this.settings,
       ref: sphere
     });
     sphere.position.set(mx, my, mz);
+    
+    sphere.material.color.setHSL(particleColor,1,0.5);
+
     this.particles.push(point);
     this.scene.add(sphere);
   };
@@ -175,7 +198,6 @@ export default class Render {
   checkParticles = () => {
     for (let i = 0; i < this.particles.length; i++) {
       const part = this.particles[i];
-      // part.settings = this.settings;
       part.update();
       part.ref.position.set(
         part.x, 
@@ -185,7 +207,6 @@ export default class Render {
       part.ref.scale.x = part.size;
       part.ref.scale.y = part.size;
       part.ref.scale.z = part.size;
-      part.ref.material.color.setHex(this.particleColor);
       if (part.life > 800 || part.size < 0.0) {
         this.scene.remove(part.ref);
         this.particles.splice(i, 1);
@@ -194,17 +215,20 @@ export default class Render {
   };
 
   renderScene = () => {
-    this.composer.render();
+    // this.composer.render();
     // this.renderer.render(this.scene, this.camera);
-    // this.effect.render(this.scene, this.camera);
+    this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
     if (this.frames % 1 === 0) {
       this.checkParticles();
     }
-    if(Math.random() * 200 > 100 && this.particles.length < 500) {
+    if(Math.random() * 200 > 100 && this.particles.length < 300) {
       this.hitRnd();
+    }
+    if(Math.random() * 255 > 200){
+      this.speed = 1.0 + Math.random() * 50;
     }
     this.renderScene();
     this.frames ++;

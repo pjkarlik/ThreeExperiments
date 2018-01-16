@@ -26,13 +26,11 @@ export default class Particle {
     if (this.y > this.box.top + this.size) {
       this.vy *= -bounce;
       this.vx *= bounce;
-      this.vz *= bounce;
       this.y = this.box.top;
     }
     if (this.y < this.box.bottom - this.size) {
       this.vy *= -bounce;
       this.vx *= bounce;
-      this.vz *= bounce;
       this.y = this.box.bottom;
     }
     if (this.x < this.box.left - this.size) {
@@ -57,7 +55,7 @@ export default class Particle {
 
     this.vy -= gravity;
 
-    this.size -= (this.life * 0.001);
+    this.size -= (this.life * 0.0002);
     this.life++;
   }
 }
