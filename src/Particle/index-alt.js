@@ -111,7 +111,7 @@ export default class Render {
         this.far
     );
 
-    this.camera.position.set(0, 50, 800);
+    this.camera.position.set(0, 0, -800);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     this.controls = new THREE.OrbitControls(this.camera);
@@ -132,8 +132,8 @@ export default class Render {
   };
 
   setEffects = () => {
-    this.effect = new THREE.AnaglyphEffect(this.renderer);
-    this.effect.setSize(this.width, this.height);
+    // this.effect = new THREE.AnaglyphEffect(this.renderer);
+    // this.effect.setSize(this.width, this.height);
     // let effect;
  
     // this.composer = new THREE.EffectComposer(this.renderer);
@@ -152,7 +152,7 @@ export default class Render {
   
   hitRnd = () => {
     const { x, y, z } = this.emitter;
-    const amps = 150;
+    const amps = 50 + Math.abs(200 * Math.cos((this.frames * 0.5 ) * Math.PI / 180));
     this.frames++;
     const sVar = amps * Math.sin(this.frames * 2.0 * Math.PI / 180);
     const cVar = amps * Math.cos(this.frames * 2.0 * Math.PI / 180);
@@ -216,15 +216,15 @@ export default class Render {
 
   renderScene = () => {
     // this.composer.render();
-    // this.renderer.render(this.scene, this.camera);
-    this.effect.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera);
+    // this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
     if (this.frames % 1 === 0) {
       this.checkParticles();
     }
-    if(Math.random() * 200 > 100 && this.particles.length < 300) {
+    if(Math.random() * 200 > 100 && this.particles.length < 800) {
       this.hitRnd();
     }
     if(Math.random() * 255 > 200){
