@@ -26,7 +26,7 @@ export default class Render {
     this.amount = 30;
     this.particles = [];
     this.particleColor = 360;
-    this.background = 0xcfcfcf;
+    this.background = 0x3e3e3e;
     this.emitter = {
       x: 0,
       y: 0,
@@ -104,15 +104,15 @@ export default class Render {
     this.controls.minDistance = 0;
 
     // Set AmbientLight //
-    let pointLight = new THREE.PointLight(0xFFFFFF);
-    pointLight.position.set(20, 350, -700);
+    let pointLight = new THREE.PointLight(0xDDDDDD);
+    pointLight.position.set(50, 450, -800);
     this.scene.add(pointLight);
-    pointLight = new THREE.PointLight(0xFFFFFF);
-    pointLight.position.set(-20, -350, 700);
+    pointLight = new THREE.PointLight(0xEEEEEE);
+    pointLight.position.set(-50, -450, 800);
     this.scene.add(pointLight);
 
-    this.ambient = new THREE.AmbientLight(0xa0a0a0);
-    this.ambient.position.set(-30, 300, -200);
+    this.ambient = new THREE.AmbientLight(0x9f9f9f);
+    this.ambient.position.set(1, 450, -400);
     this.scene.add(this.ambient);
   };
 
@@ -151,7 +151,7 @@ export default class Render {
   }
 
   makeParticle = (mx, my, mz, type) => {
-    const particleColor = Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.36;
+    const particleColor = 1.5 * Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75;
     
     const geometry = type  ? 
       new THREE.SphereGeometry(this.size * 4, 6, 6, 0, Math.PI * 2, 0, Math.PI * 2) :
@@ -179,8 +179,8 @@ export default class Render {
     });
   
     sphere.position.set(mx, my, mz);
-    // sphere.material.color.setRGB(particleColor, particleColor ,particleColor);
-    sphere.material.color.setHSL(particleColor,1,0.5);
+    sphere.material.color.setRGB(particleColor, particleColor ,particleColor);
+    // sphere.material.color.setHSL(particleColor,1,0.5);
 
     this.particles.push(point);
     this.scene.add(sphere);
