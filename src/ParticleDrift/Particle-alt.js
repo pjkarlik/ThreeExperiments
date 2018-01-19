@@ -49,7 +49,6 @@ export default class Particle {
       this.vz *= -bounce;
       this.z = this.box.right;
     }
-
     this.x += this.vx;
     this.y += this.vy;
     this.z += this.vz;

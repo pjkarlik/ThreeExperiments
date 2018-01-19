@@ -5,10 +5,10 @@ import Particle from './Particle-alt';
 // Render Class Object //
 export default class Render {
   constructor() {
-    this.frames = 0;
+    this.frames = 360;
     this.size = 5;
     this.speed = 5.0;
-    this.canSpeed = false;
+
     // Camera Stuff and Viewport //
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -22,7 +22,7 @@ export default class Render {
 
     this.particles = [];
     this.particleColor = 360;
-    this.background = 0x232323;
+    this.background = 0x3e3e3e;
     this.emitter = {
       x: 0,
       y: 0,
@@ -43,10 +43,6 @@ export default class Render {
     // this.setEffects();
     // this.createGUI();
     this.renderLoop();
-
-    setTimeout(() => {
-      this.canSpeed = true;
-    }, 100 + Math.random() * 1000);
   }
 
   resize = () => {
@@ -91,7 +87,7 @@ export default class Render {
         this.far
     );
 
-    this.camera.position.set(0, 0, 1800);
+    this.camera.position.set(0, 0, 1200);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     this.controls = new THREE.OrbitControls(this.camera);
@@ -131,27 +127,25 @@ export default class Render {
   
   hitRnd = () => {
     const { x, y, z } = this.emitter;
-    const type = false; // Math.random() * 100 > 94;
-    const size = 1; // Math.random() * 100 > 54 ? 6 : 1;
-    const amps = type ? 320 : 80 + Math.abs(200 * Math.cos((this.frames * 0.25 ) * Math.PI / 180));
+    const type = Math.random() * 100 > 94;
+    const size = Math.random() * 100 > 54 ? 6 : 1;
+    const amps = type ? 280 : 80 + Math.abs(200 * Math.cos((this.frames * 0.25 ) * Math.PI / 180));
     this.frames++;
-
-    const dVar = 3 * Math.sin(this.frames * 0.5 * Math.PI / 180);
     const sVar = amps * Math.sin(this.frames * 2.0 * Math.PI / 180);
     const cVar = amps * Math.cos(this.frames * 2.0 * Math.PI / 180);
 
-    this.makeParticle(x + sVar, y + cVar / dVar, z, type, size);
-    // this.makeParticle(x - sVar, y + cVar, z, type, size);
+    this.makeParticle(x + sVar, y + cVar, z, type, size);
+    this.makeParticle(x - sVar, y + cVar, z, type, size);
 
-    // this.makeParticle(x + sVar, y - cVar, z, type, size);
-    // this.makeParticle(x - sVar, y - cVar, z, type, size);
+    this.makeParticle(x + sVar, y - cVar, z, type, size);
+    this.makeParticle(x - sVar, y - cVar, z, type, size);
   }
 
   makeParticle = (mx, my, mz, type, size) => {
     const particleColor = Math.abs(0.75 * Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
-    // console.log(particleColor);
+
     const geometry = type  ? 
-      new THREE.SphereGeometry(this.size * 2, 6, 6, 0, Math.PI * 2, 0, Math.PI * 2) :
+      new THREE.SphereGeometry(this.size * 4, 6, 6, 0, Math.PI * 2, 0, Math.PI * 2) :
       new THREE.BoxGeometry(this.size, this.size, this.size * size);
     const sphere = new THREE.Mesh(
       geometry,
@@ -192,7 +186,6 @@ export default class Render {
         part.y, 
         part.z
       );
-
       part.ref.scale.x = part.size;
       part.ref.scale.y = part.size;
       part.ref.scale.z = part.size;
@@ -215,12 +208,8 @@ export default class Render {
     // const zd = (Math.sin(this.frames * 0.003 * Math.PI / 180));
     // this.camera.rotateZ(zd * Math.PI / 180);
     
-    if(Math.random() * 255 > 230 && this.canSpeed){
-      this.canSpeed = false;
+    if(Math.random() * 255 > 230){
       this.speed = 5.0 + Math.random() * 35;
-      setTimeout(() => {
-        this.canSpeed = true;
-      }, 100 + Math.random() * 1000);
     }
     
     if(this.particles.length < 900) {
