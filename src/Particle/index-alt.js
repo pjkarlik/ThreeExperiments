@@ -117,8 +117,8 @@ export default class Render {
   };
 
   setEffects = () => {
-    this.effect = new THREE.AnaglyphEffect(this.renderer);
-    this.effect.setSize(this.width, this.height);
+    // this.effect = new THREE.AnaglyphEffect(this.renderer);
+    // this.effect.setSize(this.width, this.height);
     // let effect;
  
     // this.composer = new THREE.EffectComposer(this.renderer);
@@ -137,25 +137,26 @@ export default class Render {
   
   hitRnd = () => {
     const { x, y, z } = this.emitter;
-    const amps = 80 + Math.abs(200 * Math.cos((this.frames * 0.25 ) * Math.PI / 180));
+    const type = Math.random() * 100 > 94;
+    const size = Math.random() * 100 > 54 ? 6 : 1;
+    const amps = type ? 280 : 80 + Math.abs(200 * Math.cos((this.frames * 0.25 ) * Math.PI / 180));
     this.frames++;
     const sVar = amps * Math.sin(this.frames * 2.0 * Math.PI / 180);
     const cVar = amps * Math.cos(this.frames * 2.0 * Math.PI / 180);
-    const type = Math.random() * 100 > 94;
 
-    this.makeParticle(x + sVar, y + cVar, z, type);
-    this.makeParticle(x - sVar, y + cVar, z, type);
+    this.makeParticle(x + sVar, y + cVar, z, type, size);
+    this.makeParticle(x - sVar, y + cVar, z, type, size);
 
-    this.makeParticle(x + sVar, y - cVar, z, type);
-    this.makeParticle(x - sVar, y - cVar, z, type);
+    this.makeParticle(x + sVar, y - cVar, z, type, size);
+    this.makeParticle(x - sVar, y - cVar, z, type, size);
   }
 
-  makeParticle = (mx, my, mz, type) => {
+  makeParticle = (mx, my, mz, type, size) => {
     const particleColor = 1.5 * Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75;
     
     const geometry = type  ? 
       new THREE.SphereGeometry(this.size * 4, 6, 6, 0, Math.PI * 2, 0, Math.PI * 2) :
-      new THREE.BoxGeometry(this.size, this.size, this.size * 4);
+      new THREE.BoxGeometry(this.size, this.size, this.size * size);
     const sphere = new THREE.Mesh(
       geometry,
       new THREE.MeshPhongMaterial(
@@ -167,8 +168,8 @@ export default class Render {
 
     const point = new Particle({
       size: this.size - Math.random() * 1,
-      x: type ? mx : -(mx * 2.0),
-      y: type ? my : -(my * 2.0),
+      x: mx,
+      y: my,
       z: mz,
       vx: -(0.0 - mx) * 0.001,
       vy: -(0.0 - my) * 0.001,
@@ -179,8 +180,8 @@ export default class Render {
     });
   
     sphere.position.set(mx, my, mz);
-    sphere.material.color.setRGB(particleColor, particleColor ,particleColor);
-    // sphere.material.color.setHSL(particleColor,1,0.5);
+    // sphere.material.color.setRGB(particleColor, particleColor ,particleColor);
+    sphere.material.color.setHSL(particleColor,1,0.5);
 
     this.particles.push(point);
     this.scene.add(sphere);
@@ -207,15 +208,15 @@ export default class Render {
 
   renderScene = () => {
     // this.composer.render();
-    // this.renderer.render(this.scene, this.camera);
-    this.effect.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera);
+    // this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
     this.checkParticles();
 
-    const zd = (Math.sin(this.frames * 0.003 * Math.PI / 180));
-    this.camera.rotateZ(zd * Math.PI / 180);
+    // const zd = (Math.sin(this.frames * 0.003 * Math.PI / 180));
+    // this.camera.rotateZ(zd * Math.PI / 180);
     
     if(Math.random() * 255 > 230){
       this.speed = 5.0 + Math.random() * 35;
