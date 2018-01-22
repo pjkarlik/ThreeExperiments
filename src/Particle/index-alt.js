@@ -6,9 +6,11 @@ import Particle from './Particle-alt';
 export default class Render {
   constructor() {
     this.frames = 0;
-    this.size = 8;
+    this.size = 7;
     this.speed = 3.0;
     this.canSpeed = false;
+    this.canFlip = false;
+    this.camView= false;
     // Camera Stuff and Viewport //
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -18,6 +20,18 @@ export default class Render {
     this.aspect = this.width / this.height;
     this.near = 0.1;
     this.far = 30000;
+
+    this.camTimeoutx = true;
+    this.camTimeouty = true;
+    this.camTimeoutz = true;
+    setTimeout(
+      () => {
+        this.camTimeoutx = false;
+        this.camTimeouty = false;
+        this.camTimeoutz = false;
+      },
+      1000
+    );
     // Particles Stuff //
 
     this.particles = [];
@@ -28,17 +42,30 @@ export default class Render {
       y: 0,
       z: -1200
     };
+    this.camPosition = {
+      x: -1546.7881,
+      y: -93.118,
+      z: -341.03976
+    };
+    this.trsPosition = {
+      x: -1546.7881,
+      y: -93.118,
+      z: -341.03976
+    };
     this.box = {
-      top: 4000,
-      left: -4000,
-      bottom: -4000,
-      right: 4000,
+      top: 6000,
+      left: -6000,
+      bottom: -6000,
+      right: 6000,
     };
     this.settings = {
       gravity: 0.0,
-      bounce: 0.0,
+      bounce: 0.75,
     };
     window.addEventListener('resize', this.resize, true);
+    window.addEventListener('click', () => {
+      console.log(this.camera.position);
+    }, true);
     this.setRender();
     this.setEffects();
     // this.createGUI();
@@ -46,7 +73,8 @@ export default class Render {
 
     setTimeout(() => {
       this.canSpeed = true;
-    }, 100 + Math.random() * 1000);
+      this.canFlip = true;
+    }, 6000 + Math.random() * 1000);
   }
 
   resize = () => {
@@ -81,7 +109,7 @@ export default class Render {
     document.body.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(this.background, 0.00055);
+    this.scene.fog = new THREE.FogExp2(this.background, 0.00065);
     this.scene.background = new THREE.Color(this.background);
 
     this.camera = new THREE.PerspectiveCamera(
@@ -90,8 +118,8 @@ export default class Render {
         this.near,
         this.far
     );
-
-    this.camera.position.set(0, 0, -1000);
+    this.camera.position.set(-1546.7881, -93.118, -341.03976);
+    //this.camera.position.set(0, 0, -1000);
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     this.controls = new THREE.OrbitControls(this.camera);
@@ -99,14 +127,14 @@ export default class Render {
     this.controls.minDistance = 0;
 
     // Set Lights //
-    let pointLight = new THREE.PointLight(0xDDDDDD);
-    pointLight.position.set(50, 450, -800);
+    let pointLight = new THREE.PointLight(0xAAAAAA);
+    pointLight.position.set(50, 450, -900);
     this.scene.add(pointLight);
-    pointLight = new THREE.PointLight(0xEEEEEE);
-    pointLight.position.set(-50, -450, 800);
+    pointLight = new THREE.PointLight(0xAAAAAA);
+    pointLight.position.set(-50, -450, 1000);
     this.scene.add(pointLight);
-    let ambient = new THREE.AmbientLight(0x9f9f9f);
-    ambient.position.set(1, 450, -400);
+    let ambient = new THREE.AmbientLight(0x999999);
+    ambient.position.set(1, -450, -50);
     this.scene.add(ambient);
   };
 
@@ -149,19 +177,13 @@ export default class Render {
     this.makeParticle(x - sVar, y - cVar * 2, z, type, size);
     this.makeParticle(x + sVar + dVar, y + cVar - dVar, z, type, size);
     this.makeParticle(x - sVar - dVar, y - cVar + dVar, z, type, size);
-
-  
-    // this.makeParticle(x - sVar, y + cVar, z, type, size);
-    // this.makeParticle(x + sVar, y - cVar, z, type, size);
-    // this.makeParticle(x - sVar, y - cVar, z, type, size);
   }
 
   makeParticle = (mx, my, mz, type, size) => {
-    const particleColor = Math.abs(0.75 * Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
+    const particleColor = Math.abs(0.65 * Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
 
     const geometry = !type ?
-      new THREE.BoxGeometry(this.size * 4, this.size * 4, this.size * size) :
-      // new THREE.SphereGeometry(this.size * 2, 12, 12, 0, Math.PI * 2, 0, Math.PI * 2) :
+      new THREE.BoxGeometry(this.size * 3, this.size * 3, this.size * size) :
       new THREE.BoxGeometry(this.size * size, this.size * size, this.size * size);
     const sphere = new THREE.Mesh(
       geometry,
@@ -177,8 +199,8 @@ export default class Render {
       x: mx,
       y: my,
       z: mz,
-      vx: 0.01, // -(0.0 - mx) * 0.0001,
-      vy: 1.0, //  -(0.0 - my) * 0.0001,
+      vx: 0.001, // -(0.0 - mx) * 0.0001,
+      vy: 0.001, //  -(0.0 - my) * 0.0001,
       vz: this.speed * 4,
       box: this.box,
       settings: this.settings,
@@ -188,8 +210,8 @@ export default class Render {
       sphere.rotateX(mx * Math.PI / 180); 
       sphere.rotateY(my * Math.PI / 180); 
     } else {
-      sphere.rotateX(-mx * Math.PI / 180); 
-      sphere.rotateY(-my * Math.PI / 180); 
+      sphere.rotateX(-(mx * 0.1) * Math.PI / 180); 
+      sphere.rotateY(-(my * 0.1) * Math.PI / 180); 
     }
     sphere.position.set(mx, my, mz);
     sphere.material.color.setRGB(particleColor, particleColor ,particleColor);
@@ -219,6 +241,47 @@ export default class Render {
     }
   };
 
+  cameraLoop = () => {
+    const damp = 0.01;
+    this.camPosition.x = this.camPosition.x - (this.camPosition.x - this.trsPosition.x) * damp;
+    this.camPosition.y = this.camPosition.y - (this.camPosition.y - this.trsPosition.y) * damp;
+    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.1;
+
+    this.camera.position.set(
+      this.camPosition.x,
+      this.camPosition.y,
+      this.camPosition.z
+    );
+    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    if(!this.camTimeoutx && Math.random() * 255 > 240) {
+      const tempRand = 1400 + Math.random() * 1000;
+      this.trsPosition.x = Math.random() * 255 > 240 ? Math.random() * 255 > 250 ? -(tempRand) : tempRand : 0;
+      this.camTimeoutx = true;
+      setTimeout(
+        () => { this.camTimeoutx = false; },
+        3000
+      );
+    }
+    if(!this.camTimeouty && Math.random() * 255 > 240) {
+      const tempRand = 1300 + Math.random() * 1300;
+      this.trsPosition.y = Math.random() * 255 > 240 ? Math.random() * 255 > 250 ? tempRand : -(tempRand) : 0;
+      this.camTimeouty = true;
+      setTimeout(
+        () => { this.camTimeouty = false; },
+        3000
+      );
+    }
+    if(!this.camTimeoutz && Math.random() * 255 > 250) {
+      this.trsPosition.z = Math.random() * 255 > 250 ? 0.0 : -1200;
+      this.camTimeoutz = true;
+      setTimeout(
+        () => { this.camTimeoutz = false; },
+        3000
+      );
+    }
+  };
+
   renderScene = () => {
     // this.composer.render();
     // this.renderer.render(this.scene, this.camera);
@@ -230,17 +293,21 @@ export default class Render {
 
     if(Math.random() * 255 > 230 && this.canSpeed){
       this.canSpeed = false;
-      this.speed = 3.0 + Math.random() * 5;
+      // this.speed = 3.0 + Math.random() * 5;
       setTimeout(() => {
         this.canSpeed = true;
       }, 100 + Math.random() * 1000);
     }
 
-    if(this.particles.length < 1200 && this.frames % 3 == 0) {
+    if(this.particles.length < 1200 && this.frames % 4 == 0) {
       this.hitRnd();
     }
-
+    if(this.trsPosition.x == 0 && this.trsPosition.y == 0) {
+      const zd = (Math.sin(this.frames * 0.003 * Math.PI / 180));
+      this.camera.rotateZ(zd * Math.PI / 180);
+    }
     this.renderScene();
+    this.cameraLoop();
     this.frames ++;
     window.requestAnimationFrame(this.renderLoop);
   };
