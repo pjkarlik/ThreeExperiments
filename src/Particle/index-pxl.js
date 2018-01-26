@@ -8,8 +8,8 @@ import Particle from './Particle-alt';
 export default class Render {
   constructor() {
     this.frames = 0;
-    this.size = 7;
-    this.speed = 3.0;
+    this.size = 9;
+    this.speed = 2.5;
     this.canSpeed = false;
     this.canFlip = false;
     this.camView= false;
@@ -24,16 +24,16 @@ export default class Render {
     this.far = 30000;
 
     // Particles Stuff //
-    this.scale = 400.0;
+    this.scale = 145.0;
     this.ratio = 1024;
     this.mirror = 4;
     this.particles = [];
     this.particleColor = 360;
-    this.background = 0x232323;
+    this.background = 0x030030;
     this.emitter = {
       x: 0,
       y: 0,
-      z: -1200
+      z: -1100
     };
     this.camPosition = {
       x: -1546.7881,
@@ -161,25 +161,38 @@ export default class Render {
 
   hitRnd = () => {
     const { x, y, z } = this.emitter;
-    const type = Math.random() * 100 > 84;
-    const size = 5 + Math.random() * 25;
-    const amps = (type ? 900 : 400) + 200 * Math.cos((this.frames * 0.25 ) * Math.PI / 180);
     this.frames++;
 
-    const dVar = 300 * Math.sin(amps * 0.5 * Math.PI / 180);
-    const sVar = amps * Math.sin(this.frames * 3.0 * Math.PI / 180);
-    const cVar = amps * Math.cos(this.frames * 2.0 * Math.PI / 180);
+    const type = Math.random() * 100 > 84;
+    let size = 12; // 10 + Math.random() * 10;
+    let amps = 600 * Math.cos((this.frames * 0.25 ) * Math.PI / 180);
+    
+    let dVar = 300 * Math.sin(amps * 0.5 * Math.PI / 180);
+    let sVar = amps * Math.sin(this.frames * 3.0 * Math.PI / 180);
+    let cVar = amps * Math.cos(this.frames * 2.0 * Math.PI / 180);
   
-    this.makeParticle(x + sVar, y + cVar * 2, z, type, size);
-    this.makeParticle(x - sVar, y - cVar * 2, z, type, size);
-    this.makeParticle(x + sVar + dVar, y + cVar - dVar, z, type, size);
-    this.makeParticle(x - sVar - dVar, y - cVar + dVar, z, type, size);
+    this.makeParticle(x + sVar, y + cVar * 2, z, false, size);
+    this.makeParticle(x - sVar, y - cVar * 2, z, false, size);
+    this.makeParticle(x + sVar + dVar, y + cVar - dVar, z, false, size);
+    this.makeParticle(x - sVar - dVar, y - cVar + dVar, z, false, size);
+    if(type){
+      size = 25 + Math.random() * 15;
+      amps = 1800 * Math.cos((this.frames * 0.25 ) * Math.PI / 180);
+
+      dVar = 300 * Math.sin(amps * 0.5 * Math.PI / 180);
+      sVar = amps * Math.sin(this.frames * 3.0 * Math.PI / 180);
+      cVar = amps * Math.cos(this.frames * 2.0 * Math.PI / 180);
+    
+      this.makeParticle(x + sVar, y + cVar * 2, z, true, size);
+      this.makeParticle(x - sVar, y - cVar * 2, z, true, size);
+      this.makeParticle(x + sVar + dVar, y + cVar - dVar, z, true, size);
+      this.makeParticle(x - sVar - dVar, y - cVar + dVar, z, true, size);
+    }
   }
 
   makeParticle = (mx, my, mz, type, size) => {
 
-    const mySize = !type ? this.size + 2 + Math.random() * 3 : this.size * size;
-    const geometry = new THREE.BoxGeometry(mySize, mySize, mySize);
+    const geometry = new THREE.BoxGeometry(size, size, size);
     const sphere = new THREE.Mesh(
       geometry,
       new THREE.MeshPhongMaterial(
@@ -190,7 +203,7 @@ export default class Render {
     sphere.receiveShadow = true;
 
     const point = new Particle({
-      size: this.size - Math.random() * 1,
+      size,
       x: mx,
       y: my,
       z: mz,
@@ -211,11 +224,11 @@ export default class Render {
     sphere.position.set(mx, my, mz);
 
     const timez = this.frames * 0.1;
-    const particleColor = Math.abs(0.75 * Math.sin(this.frames * 0.35 * Math.PI / 180) * 0.75);
+    const particleColor = Math.abs(0.5 * Math.sin(this.frames * 0.35 * Math.PI / 180) * 0.75);
 
-    const cRed = Math.sin(particleColor * 10.0 - 5.0);
-    const cGreen = particleColor;
-    const cBlue = Math.cos(particleColor * 10.0 - 5.0);
+    const cRed = type ? particleColor : Math.sin(particleColor * 10.0 - 6.0);
+    const cGreen = type ? particleColor : Math.sin(particleColor * 8.0 - 5.0);
+    const cBlue = type ? particleColor : Math.cos(particleColor * 8.0 - 4.0);
 
     sphere.material.color.setRGB(cRed, cGreen ,cBlue);
 
@@ -295,15 +308,15 @@ export default class Render {
   renderLoop = () => {
     this.checkParticles();
 
-    if(Math.random() * 255 > 230 && this.canSpeed){
-      this.canSpeed = false;
-      // this.speed = 3.0 + Math.random() * 5;
-      setTimeout(() => {
-        this.canSpeed = true;
-      }, 100 + Math.random() * 1000);
-    }
+    // if(Math.random() * 255 > 230 && this.canSpeed){
+    //   this.canSpeed = false;
+    //   //this.speed = 3.0 + Math.random() * 5;
+    //   setTimeout(() => {
+    //     this.canSpeed = true;
+    //   }, 100 + Math.random() * 1000);
+    // }
 
-    if(this.particles.length < 1200 && this.frames % 2 == 0) {
+    if(this.particles.length < 1000 && this.frames % 3 == 0) {
       this.hitRnd();
     }
     if(this.trsPosition.x == 0 && this.trsPosition.y == 0) {

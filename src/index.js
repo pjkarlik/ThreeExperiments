@@ -1,4 +1,4 @@
-import Render from './Particle/index-alt';
+import Render from './Particle/index-pxl';
 
 import { description, version } from '../version.json';
 
