@@ -22,6 +22,7 @@ export default class Render {
     this.near = 0.1;
     this.far = 20000;
     // Particles Stuff //
+    this.mirror = 0;
     this.amount = 30;
     this.particles = [];
     this.particleColor = '0xFFFFFF';
@@ -53,6 +54,7 @@ export default class Render {
     this.options = {
       gravity: this.settings.gravity * 100,
       bounce: this.settings.bounce * 100,
+      mirror: this.mirror,
       color: [0, 255, 51],
       light: [255, 255, 255],
       cube: [255, 255, 255]
@@ -67,6 +69,10 @@ export default class Render {
       .onFinishChange((value) => {
         this.settings.bounce = value * 0.01;
       });
+    folderRender.add(this.options, 'mirror', 0, 4).step(1)
+    .onFinishChange((value) => {
+      this.effect.uniforms.side.value = value;
+    });
     folderRender.addColor(this.options, 'color')
       .onChange((value) => {
         const hue = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
@@ -133,9 +139,9 @@ export default class Render {
     this.composer = new THREE.EffectComposer(this.renderer);
     this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
-    effect = new THREE.ShaderPass(THREE.MirrorShader);
-    effect.uniforms.side.value = 0;
-    this.composer.addPass(effect);
+    this.effect = new THREE.ShaderPass(THREE.MirrorShader);
+    this.effect.uniforms.side.value = this.mirror;
+    this.composer.addPass(this.effect);
 
     effect = new THREE.ShaderPass(THREE.RGBShiftShader);
     effect.uniforms.amount.value = 0.001;
@@ -182,9 +188,9 @@ export default class Render {
         part.y, 
         part.z
       );
-      part.ref.scale.x = part.size;
-      part.ref.scale.y = part.size;
-      part.ref.scale.z = part.size;
+      part.ref.scale.x = 1.0 * part.size;
+      part.ref.scale.y = 1.0 * part.size;
+      part.ref.scale.z = 1.0 * part.size;
       part.ref.material.color.setHex(this.particleColor);
       if (part.life > 800 || part.size < 0.0) {
         this.scene.remove(part.ref);

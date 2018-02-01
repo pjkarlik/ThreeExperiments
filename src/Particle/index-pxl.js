@@ -9,7 +9,7 @@ export default class Render {
   constructor() {
     this.frames = 0;
     this.size = 9;
-    this.speed = 2.5;
+    this.speed = 6.0;
     this.canSpeed = false;
     this.canFlip = false;
     this.camView= false;
@@ -53,7 +53,7 @@ export default class Render {
     };
     this.settings = {
       gravity: 0.0,
-      bounce: 0.75,
+      bounce: 0.0,
     };
     window.addEventListener('resize', this.resize, true);
     window.addEventListener('click', () => {
@@ -163,11 +163,11 @@ export default class Render {
     const { x, y, z } = this.emitter;
     this.frames++;
 
-    const type = Math.random() * 100 > 84;
+    const type = Math.random() * 100 > 94;
     let size = 12; // 10 + Math.random() * 10;
-    let amps = 600 * Math.cos((this.frames * 0.25 ) * Math.PI / 180);
+    let amps = 600 * Math.cos((this.frames * 0.35 ) * Math.PI / 180);
     
-    let dVar = 300 * Math.sin(amps * 0.5 * Math.PI / 180);
+    let dVar = 300 * Math.sin(amps * 1.5 * Math.PI / 180);
     let sVar = amps * Math.sin(this.frames * 3.0 * Math.PI / 180);
     let cVar = amps * Math.cos(this.frames * 2.0 * Math.PI / 180);
   
@@ -175,24 +175,25 @@ export default class Render {
     this.makeParticle(x - sVar, y - cVar * 2, z, false, size);
     this.makeParticle(x + sVar + dVar, y + cVar - dVar, z, false, size);
     this.makeParticle(x - sVar - dVar, y - cVar + dVar, z, false, size);
+
     if(type){
+      const offsetZ = 900;
       size = 25 + Math.random() * 15;
-      amps = 1800 * Math.cos((this.frames * 0.25 ) * Math.PI / 180);
+      amps = 30 + Math.cos((this.frames * 0.25 ) * Math.PI / 180) * 1100;
 
       dVar = 300 * Math.sin(amps * 0.5 * Math.PI / 180);
       sVar = amps * Math.sin(this.frames * 3.0 * Math.PI / 180);
       cVar = amps * Math.cos(this.frames * 2.0 * Math.PI / 180);
     
-      this.makeParticle(x + sVar, y + cVar * 2, z, true, size);
-      this.makeParticle(x - sVar, y - cVar * 2, z, true, size);
-      this.makeParticle(x + sVar + dVar, y + cVar - dVar, z, true, size);
-      this.makeParticle(x - sVar - dVar, y - cVar + dVar, z, true, size);
+      this.makeParticle(x + sVar, y + cVar * 2, z - offsetZ, true, size);
+      this.makeParticle(x - sVar, y - cVar * 2, z - offsetZ, true, size);
+      this.makeParticle(x + sVar + dVar, y + cVar - dVar, z - offsetZ, true, size);
+      this.makeParticle(x - sVar - dVar, y - cVar + dVar, z - offsetZ, true, size);
     }
   }
 
   makeParticle = (mx, my, mz, type, size) => {
-
-    const geometry = new THREE.BoxGeometry(size, size, size);
+    const geometry = new THREE.BoxBufferGeometry(size, size, size);
     const sphere = new THREE.Mesh(
       geometry,
       new THREE.MeshPhongMaterial(
@@ -231,8 +232,6 @@ export default class Render {
     const cBlue = type ? particleColor : Math.cos(particleColor * 8.0 - 4.0);
 
     sphere.material.color.setRGB(cRed, cGreen ,cBlue);
-
-    // sphere.material.color.setHSL(particleColor,1,0.5);
 
     this.particles.push(point);
     this.scene.add(sphere);
@@ -273,7 +272,8 @@ export default class Render {
 
     if(!this.camTimeoutx && Math.random() * 255 > 200) {
       const tempRand = 700 + Math.random() * 2200;
-      this.trsPosition.x = Math.random() * 255 > 200 ? Math.random() * 200 > 100 ? -(tempRand) : tempRand : 0;
+      this.trsPosition.x = Math.random() * 255 > 200 ?
+        Math.random() * 200 > 100 ? -(tempRand) : tempRand : 0;
       this.camTimeoutx = true;
       setTimeout(
         () => { this.camTimeoutx = false; },
@@ -282,7 +282,8 @@ export default class Render {
     }
     if(!this.camTimeouty && Math.random() * 255 > 200) {
       const tempRand = 800 + Math.random() * 2200;
-      this.trsPosition.y = Math.random() * 255 > 230 ? Math.random() * 200 > 100 ? tempRand : -(tempRand) : 0;
+      this.trsPosition.y = Math.random() * 255 > 230 ?
+        Math.random() * 200 > 100 ? tempRand : -(tempRand) : 0;
       this.camTimeouty = true;
       setTimeout(
         () => { this.camTimeouty = false; },
@@ -290,11 +291,11 @@ export default class Render {
       );
     }
     if(!this.camTimeoutz && Math.random() * 255 > 254) {
-      this.trsPosition.z = Math.random() * 200 > 160 ? 50 : -1100 + Math.random() * 700;
+      this.trsPosition.z = Math.random() * 200 > 100 ? 50 : -1100 + Math.random() * 700;
       this.camTimeoutz = true;
       setTimeout(
         () => { this.camTimeoutz = false; },
-        3000 + Math.random() * 8000
+        8000 + Math.random() * 8000
       );
     }
   };
