@@ -1,4 +1,4 @@
-import Render from './Particle/index-pxl';
+import Render from './ParticleDrift/index-alt';
 
 import { description, version } from '../version.json';
 
