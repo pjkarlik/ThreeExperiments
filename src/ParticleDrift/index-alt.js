@@ -22,7 +22,7 @@ export default class Render {
 
     this.particles = [];
     this.particleColor = 360;
-    this.background = 0x3e3e3e;
+    this.background = 0x222222;
     this.camPosition = {
       x: -1546.7881,
       y: -93.118,
@@ -64,6 +64,7 @@ export default class Render {
     this.setRender();
     // this.setEffects();
     // this.createGUI();
+    this.music();
     this.renderLoop();
   }
 
@@ -91,15 +92,26 @@ export default class Render {
     //   });
   }
 
+  music = () => {
+    const youtube = document.createElement('iframe');
+    youtube.width=1;
+    youtube.height=1;
+    youtube.wmode='transparent';
+    const html ='https://www.youtube.com/embed/gkyFQTUR-rA?rel=0&autoplay=1';
+    youtube.src = encodeURI(html); // 'data:text/html;charset=utf-8,' + 
+    youtube.frameborder=0;
+    document.body.appendChild(youtube);
+    
+  }
   setRender = () => {
     // Set Render and Scene //
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(this.devicePixelRatio);
     document.body.appendChild(this.renderer.domElement);
-
+    
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(this.background, 0.00055);
+    this.scene.fog = new THREE.FogExp2(this.background, 0.00075);
     this.scene.background = new THREE.Color(this.background);
 
     this.camera = new THREE.PerspectiveCamera(
@@ -164,7 +176,6 @@ export default class Render {
   }
 
   makeParticle = (mx, my, mz, type, size) => {
-    const particleColor = Math.abs(0.75 * Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
 
     const geometry = type  ? 
       new THREE.SphereGeometry(this.size * 4, 6, 6, 0, Math.PI * 2, 0, Math.PI * 2) :
@@ -192,6 +203,16 @@ export default class Render {
     });
   
     sphere.position.set(mx, my, mz);
+    // const timez = this.frames * 0.1;
+    // const particleColor = Math.abs(0.5 * Math.sin(this.frames * 0.35 * Math.PI / 180) * 0.75);
+
+    // const cRed = type ? particleColor : Math.sin(particleColor * 10.0 - 6.0);
+    // const cGreen = type ? particleColor : Math.cos(particleColor * 8.0 - 5.0);
+    // const cBlue = type ? particleColor : Math.sin(particleColor * 8.0 - 4.0 * Math.PI / 180);
+
+    // sphere.material.color.setRGB(cRed, cGreen ,cBlue);
+
+    const particleColor = Math.abs(0.75 * Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
     sphere.material.color.setRGB(particleColor, particleColor ,particleColor);
     // sphere.material.color.setHSL(particleColor,1,0.5);
 
