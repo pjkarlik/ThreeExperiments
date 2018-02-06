@@ -1,3 +1,4 @@
+// require('../shader/BWShiftFragment');
 import dat from 'dat-gui';
 import THREE from '../Three';
 import Particle from './Particle-alt';
@@ -8,7 +9,11 @@ export default class Render {
     this.frames = 360;
     this.size = 5;
     this.speed = 5.0;
-
+    this.amps = 400;
+    this.scale = 1.0;
+    this.ratio = 1024;
+    this.mirror = 4;
+    
     // Camera Stuff and Viewport //
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -24,29 +29,30 @@ export default class Render {
     this.particleColor = 360;
     this.background = 0x222222;
     this.camPosition = {
-      x: -1546.7881,
-      y: -93.118,
-      z: -341.03976
+      x: -1500.0,
+      y: -90.0,
+      z: -200.0
     };
     this.trsPosition = {
-      x: -1546.7881,
-      y: -93.118,
-      z: -341.03976
+      x: -1500.0,
+      y: -90.0,
+      z: -200.0
     };
     this.emitter = {
       x: 0,
       y: 0,
       z: -1200
     };
+    const bsize = 4000;
     this.box = {
-      top: 4000,
-      left: -4000,
-      bottom: -4000,
-      right: 4000,
+      top: bsize,
+      left: -bsize,
+      bottom: -bsize,
+      right: bsize,
     };
     this.settings = {
       gravity: 0.0,
-      bounce: 0.0,
+      bounce: 0.35,
     };
     this.camTimeoutx = true;
     this.camTimeouty = true;
@@ -63,7 +69,7 @@ export default class Render {
     window.addEventListener('resize', this.resize, true);
     this.setRender();
     // this.setEffects();
-    // this.createGUI();
+    this.createGUI();
     this.renderLoop();
     // this.music();
   }
@@ -76,12 +82,13 @@ export default class Render {
   };
   
   createGUI = () => {
-    // this.options = {
-    //   gravity: this.settings.gravity * 100,
-    //   bounce: this.settings.bounce * 100
-    // };
-    // this.gui = new dat.GUI();
-    // const folderRender = this.gui.addFolder('Particle Options');
+    this.options = {
+      gravity: this.settings.gravity * 100,
+      bounce: this.settings.bounce * 100,
+      amps: this.amps
+    };
+    this.gui = new dat.GUI();
+    const folderRender = this.gui.addFolder('Particle Options');
     // folderRender.add(this.options, 'gravity', 0, 100).step(1)
     //   .onFinishChange((value) => {
     //     this.settings.gravity = value * 0.01;
@@ -90,6 +97,10 @@ export default class Render {
     //   .onFinishChange((value) => {
     //     this.settings.bounce = value * 0.01;
     //   });
+    folderRender.add(this.options, 'amps', 0, 800).step(1)
+    .onFinishChange((value) => {
+      this.amps = value;
+    });
   }
 
   setRender = () => {
@@ -134,7 +145,7 @@ export default class Render {
     youtube.width=1;
     youtube.height=1;
     youtube.wmode='transparent';
-    const html ='https://www.youtube.com/embed/gkyFQTUR-rA?rel=0&autoplay=1';
+    const html ='https://www.youtube.com/embed/bhaPJVBgkMM?rel=0&autoplay=1';
     youtube.src = encodeURI(html); // 'data:text/html;charset=utf-8,' + // e4GJsV3PzsI // gkyFQTUR-rA
     youtube.frameborder=0;
     document.body.appendChild(youtube);
@@ -142,84 +153,73 @@ export default class Render {
   }
 
   setEffects = () => {
-    // this.effect = new THREE.AnaglyphEffect(this.renderer);
-    // this.effect.setSize(this.width, this.height);
-    // let effect;
- 
-    // this.composer = new THREE.EffectComposer(this.renderer);
-    // this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
+    this.composer = new THREE.EffectComposer(this.renderer);
+    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
-    // effect = new THREE.ShaderPass(THREE.MirrorShader);
-    // effect.uniforms.side.value = 4;
-    // this.composer.addPass(effect);
+    const renderPass = new THREE.RenderPass(this.scene, this.camera);
+    this.composer.addPass(renderPass);
 
-    // effect = new THREE.ShaderPass(THREE.RGBShiftShader);
-    // effect.uniforms.amount.value = 0.001;
-    // effect.uniforms.angle.value = 0.0;
-    // effect.renderToScreen = true;
-    // this.composer.addPass(effect);
-  }
+    this.effect = new THREE.ShaderPass(THREE.MirrorShader);
+    this.effect.uniforms.side.value = this.mirror;
+
+    this.composer.addPass(this.effect);
+
+    this.rfrag = new THREE.ShaderPass(THREE.RenderFragment);
+    this.rfrag.uniforms.scale.value = this.scale;
+    this.rfrag.uniforms.ratio.value = this.ratio;
+    this.rfrag.uniforms.time.value = this.frames;
+    this.rfrag.renderToScreen = true;
+    this.composer.addPass(this.rfrag);
+  };
   
   hitRnd = () => {
     const { x, y, z } = this.emitter;
     this.frames++;
-    const type = Math.random() * 100 > 94;
+    let iter = 3.0;
+    let amps = this.amps * Math.cos((this.frames * 0.2 ) * Math.PI / 180);
+    let sVar = amps * Math.sin(this.frames * iter * Math.PI / 180);
+    let cVar = amps * Math.cos(this.frames * iter * Math.PI / 180);
+    let dVar = amps * Math.cos((this.frames * 0.4 ) * 4 * Math.PI / 180);
+    this.makeParticle(x + sVar, y + cVar, z + dVar);
+  };
 
-    let size = Math.random() * 100 > 50 ? 1 + Math.random() * 6 : 1;
-    let amps = type ? 280 : 80 + Math.abs(200 * Math.cos((this.frames * 0.25 ) * Math.PI / 180));
-    let sVar = amps * Math.sin(this.frames * 2.0 * Math.PI / 180);
-    let cVar = amps * Math.cos(this.frames * 2.0 * Math.PI / 180);
-
-    this.makeParticle(x + sVar, y + cVar, z, type, size);
-    this.makeParticle(x - sVar, y + cVar, z, type, size);
-
-    this.makeParticle(x + sVar, y - cVar, z, type, size);
-    this.makeParticle(x - sVar, y - cVar, z, type, size);
-
-    if(type){
-      const offsetZ = 900;
-
-      amps = 30 + Math.cos((this.frames * 0.25 ) * Math.PI / 180) * 1100;
-
-      const dVar = 300 * Math.sin(amps * 0.5 * Math.PI / 180);
-      sVar = amps * Math.sin(this.frames * 3.0 * Math.PI / 180);
-      cVar = amps * Math.cos(this.frames * 2.0 * Math.PI / 180);
-    
-      this.makeParticle(x + sVar, y + cVar * 2, z - offsetZ, true, size);
-      this.makeParticle(x - sVar, y - cVar * 2, z - offsetZ, true, size);
-      this.makeParticle(x + sVar + dVar, y + cVar - dVar, z - offsetZ, true, size);
-      this.makeParticle(x - sVar - dVar, y - cVar + dVar, z - offsetZ, true, size);
-    }
-  }
-
-  makeParticle = (mx, my, mz, type, size) => {
-
-    const geometry = type ?
-      new THREE.SphereGeometry((2 + this.size) * 5, 6, 6, 0, Math.PI * 2, 0, Math.PI * 2) :
-      new THREE.BoxGeometry(this.size, this.size, this.size * size);
+  makeParticle = (mx, my, mz) => {
+    const geometry = new THREE.BoxGeometry(this.size / 2, this.size, this.size * 4);
     const sphere = new THREE.Mesh(
       geometry,
       new THREE.MeshPhongMaterial(
-        { color:0xFFFFFF, wireframe: type }
+        { color: 0xFFFFFF, 
+          // specular: 0xFFFFFF, 
+          wireframe: false 
+        }
       )
     );
     sphere.castShadow = true;
     sphere.receiveShadow = true;
 
     const point = new Particle({
-      size,
+      size: this.size,
       x: mx,
       y: my,
       z: mz,
-      vx: type ? -(0.0 - mx) * 0.02 : -0.00001, // -(0.0 - mx) * 0.01,
-      vy: type ? -(0.0 - my) * 0.02 : -0.00001, //  -(0.0 - my) * 0.01,
-      vz: type ? this.speed * 2 : this.speed,
+      vx: -(0.0 - mx) * 0.002,
+      vy: -(0.0 - my) * 0.002,
+      vz: this.speed,
       box: this.box,
       settings: this.settings,
-      ref: sphere
+      ref: sphere, 
+      decay: 0.00001
     });
 
     sphere.position.set(mx, my, mz);
+    const ex = this.emitter.x;
+    const ey = this.emitter.y;
+    const ry = Math.atan2(my - ey, mx - ex) * 180 / Math.PI;
+
+    // console.log(ry);
+    // sphere.rotateX(rx * 180 / Math.PI);
+    // Math.PI / 180
+    sphere.rotateZ(ry);
     // const timez = this.frames * 0.1;
     // const particleColor = Math.abs(0.5 * Math.sin(this.frames * 0.35 * Math.PI / 180) * 0.75);
 
@@ -249,6 +249,8 @@ export default class Render {
       part.ref.scale.x = part.size;
       part.ref.scale.y = part.size;
       part.ref.scale.z = part.size;
+      // part.ref.rotateX((part.x * 0.004) * Math.PI/180);
+      // part.ref.rotateZ((part.y * 0.002) * Math.PI/180);
       if (part.life > 800 || part.size < 0.0) {
         this.scene.remove(part.ref);
         this.particles.splice(i, 1);
@@ -270,7 +272,7 @@ export default class Render {
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     if(!this.camTimeoutx && Math.random() * 260 > 200) {
-      const tempRand = 500 + Math.random() * 1500;
+      const tempRand = 200 + Math.random() * 900;
       this.trsPosition.x = Math.random() * 255 > 200 ?
         Math.random() * 200 > 100 ? -(tempRand) : tempRand : 0;
       this.camTimeoutx = true;
@@ -280,7 +282,7 @@ export default class Render {
       );
     }
     if(!this.camTimeouty && Math.random() * 260 > 200) {
-      const tempRand = 500 + Math.random() * 1500;
+      const tempRand = 200 + Math.random() * 900;
       this.trsPosition.y = Math.random() * 255 > 200 ?
         Math.random() * 200 > 100 ? tempRand : -(tempRand) : 0;
       this.camTimeouty = true;
@@ -289,16 +291,18 @@ export default class Render {
         6000 + (1000 * Math.random() * 20)
       );
     }
-    if(!this.camTimeoutz && Math.random() * 255 > 253) {
-      this.trsPosition.z = Math.random() * 200 > 100 ? 50 : -1100 + Math.random() * 700;
+    if(!this.camTimeoutz && Math.random() * 255 > 252) {
+      this.trsPosition.z = Math.random() * 200 > 100 ? 10 : -(200 + Math.random() * 300);
       this.camTimeoutz = true;
       setTimeout(
         () => { this.camTimeoutz = false; },
-        8000 + (1000 * Math.random() * 25)
+        9000 + (1500 * Math.random() * 25)
       );
     }
   };
-
+  dist = (a, b, c, d) =>{
+    return Math.sqrt(((a - c) * (a - c) + (b - d) * (b - d)));
+  }
   renderScene = () => {
     // this.composer.render();
     this.renderer.render(this.scene, this.camera);
@@ -308,17 +312,18 @@ export default class Render {
   renderLoop = () => {
     this.checkParticles();
 
-    if(Math.random() * 255 > 230){
-      this.speed = 5.0 + Math.random() * 35;
-    }
+    // if(Math.random() * 255 > 230){
+    //   this.speed = 5.0 + Math.random() * 35;
+    // }
     
-    if(this.particles.length < 1200 && this.frames % 1 == 0) {
+    if(this.particles.length < 1200 && this.frames % 4 == 0) {
       this.hitRnd();
     }
-
+    
     this.cameraLoop();
     this.renderScene();
-    this.frames ++;
+    this.frames++;
+
     window.requestAnimationFrame(this.renderLoop);
   };
 }

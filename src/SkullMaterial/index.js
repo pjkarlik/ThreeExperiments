@@ -25,6 +25,28 @@ export default class Render {
     this.xRotation = -33 * Math.PI / 180;
     this.fog = this.background;
     this.generator = new Generator(10);
+    this.camPosition = {
+      x: -15.7881,
+      y: -23.118,
+      z: -14.03976
+    };
+    this.trsPosition = {
+      x: -15.7881,
+      y: -23.118,
+      z: -14.03976
+    };
+    this.camTimeoutx = true;
+    this.camTimeouty = true;
+    this.camTimeoutz = true;
+    setTimeout(
+      () => {
+        this.canSpeed = true;
+        this.camTimeoutx = false;
+        this.camTimeouty = false;
+        this.camTimeoutz = false;
+      },
+      3000 + (600 * Math.random() * 10)
+    );
     window.addEventListener('resize', this.resize, true);
     window.addEventListener('click', this.stats, true);
     // this.createGUI();
@@ -153,6 +175,50 @@ export default class Render {
     return `0x${hex}`;
   };
 
+  cameraLoop = () => {
+    const damp = 0.01;
+    this.camPosition.x = this.camPosition.x - (this.camPosition.x - this.trsPosition.x) * damp;
+    this.camPosition.y = this.camPosition.y - (this.camPosition.y - this.trsPosition.y) * damp;
+    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * damp;
+
+    this.camera.position.set(
+      this.camPosition.x,
+      this.camPosition.y,
+      this.camPosition.z
+    );
+    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    if(!this.camTimeoutx && Math.random() * 280 > 200) {
+      const tempRand = 50 + Math.random() * 150;
+      this.trsPosition.x = Math.random() * 255 > 200 ?
+        Math.random() * 200 > 100 ? -(tempRand) : tempRand : 0;
+      this.camTimeoutx = true;
+      setTimeout(
+        () => { this.camTimeoutx = false; },
+        6000 + (1000 * Math.random() * 20)
+      );
+    }
+    if(!this.camTimeouty && Math.random() * 280 > 200) {
+      const tempRand = 50 + Math.random() * 150;
+      this.trsPosition.y = Math.random() * 255 > 200 ?
+        Math.random() * 200 > 100 ? tempRand : -(tempRand) : 0;
+      this.camTimeouty = true;
+      setTimeout(
+        () => { this.camTimeouty = false; },
+        6000 + (1000 * Math.random() * 20)
+      );
+    }
+    if(!this.camTimeoutz && Math.random() * 255 > 250) {
+      this.trsPosition.z = Math.random() * 200 > 100 ?
+        (20 + Math.random() * 20) : -(20 + Math.random() * 20);
+      this.camTimeoutz = true;
+      setTimeout(
+        () => { this.camTimeoutz = false; },
+        8000 + (1000 * Math.random() * 25)
+      );
+    }
+  };
+
   renderScene = () => {
     this.skullObject.visible = false;
     this.refractCamera.updateCubeMap(this.renderer, this.scene);
@@ -163,6 +229,7 @@ export default class Render {
   renderLoop = () => {
     this.frame ++;
     this.checkObjects();
+    this.cameraLoop();
     this.renderScene();
     window.requestAnimationFrame(this.renderLoop.bind(this));
   };
