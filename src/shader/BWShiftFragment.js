@@ -33,7 +33,7 @@ THREE.RenderFragment = {
     "uniform vec2 tSize;",
     "uniform sampler2D tDiffuse;",
     "varying vec2 vUv;",
-    
+
     "float pattern() {",
       "float df = time * 0.1;",
       "vec2 q = vUv;",
@@ -52,16 +52,17 @@ THREE.RenderFragment = {
       "float dy = scale * (1.20 / Pixels);",
       "vec2 Coord = vec2(dx * floor(q.x / dx), dy * floor(q.y / dy));",
       "float Dist = sqrt(((q.x - 0.5) * (q.x - 0.5) + (q.y - 0.5) * (q.y - 0.5)));",
-      
+      "float Fist = sqrt(((q.x - 0.5) * (q.x - 0.5) - (q.y - 0.5) * (q.y - 0.5)));",
       "vec4 color = texture2D( tDiffuse, Coord / vec2(Coord + (Dist/Coord)) );",
+      "vec4 folor = texture2D( tDiffuse, Coord / vec2(Coord + (Fist/Coord)) );",
       "vec4 original = texture2D( tDiffuse, q );",
-      
+
       "float average = ( color.r + color.g + color.b ) / 3.0;",
 
       "gl_FragColor = vec4( ",
-      "color.r,",
-      "color.g,",
-      "color.b,",
+      "folor.r,",
+      "folor.g,",
+      "folor.b,",
       // "original.r + (color.r * 0.5),",
       // "original.g + (color.g * 0.5),",
       // "original.b + (color.b * 0.5),",

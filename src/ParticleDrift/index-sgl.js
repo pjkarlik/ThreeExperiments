@@ -1,4 +1,5 @@
-// require('../shader/BWShiftFragment');
+require('../shader/BWShiftFragment');
+
 import dat from 'dat-gui';
 import THREE from '../Three';
 import Particle from './Particle-alt';
@@ -13,7 +14,7 @@ export default class Render {
     this.scale = 1.0;
     this.ratio = 1024;
     this.mirror = 4;
-    
+
     // Camera Stuff and Viewport //
     this.width = window.innerWidth;
     this.height = window.innerHeight;
@@ -21,13 +22,13 @@ export default class Render {
     this.devicePixelRatio = window.devicePixelRatio;
     this.viewAngle = 85;
     this.aspect = this.width / this.height;
-    this.near = 0.1;
-    this.far = 30000;
+    this.near = 1;
+    this.far = 20000;
     // Particles Stuff //
 
     this.particles = [];
     this.particleColor = 360;
-    this.background = 0x222222;
+    this.background = 0x666666;
     this.camPosition = {
       x: -1500.0,
       y: -90.0,
@@ -68,10 +69,10 @@ export default class Render {
     );
     window.addEventListener('resize', this.resize, true);
     this.setRender();
-    // this.setEffects();
-    this.createGUI();
+    this.setEffects();
+    // this.createGUI();
     this.renderLoop();
-    // this.music();
+    this.music();
   }
 
   resize = () => {
@@ -80,7 +81,7 @@ export default class Render {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
   };
-  
+
   createGUI = () => {
     this.options = {
       gravity: this.settings.gravity * 100,
@@ -109,7 +110,7 @@ export default class Render {
     this.renderer.setSize(this.width, this.height);
     this.renderer.setPixelRatio(this.devicePixelRatio);
     document.body.appendChild(this.renderer.domElement);
-    
+
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(this.background, 0.00075);
     this.scene.background = new THREE.Color(this.background);
@@ -149,29 +150,31 @@ export default class Render {
     youtube.src = encodeURI(html); // 'data:text/html;charset=utf-8,' + // e4GJsV3PzsI // gkyFQTUR-rA
     youtube.frameborder=0;
     document.body.appendChild(youtube);
-    
+
   }
 
   setEffects = () => {
-    this.composer = new THREE.EffectComposer(this.renderer);
-    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
+    this.effect = new THREE.AnaglyphEffect(this.renderer);
+    this.effect.setSize(this.width, this.height);
+    // this.composer = new THREE.EffectComposer(this.renderer);
+    // this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
-    const renderPass = new THREE.RenderPass(this.scene, this.camera);
-    this.composer.addPass(renderPass);
+    // const renderPass = new THREE.RenderPass(this.scene, this.camera);
+    // this.composer.addPass(renderPass);
 
-    this.effect = new THREE.ShaderPass(THREE.MirrorShader);
-    this.effect.uniforms.side.value = this.mirror;
+    // this.effect = new THREE.ShaderPass(THREE.MirrorShader);
+    // this.effect.uniforms.side.value = this.mirror;
 
-    this.composer.addPass(this.effect);
+    // this.composer.addPass(this.effect);
 
-    this.rfrag = new THREE.ShaderPass(THREE.RenderFragment);
-    this.rfrag.uniforms.scale.value = this.scale;
-    this.rfrag.uniforms.ratio.value = this.ratio;
-    this.rfrag.uniforms.time.value = this.frames;
-    this.rfrag.renderToScreen = true;
-    this.composer.addPass(this.rfrag);
+    // this.rfrag = new THREE.ShaderPass(THREE.RenderFragment);
+    // this.rfrag.uniforms.scale.value = this.scale;
+    // this.rfrag.uniforms.ratio.value = this.ratio;
+    // this.rfrag.uniforms.time.value = this.frames;
+    // this.rfrag.renderToScreen = true;
+    // this.composer.addPass(this.rfrag);
   };
-  
+
   hitRnd = () => {
     const { x, y, z } = this.emitter;
     this.frames++;
@@ -181,18 +184,14 @@ export default class Render {
     let cVar = amps * Math.cos(this.frames * iter * Math.PI / 180);
     let dVar = amps * Math.cos((this.frames * 0.4 ) * 4 * Math.PI / 180);
     this.makeParticle(x + sVar, y + cVar, z + dVar);
+    this.makeParticle(x - sVar, y - cVar, z + dVar);
   };
 
   makeParticle = (mx, my, mz) => {
-    const geometry = new THREE.BoxGeometry(this.size / 2, this.size, this.size * 4);
+    const geometry = new THREE.BoxGeometry(this.size / 2, this.size  * 3, this.size * 6);
     const sphere = new THREE.Mesh(
       geometry,
-      new THREE.MeshPhongMaterial(
-        { color: 0xFFFFFF, 
-          // specular: 0xFFFFFF, 
-          wireframe: false 
-        }
-      )
+      new THREE.MeshPhongMaterial({ color: 0xFFFFFF })
     );
     sphere.castShadow = true;
     sphere.receiveShadow = true;
@@ -207,31 +206,27 @@ export default class Render {
       vz: this.speed,
       box: this.box,
       settings: this.settings,
-      ref: sphere, 
+      ref: sphere,
       decay: 0.00001
     });
 
     sphere.position.set(mx, my, mz);
     const ex = this.emitter.x;
     const ey = this.emitter.y;
-    const ry = Math.atan2(my - ey, mx - ex) * 180 / Math.PI;
+    const ry = Math.atan2(my - ey, mx - ex) * Math.PI / 180;
 
-    // console.log(ry);
-    // sphere.rotateX(rx * 180 / Math.PI);
-    // Math.PI / 180
-    sphere.rotateZ(ry);
-    // const timez = this.frames * 0.1;
-    // const particleColor = Math.abs(0.5 * Math.sin(this.frames * 0.35 * Math.PI / 180) * 0.75);
-
-    // const cRed = type ? particleColor : Math.sin(particleColor * 10.0 - 6.0 * Math.PI / 180);
-    // const cGreen = type ? particleColor : 0;
-    // const cBlue = type ? particleColor : 0;
+    sphere.rotateZ((15 + ry) * 180 / Math.PI);
+    
+    // const cRed = Math.sin(this.frames * 0.25 * Math.PI / 180);
+    // const cGreen = Math.cos(this.frames * 0.25 * Math.PI / 180);
+    // const cBlue = 1 - Math.sin(this.frames * 0.25 * Math.PI / 180);
 
     // sphere.material.color.setRGB(cRed, cGreen ,cBlue);
 
-    const particleColor = Math.abs(0.75 * Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
-    // sphere.material.color.setRGB(particleColor, particleColor ,particleColor);
-    sphere.material.color.setHSL(particleColor,1,0.5);
+    const particleColor = Math.abs(Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
+    const offsetColor  = Math.abs(Math.cos(this.frames * 0.15 * Math.PI / 180) * 0.75);
+    sphere.material.color.setRGB(offsetColor, offsetColor , offsetColor);
+    // sphere.material.color.setHSL(particleColor,1,0.5);
 
     this.particles.push(point);
     this.scene.add(sphere);
@@ -242,15 +237,13 @@ export default class Render {
       const part = this.particles[i];
       part.update();
       part.ref.position.set(
-        part.x, 
-        part.y, 
+        part.x,
+        part.y,
         part.z
       );
       part.ref.scale.x = part.size;
       part.ref.scale.y = part.size;
       part.ref.scale.z = part.size;
-      // part.ref.rotateX((part.x * 0.004) * Math.PI/180);
-      // part.ref.rotateZ((part.y * 0.002) * Math.PI/180);
       if (part.life > 800 || part.size < 0.0) {
         this.scene.remove(part.ref);
         this.particles.splice(i, 1);
@@ -292,7 +285,7 @@ export default class Render {
       );
     }
     if(!this.camTimeoutz && Math.random() * 255 > 252) {
-      this.trsPosition.z = Math.random() * 200 > 100 ? 10 : -(200 + Math.random() * 300);
+      this.trsPosition.z = Math.random() * 200 > 100 ? 100 : -(200 + Math.random() * 200);
       this.camTimeoutz = true;
       setTimeout(
         () => { this.camTimeoutz = false; },
@@ -305,8 +298,8 @@ export default class Render {
   }
   renderScene = () => {
     // this.composer.render();
-    this.renderer.render(this.scene, this.camera);
-    // this.effect.render(this.scene, this.camera);
+    // this.renderer.render(this.scene, this.camera);
+    this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
@@ -315,11 +308,11 @@ export default class Render {
     // if(Math.random() * 255 > 230){
     //   this.speed = 5.0 + Math.random() * 35;
     // }
-    
-    if(this.particles.length < 1200 && this.frames % 4 == 0) {
+
+    if(this.particles.length < 1200 && this.frames % 2 == 0) {
       this.hitRnd();
     }
-    
+
     this.cameraLoop();
     this.renderScene();
     this.frames++;
