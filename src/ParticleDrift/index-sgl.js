@@ -292,7 +292,7 @@ export default class Render {
     if(!this.camTimeoutx && Math.random() * 260 > 200) {
       const tempRand = 100 + Math.random() * 1000;
       this.trsPosition.x = Math.random() * 255 > 200 ?
-        Math.random() * 200 > 100 ? -(tempRand) : tempRand : 0;
+        Math.random() * 250 > 100 ? -(tempRand) : tempRand : 0;
       this.camTimeoutx = true;
       setTimeout(
         () => { this.camTimeoutx = false; },
@@ -302,7 +302,7 @@ export default class Render {
     if(!this.camTimeouty && Math.random() * 260 > 200) {
       const tempRand = 100 + Math.random() * 1000;
       this.trsPosition.y = Math.random() * 255 > 200 ?
-        Math.random() * 200 > 100 ? tempRand : -(tempRand) : 0;
+        Math.random() * 250 > 100 ? tempRand : -(tempRand) : 0;
       this.camTimeouty = true;
       setTimeout(
         () => { this.camTimeouty = false; },
@@ -314,7 +314,7 @@ export default class Render {
       this.camTimeoutz = true;
       setTimeout(
         () => { this.camTimeoutz = false; },
-        24000 + (1200 * Math.random() * 7)
+        18000 + (1100 * Math.random() * 7)
       );
     }
     if (this.camPosition.x == 0 && this.camPosition.y == 0 ) {
