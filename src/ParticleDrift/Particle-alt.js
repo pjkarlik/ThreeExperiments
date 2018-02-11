@@ -10,6 +10,7 @@ export default class Particle {
     this.x = config.x;
     this.y = config.y;
     this.z = config.z;
+    this.decay = config.decay || 0.0001;
     const min = config.min || 5;
     const max = config.max || 10;
     this.vx = config.vx || (Math.abs(Math.random() * max) - min);
@@ -55,7 +56,7 @@ export default class Particle {
 
     this.vy -= gravity;
 
-    this.size -= (this.life * 0.00015);
+    this.size -= (this.life * this.decay);
     this.life++;
   }
 }

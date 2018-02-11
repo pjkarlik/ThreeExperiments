@@ -164,7 +164,7 @@ export default class Render {
     this.frames++;
 
     const type = Math.random() * 100 > 94;
-    let size = 12; // 10 + Math.random() * 10;
+    let size = 5 + Math.random() * 15;
     let amps = 600 * Math.cos((this.frames * 0.35 ) * Math.PI / 180);
     
     let dVar = 300 * Math.sin(amps * 1.5 * Math.PI / 180);
@@ -270,32 +270,32 @@ export default class Render {
     );
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    if(!this.camTimeoutx && Math.random() * 255 > 200) {
-      const tempRand = 700 + Math.random() * 2200;
+    if(!this.camTimeoutx && Math.random() * 260 > 200) {
+      const tempRand = 500 + Math.random() * 1500;
       this.trsPosition.x = Math.random() * 255 > 200 ?
         Math.random() * 200 > 100 ? -(tempRand) : tempRand : 0;
       this.camTimeoutx = true;
       setTimeout(
         () => { this.camTimeoutx = false; },
-        3000 + Math.random() * 6000
+        6000 + (1000 * Math.random() * 20)
       );
     }
-    if(!this.camTimeouty && Math.random() * 255 > 200) {
-      const tempRand = 800 + Math.random() * 2200;
-      this.trsPosition.y = Math.random() * 255 > 230 ?
+    if(!this.camTimeouty && Math.random() * 260 > 200) {
+      const tempRand = 500 + Math.random() * 1500;
+      this.trsPosition.y = Math.random() * 255 > 200 ?
         Math.random() * 200 > 100 ? tempRand : -(tempRand) : 0;
       this.camTimeouty = true;
       setTimeout(
         () => { this.camTimeouty = false; },
-        3000 + Math.random() * 4000
+        6000 + (1000 * Math.random() * 20)
       );
     }
-    if(!this.camTimeoutz && Math.random() * 255 > 254) {
+    if(!this.camTimeoutz && Math.random() * 255 > 253) {
       this.trsPosition.z = Math.random() * 200 > 100 ? 50 : -1100 + Math.random() * 700;
       this.camTimeoutz = true;
       setTimeout(
         () => { this.camTimeoutz = false; },
-        8000 + Math.random() * 8000
+        8000 + (1000 * Math.random() * 25)
       );
     }
   };
