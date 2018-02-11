@@ -39,9 +39,9 @@ THREE.RenderFragment = {
 				"float s = sin( 1.57 ), c = cos( 1.57 );",
 
 				"vec2 tex = vUv * tSize - center;",
-				"vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * 3.0;",
+				"vec2 point = vec2( c * tex.x - s * tex.y, s * tex.x + c * tex.y ) * 8.0;",
 
-				"return ( sin( point.x ) * sin( point.y ) ) * 3.0;",
+				"return ( sin( point.x ) * sin( point.y ) ) * 1.25;",
 
 			"}",
 

@@ -1,4 +1,4 @@
-require('../shader/BWShiftFragment');
+// require('../shader/VertLinesFragment');
 
 import dat from 'dat-gui';
 import THREE from '../Three';
@@ -10,7 +10,7 @@ export default class Render {
     this.frames = 360;
     this.size = 5;
     this.speed = 5.0;
-    this.amps = 400;
+    this.amps = 500;
     this.scale = 1.0;
     this.ratio = 1024;
     this.mirror = 4;
@@ -20,7 +20,7 @@ export default class Render {
     this.height = window.innerHeight;
     this.aspect = this.width / this.height;
     this.devicePixelRatio = window.devicePixelRatio;
-    this.viewAngle = 85;
+    this.viewAngle = 65;
     this.aspect = this.width / this.height;
     this.near = 1;
     this.far = 20000;
@@ -28,7 +28,7 @@ export default class Render {
 
     this.particles = [];
     this.particleColor = 360;
-    this.background = 0x666666;
+    this.background = 0x333333;
     this.camPosition = {
       x: -1500.0,
       y: -90.0,
@@ -44,7 +44,7 @@ export default class Render {
       y: 0,
       z: -1200
     };
-    const bsize = 4000;
+    const bsize = 6000;
     this.box = {
       top: bsize,
       left: -bsize,
@@ -60,7 +60,6 @@ export default class Render {
     this.camTimeoutz = true;
     setTimeout(
       () => {
-        this.canSpeed = true;
         this.camTimeoutx = false;
         this.camTimeouty = false;
         this.camTimeoutz = false;
@@ -68,6 +67,9 @@ export default class Render {
       3000 + (600 * Math.random() * 10)
     );
     window.addEventListener('resize', this.resize, true);
+    window.addEventListener('click', () => {
+      console.log(this.camera.position);
+    }, true);
     this.setRender();
     this.setEffects();
     // this.createGUI();
@@ -112,7 +114,7 @@ export default class Render {
     document.body.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(this.background, 0.00075);
+    this.scene.fog = new THREE.FogExp2(this.background, 0.00062);
     this.scene.background = new THREE.Color(this.background);
 
     this.camera = new THREE.PerspectiveCamera(
@@ -131,13 +133,13 @@ export default class Render {
 
     // Set Lights //
     let pointLight = new THREE.PointLight(0xDDDDDD);
-    pointLight.position.set(50, 450, -800);
+    pointLight.position.set(450, 450, -800);
     this.scene.add(pointLight);
     pointLight = new THREE.PointLight(0xEEEEEE);
-    pointLight.position.set(-50, -450, 800);
+    pointLight.position.set(-250, -850, 800);
     this.scene.add(pointLight);
     let ambient = new THREE.AmbientLight(0x9f9f9f);
-    ambient.position.set(1, 450, -400);
+    ambient.position.set(1, 200, -200);
     this.scene.add(ambient);
   };
 
@@ -145,12 +147,32 @@ export default class Render {
     const youtube = document.createElement('iframe');
     youtube.width=1;
     youtube.height=1;
+    const videoid = '3vnZnuqgh7U';
     youtube.wmode='transparent';
-    const html ='https://www.youtube.com/embed/bhaPJVBgkMM?rel=0&autoplay=1';
+    const html ='https://www.youtube.com/embed/3vnZnuqgh7U?rel=0&autoplay=1';
     youtube.src = encodeURI(html); // 'data:text/html;charset=utf-8,' + // e4GJsV3PzsI // gkyFQTUR-rA
     youtube.frameborder=0;
     document.body.appendChild(youtube);
-
+    const overlay = document.createElement('div');
+    const link = document.createElement('a');
+    const image = document.createElement('img');
+    image.src = 'https://img.youtube.com/vi/3vnZnuqgh7U/sddefault.jpg';
+    image.width = 60;
+    image.height = 45;
+    image.style.float = 'left';
+    image.style.margin = '0 0 0 15px';
+    link.href = html;
+    link.innerHTML = 'Music by Lorn | Stuck in the System';
+    overlay.style.position = 'absolute';
+    overlay.style.bottom = '15px';
+    overlay.style.left = '0';
+    overlay.style.lineHeight = '45px';
+    overlay.style.zIndex = '9999';
+    link.style.color = '#FFF';
+    link.style.padding = '15px';
+    overlay.appendChild(image);
+    overlay.appendChild(link);
+    document.body.appendChild(overlay);
   }
 
   setEffects = () => {
@@ -178,20 +200,20 @@ export default class Render {
   hitRnd = () => {
     const { x, y, z } = this.emitter;
     this.frames++;
-    let iter = 3.0;
-    let amps = this.amps * Math.cos((this.frames * 0.2 ) * Math.PI / 180);
+    let iter = 2.25;
+    let amps = 40 + Math.abs(this.amps * Math.cos((this.frames * 0.2 ) * Math.PI / 180));
     let sVar = amps * Math.sin(this.frames * iter * Math.PI / 180);
     let cVar = amps * Math.cos(this.frames * iter * Math.PI / 180);
-    let dVar = amps * Math.cos((this.frames * 0.4 ) * 4 * Math.PI / 180);
+    let dVar = amps * Math.cos((this.frames * 0.4 ) * 8 * Math.PI / 180);
     this.makeParticle(x + sVar, y + cVar, z + dVar);
     this.makeParticle(x - sVar, y - cVar, z + dVar);
   };
 
   makeParticle = (mx, my, mz) => {
-    const geometry = new THREE.BoxGeometry(this.size / 2, this.size  * 3, this.size * 6);
+    const geometry = new THREE.BoxBufferGeometry(this.size / 2, this.size  * 3, this.size * 8);
     const sphere = new THREE.Mesh(
       geometry,
-      new THREE.MeshPhongMaterial({ color: 0xFFFFFF })
+      new THREE.MeshPhongMaterial({ color: 0xFFFFFF, specular: 0x999999 })
     );
     sphere.castShadow = true;
     sphere.receiveShadow = true;
@@ -201,16 +223,19 @@ export default class Render {
       x: mx,
       y: my,
       z: mz,
-      vx: -(0.0 - mx) * 0.002,
-      vy: -(0.0 - my) * 0.002,
+      vx: -(0.0 - mx) * 0.005,
+      vy: -(0.0 - my) * 0.005,
       vz: this.speed,
       box: this.box,
       settings: this.settings,
       ref: sphere,
-      decay: 0.00001
+      decay: 0.000015
     });
 
     sphere.position.set(mx, my, mz);
+    sphere.scale.x = this.size;
+    sphere.scale.y = this.size;
+    sphere.scale.z = this.size;
     const ex = this.emitter.x;
     const ey = this.emitter.y;
     const ry = Math.atan2(my - ey, mx - ex) * Math.PI / 180;
@@ -224,8 +249,8 @@ export default class Render {
     // sphere.material.color.setRGB(cRed, cGreen ,cBlue);
 
     const particleColor = Math.abs(Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
-    const offsetColor  = Math.abs(Math.cos(this.frames * 0.15 * Math.PI / 180) * 0.75);
-    sphere.material.color.setRGB(offsetColor, offsetColor , offsetColor);
+    const offsetColor  = 0.85 - Math.abs(Math.cos(this.frames * 0.25 * Math.PI / 180) );
+    sphere.material.color.setRGB(offsetColor, offsetColor, offsetColor);
     // sphere.material.color.setHSL(particleColor,1,0.5);
 
     this.particles.push(point);
@@ -255,7 +280,7 @@ export default class Render {
     const damp = 0.01;
     this.camPosition.x = this.camPosition.x - (this.camPosition.x - this.trsPosition.x) * damp;
     this.camPosition.y = this.camPosition.y - (this.camPosition.y - this.trsPosition.y) * damp;
-    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * damp;
+    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.004;
 
     this.camera.position.set(
       this.camPosition.x,
@@ -265,7 +290,7 @@ export default class Render {
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     if(!this.camTimeoutx && Math.random() * 260 > 200) {
-      const tempRand = 200 + Math.random() * 900;
+      const tempRand = 100 + Math.random() * 1000;
       this.trsPosition.x = Math.random() * 255 > 200 ?
         Math.random() * 200 > 100 ? -(tempRand) : tempRand : 0;
       this.camTimeoutx = true;
@@ -275,7 +300,7 @@ export default class Render {
       );
     }
     if(!this.camTimeouty && Math.random() * 260 > 200) {
-      const tempRand = 200 + Math.random() * 900;
+      const tempRand = 100 + Math.random() * 1000;
       this.trsPosition.y = Math.random() * 255 > 200 ?
         Math.random() * 200 > 100 ? tempRand : -(tempRand) : 0;
       this.camTimeouty = true;
@@ -284,13 +309,16 @@ export default class Render {
         6000 + (1000 * Math.random() * 20)
       );
     }
-    if(!this.camTimeoutz && Math.random() * 255 > 252) {
-      this.trsPosition.z = Math.random() * 200 > 100 ? 100 : -(200 + Math.random() * 200);
+    if(!this.camTimeoutz && Math.random() * 255 > 253) {
+      this.trsPosition.z = Math.random() * 200 > 150 ? 100 + Math.random() * 100 : -(100 + Math.random() * 100);
       this.camTimeoutz = true;
       setTimeout(
         () => { this.camTimeoutz = false; },
-        9000 + (1500 * Math.random() * 25)
+        24000 + (1200 * Math.random() * 7)
       );
+    }
+    if (this.camPosition.x == 0 && this.camPosition.y == 0 ) {
+      this.camera.rotationZ((this.frames * 0.1) * Math.PI / 180);
     }
   };
   dist = (a, b, c, d) =>{
@@ -305,18 +333,18 @@ export default class Render {
   renderLoop = () => {
     this.checkParticles();
 
-    // if(Math.random() * 255 > 230){
-    //   this.speed = 5.0 + Math.random() * 35;
-    // }
+    if(Math.random() * 255 > 245){
+      this.speed = 5.0 + Math.random() * 10;
+    }
 
-    if(this.particles.length < 1200 && this.frames % 2 == 0) {
+    if(this.particles.length < 1800 && this.frames % 2 == 0) {
       this.hitRnd();
     }
 
     this.cameraLoop();
     this.renderScene();
     this.frames++;
-
+    // this.rfrag.uniforms.time.value = this.frames;
     window.requestAnimationFrame(this.renderLoop);
   };
 }

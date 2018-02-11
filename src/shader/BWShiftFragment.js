@@ -60,9 +60,9 @@ THREE.RenderFragment = {
       "float average = ( color.r + color.g + color.b ) / 3.0;",
 
       "gl_FragColor = vec4( ",
-      "folor.r,",
-      "folor.g,",
-      "folor.b,",
+      "color.r,",
+      "color.g,",
+      "color.b,",
       // "original.r + (color.r * 0.5),",
       // "original.g + (color.g * 0.5),",
       // "original.b + (color.b * 0.5),",
