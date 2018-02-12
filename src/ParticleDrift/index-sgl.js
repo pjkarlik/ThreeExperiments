@@ -1,4 +1,4 @@
-// require('../shader/VertLinesFragment');
+require('../shader/OscFragment');
 
 import dat from 'dat-gui';
 import THREE from '../Three';
@@ -13,6 +13,8 @@ export default class Render {
     this.amps = 500;
     this.scale = 1.0;
     this.ratio = 1024;
+    this.angle = 255.0;
+    this.dec = 68.0;
     this.mirror = 4;
 
     // Camera Stuff and Viewport //
@@ -114,7 +116,7 @@ export default class Render {
     document.body.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(this.background, 0.00062);
+    this.scene.fog = new THREE.FogExp2(this.background, 0.0006);
     this.scene.background = new THREE.Color(this.background);
 
     this.camera = new THREE.PerspectiveCamera(
@@ -149,20 +151,20 @@ export default class Render {
     youtube.height=1;
     const videoid = '3vnZnuqgh7U';
     youtube.wmode='transparent';
-    const html ='https://www.youtube.com/embed/3vnZnuqgh7U?rel=0&autoplay=1';
+    const html ='https://www.youtube.com/embed/n6tVkGsaE94?rel=0&autoplay=1';
     youtube.src = encodeURI(html); // 'data:text/html;charset=utf-8,' + // e4GJsV3PzsI // gkyFQTUR-rA
     youtube.frameborder=0;
     document.body.appendChild(youtube);
     const overlay = document.createElement('div');
     const link = document.createElement('a');
     const image = document.createElement('img');
-    image.src = 'https://img.youtube.com/vi/3vnZnuqgh7U/sddefault.jpg';
+    image.src = 'https://img.youtube.com/vi/n6tVkGsaE94/sddefault.jpg';
     image.width = 60;
     image.height = 45;
     image.style.float = 'left';
     image.style.margin = '0 0 0 15px';
     link.href = html;
-    link.innerHTML = 'Music by Lorn | Stuck in the System';
+    link.innerHTML = 'Music by Lorn | Shelter';
     overlay.style.position = 'absolute';
     overlay.style.bottom = '15px';
     overlay.style.left = '0';
@@ -176,25 +178,25 @@ export default class Render {
   }
 
   setEffects = () => {
-    this.effect = new THREE.AnaglyphEffect(this.renderer);
-    this.effect.setSize(this.width, this.height);
-    // this.composer = new THREE.EffectComposer(this.renderer);
-    // this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
+    // this.effect = new THREE.AnaglyphEffect(this.renderer);
+    // this.effect.setSize(this.width, this.height);
+    this.composer = new THREE.EffectComposer(this.renderer);
+    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
-    // const renderPass = new THREE.RenderPass(this.scene, this.camera);
-    // this.composer.addPass(renderPass);
+    const renderPass = new THREE.RenderPass(this.scene, this.camera);
+    this.composer.addPass(renderPass);
 
-    // this.effect = new THREE.ShaderPass(THREE.MirrorShader);
-    // this.effect.uniforms.side.value = this.mirror;
+    this.effect = new THREE.ShaderPass(THREE.MirrorShader);
+    this.effect.uniforms.side.value = this.mirror;
 
-    // this.composer.addPass(this.effect);
+    this.composer.addPass(this.effect);
 
-    // this.rfrag = new THREE.ShaderPass(THREE.RenderFragment);
+    this.rfrag = new THREE.ShaderPass(THREE.RenderFragment);
     // this.rfrag.uniforms.scale.value = this.scale;
     // this.rfrag.uniforms.ratio.value = this.ratio;
     // this.rfrag.uniforms.time.value = this.frames;
-    // this.rfrag.renderToScreen = true;
-    // this.composer.addPass(this.rfrag);
+    this.rfrag.renderToScreen = true;
+    this.composer.addPass(this.rfrag);
   };
 
   hitRnd = () => {
@@ -244,11 +246,9 @@ export default class Render {
     
     // const cRed = Math.sin(this.frames * 0.25 * Math.PI / 180);
     // const cGreen = Math.cos(this.frames * 0.25 * Math.PI / 180);
-    // const cBlue = 1 - Math.sin(this.frames * 0.25 * Math.PI / 180);
-
+    // const cBlue = 0.9 - Math.sin(this.frames * 0.25 * Math.PI / 180);
     // sphere.material.color.setRGB(cRed, cGreen ,cBlue);
-
-    const particleColor = Math.abs(Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
+    // const particleColor = Math.abs(Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
     const offsetColor  = 0.85 - Math.abs(Math.cos(this.frames * 0.25 * Math.PI / 180) );
     sphere.material.color.setRGB(offsetColor, offsetColor, offsetColor);
     // sphere.material.color.setHSL(particleColor,1,0.5);
@@ -325,9 +325,9 @@ export default class Render {
     return Math.sqrt(((a - c) * (a - c) + (b - d) * (b - d)));
   }
   renderScene = () => {
-    // this.composer.render();
+    this.composer.render();
     // this.renderer.render(this.scene, this.camera);
-    this.effect.render(this.scene, this.camera);
+    // this.effect.render(this.scene, this.camera);
   };
 
   renderLoop = () => {
@@ -337,14 +337,14 @@ export default class Render {
       this.speed = 5.0 + Math.random() * 10;
     }
 
-    if(this.particles.length < 1800 && this.frames % 2 == 0) {
+    if(this.particles.length < 1800 && this.frames % 3 == 0) {
       this.hitRnd();
     }
 
     this.cameraLoop();
     this.renderScene();
     this.frames++;
-    // this.rfrag.uniforms.time.value = this.frames;
+    this.rfrag.uniforms.time.value = this.frames * 0.01;
     window.requestAnimationFrame(this.renderLoop);
   };
 }
