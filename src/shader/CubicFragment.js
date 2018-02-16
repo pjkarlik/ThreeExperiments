@@ -51,9 +51,9 @@ THREE.RenderFragment = {
       "vec4 color = texture2D( tDiffuse, Coord);",
       "vec4 overlay = texture2D( tDiffuse, q);",
       "gl_FragColor = vec4(",
-        "(overlay.r * 0.75) + (color.r * 0.75),",
-        "(overlay.g * 0.75) + (color.g * 0.75),",
-        "(overlay.b * 0.75) + (color.b * 0.75),",
+        "(overlay.r * 0.55) + (color.r * 0.25),",
+        "(overlay.g * 0.55) + (color.g * 0.25),",
+        "(overlay.b * 0.55) + (color.b * 0.25),",
         "overlay.a",
       ");",
 

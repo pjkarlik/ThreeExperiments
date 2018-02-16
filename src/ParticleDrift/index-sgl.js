@@ -14,7 +14,7 @@ export default class Render {
     this.scale = 1.0;
     this.ratio = 1024;
     this.angle = 255.0;
-    this.dec = 68.0;
+    this.dec = 26.0;
     this.mirror = 4;
 
     // Camera Stuff and Viewport //
@@ -22,7 +22,7 @@ export default class Render {
     this.height = window.innerHeight;
     this.aspect = this.width / this.height;
     this.devicePixelRatio = window.devicePixelRatio;
-    this.viewAngle = 65;
+    this.viewAngle = 55;
     this.aspect = this.width / this.height;
     this.near = 1;
     this.far = 20000;
@@ -76,7 +76,7 @@ export default class Render {
     this.setEffects();
     // this.createGUI();
     this.renderLoop();
-    this.music();
+    // this.music();
   }
 
   resize = () => {
@@ -202,7 +202,7 @@ export default class Render {
   hitRnd = () => {
     const { x, y, z } = this.emitter;
     this.frames++;
-    let iter = 2.25;
+    let iter = 2.0;
     let amps = 40 + Math.abs(this.amps * Math.cos((this.frames * 0.2 ) * Math.PI / 180));
     let sVar = amps * Math.sin(this.frames * iter * Math.PI / 180);
     let cVar = amps * Math.cos(this.frames * iter * Math.PI / 180);
@@ -321,6 +321,7 @@ export default class Render {
       this.camera.rotationZ((this.frames * 0.1) * Math.PI / 180);
     }
   };
+
   dist = (a, b, c, d) =>{
     return Math.sqrt(((a - c) * (a - c) + (b - d) * (b - d)));
   }

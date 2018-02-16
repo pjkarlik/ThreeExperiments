@@ -1,4 +1,4 @@
-// require('../shader/CubicFragment');
+require('../shader/CubicFragment');
 
 import dat from 'dat-gui';
 import THREE from '../ThreeLight';
@@ -9,7 +9,7 @@ export default class Render {
   constructor() {
     this.frames = 0;
     this.size = 9;
-    this.speed = 6.0;
+    this.speed = 7.5;
     this.canSpeed = false;
     this.canFlip = false;
     this.camView= false;
@@ -24,9 +24,9 @@ export default class Render {
     this.far = 30000;
 
     // Particles Stuff //
-    this.scale = 145.0;
+    this.scale = 50.0;
     this.ratio = 1024;
-    this.mirror = 4;
+    this.mirror = 0;
     this.particles = [];
     this.particleColor = 360;
     this.background = 0x030030;
@@ -60,7 +60,7 @@ export default class Render {
       console.log(this.camera.position);
     }, true);
     this.setRender();
-    // this.setEffects();
+    this.setEffects();
     // this.createGUI();
     this.renderLoop();
 
@@ -210,10 +210,11 @@ export default class Render {
       z: mz,
       vx: type ? 0.01 : 0.001, // -(0.0 - mx) * 0.01,
       vy: type ? 0.01 : 0.001, //  -(0.0 - my) * 0.01,
-      vz: this.speed * 8,
+      vz: this.speed,
       box: this.box,
       settings: this.settings,
-      ref: sphere
+      ref: sphere,
+      decay: 0.000012
     });
     if(type){
       sphere.rotateX(mx * Math.PI / 180); 
@@ -261,7 +262,7 @@ export default class Render {
     const damp = 0.01;
     this.camPosition.x = this.camPosition.x - (this.camPosition.x - this.trsPosition.x) * damp;
     this.camPosition.y = this.camPosition.y - (this.camPosition.y - this.trsPosition.y) * damp;
-    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * damp;
+    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.004;
 
     this.camera.position.set(
       this.camPosition.x,
@@ -271,9 +272,9 @@ export default class Render {
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     if(!this.camTimeoutx && Math.random() * 260 > 200) {
-      const tempRand = 500 + Math.random() * 1500;
+      const tempRand = 100 + Math.random() * 1000;
       this.trsPosition.x = Math.random() * 255 > 200 ?
-        Math.random() * 200 > 100 ? -(tempRand) : tempRand : 0;
+        Math.random() * 250 > 100 ? -(tempRand) : tempRand : 0;
       this.camTimeoutx = true;
       setTimeout(
         () => { this.camTimeoutx = false; },
@@ -281,9 +282,9 @@ export default class Render {
       );
     }
     if(!this.camTimeouty && Math.random() * 260 > 200) {
-      const tempRand = 500 + Math.random() * 1500;
+      const tempRand = 100 + Math.random() * 1000;
       this.trsPosition.y = Math.random() * 255 > 200 ?
-        Math.random() * 200 > 100 ? tempRand : -(tempRand) : 0;
+        Math.random() * 250 > 100 ? tempRand : -(tempRand) : 0;
       this.camTimeouty = true;
       setTimeout(
         () => { this.camTimeouty = false; },
@@ -291,18 +292,21 @@ export default class Render {
       );
     }
     if(!this.camTimeoutz && Math.random() * 255 > 253) {
-      this.trsPosition.z = Math.random() * 200 > 100 ? 50 : -1100 + Math.random() * 700;
+      this.trsPosition.z = Math.random() * 200 > 150 ? 100 + Math.random() * 100 : -(100 + Math.random() * 100);
       this.camTimeoutz = true;
       setTimeout(
         () => { this.camTimeoutz = false; },
-        8000 + (1000 * Math.random() * 25)
+        18000 + (1100 * Math.random() * 7)
       );
+    }
+    if (this.camPosition.x == 0 && this.camPosition.y == 0 ) {
+      this.camera.rotationZ((this.frames * 0.1) * Math.PI / 180);
     }
   };
 
   renderScene = () => {
-    // this.composer.render();
-    this.renderer.render(this.scene, this.camera);
+    this.composer.render();
+    // this.renderer.render(this.scene, this.camera);
     // this.effect.render(this.scene, this.camera);
   };
 

@@ -113,23 +113,23 @@ THREE.RenderFragment = {
       "vec2 q = vUv;",
       "float df = time * 0.1;",
       "float Pixels = ratio;",
-      "float dx = scale * (1.10 / Pixels);",
-      "float dy = scale * (1.10 / Pixels);",
       "float xdec = dec;",
+
       "float noise = pnoise(vec3(",
-        "(q.x * 0.12) * xdec,",
-        "(q.y * 0.12) * xdec,",
-        "time * 0.4",
-      "), vec3(0.0, 1.0, 0.0));",
-      
-      "vec2 Coord = vec2(",
-        "q.x + (noise * 0.2),",
-        "q.y + (noise * 0.2)",
-        // "q.x + (dx * (q.x / noise)),",
-        // "q.y + (dy * (q.y / noise))",
-      ");",
+        "(q.x * 0.08) * xdec,",
+        "(q.y * 0.08) * xdec,",
+        "time * 0.3",
+      "), vec3(0.4, 0.0, 0.6));",
+
+      "float dnoise = (noise * 200.0);",
+
+      "float dx = dnoise * (1.0 / Pixels);",
+      "float dy = dnoise * (1.0 / Pixels);",
+      "vec2 Coord = vec2(dx * floor(q.x / dx), dy * floor(q.y / dy));",
+
       "vec4 color = texture2D( tDiffuse, Coord );",
-      "vec4 dolor = texture2D( tDiffuse, q );",
+      // "vec4 dolor = texture2D( tDiffuse, q );",
+
       "gl_FragColor = vec4( ",
       "color.r,",
       "color.g,",
