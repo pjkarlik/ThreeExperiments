@@ -6,7 +6,7 @@ import Particle from './Particle';
 export default class Render {
   constructor() {
     this.frames = 360;
-    this.size = 5;
+    this.size = 3;
     this.controls = undefined;
     this.scene = undefined;
     this.camera = undefined;
@@ -17,7 +17,7 @@ export default class Render {
     this.height = window.innerHeight;
     this.aspect = this.width / this.height;
     this.devicePixelRatio = window.devicePixelRatio;
-    this.viewAngle = 55;
+    this.viewAngle = 35;
     this.aspect = this.width / this.height;
     this.near = 0.1;
     this.far = 20000;
@@ -50,7 +50,7 @@ export default class Render {
       right: 3000,
     };
     this.settings = {
-      gravity: 0.9,
+      gravity: 0.0,
       bounce: 0.35,
     };
     this.camTimeoutx = true;
@@ -67,7 +67,6 @@ export default class Render {
     window.addEventListener('resize', this.resize, true);
     this.setRender();
     this.setEffects();
-    this.createGUI();
     this.renderLoop();
   }
 
@@ -131,7 +130,8 @@ export default class Render {
     document.body.appendChild(this.renderer.domElement);
 
     this.scene = new THREE.Scene();
-    this.bufferScene = new THREE.Scene();
+    this.scene.fog = new THREE.FogExp2(this.background, 0.0006);
+    this.scene.background = new THREE.Color(this.background);
 
     this.camera = new THREE.PerspectiveCamera(
         this.viewAngle,
@@ -140,25 +140,23 @@ export default class Render {
         this.far
     );
 
-    this.camera.position.set(0, 250, 500);
-    this.camera.lookAt(new THREE.Vector3(0, 50, 0));
+    this.camera.position.set(0, 0, 1200);
+    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     this.controls = new THREE.OrbitControls(this.camera);
     this.controls.maxDistance = 2500;
     this.controls.minDistance = 0;
 
-    // Set AmbientLight //
-    this.pointLight = new THREE.PointLight(0xFFFFFF);
-    this.pointLight.position.set(20, 350, 300);
-    this.scene.add(this.pointLight);
-
-    this.ambient = new THREE.AmbientLight(0x00FF33);
-    this.ambient.position.set(-30, 300, -100);
-    this.scene.add(this.ambient);
-
-    this.basicMaterial = new THREE.MeshPhongMaterial({
-      color: this.particleColor
-    }); 
+    // Set Lights //
+    let pointLight = new THREE.PointLight(0xDDDDDD);
+    pointLight.position.set(450, 450, -800);
+    this.scene.add(pointLight);
+    pointLight = new THREE.PointLight(0xEEEEEE);
+    pointLight.position.set(-150, -850, 800);
+    this.scene.add(pointLight);
+    let ambient = new THREE.AmbientLight(0x9f9f9f);
+    ambient.position.set(800, 850, -150);
+    this.scene.add(ambient);
   };
 
   setEffects = () => {
@@ -183,41 +181,68 @@ export default class Render {
 
   hitRnd = () => {
     const { x, y, z } = this.emitter;
-    const amount = Math.abs(Math.random() * 10);
-    
-    const amps = 125;
+    // const amount = Math.abs(Math.random() * 10);
+    const iter = 2;
+    const amps = 225;
+    const amps2 = amps *2;
     // for (let i = 0; i < amount; i++) {
     this.frames++;
-    const frame = this.frames * 3.6;
-    // let amps = 40 + Math.abs(this.amps * Math.cos((this.frames * 0.2 ) * Math.PI / 180));
-    const sVar = amps * Math.sin(frame *  Math.PI / 180);
-    const cVar = amps * Math.cos(frame * Math.PI / 180);
+    const frame = this.frames;
+    const gVar = amps2 * Math.sin((frame * 0.4) * iter * Math.PI / 180);
+    const fVar = amps2 * Math.cos((frame * 0.3) * iter * Math.PI / 180);
+
+    const sVar = amps * Math.sin(frame * iter * Math.PI / 180);
+    const cVar = gVar * Math.cos(frame * iter * Math.PI / 180);
     const dVar = amps * Math.cos((frame * 0.5) * Math.PI / 180);
-    this.makeParticle(x + sVar, y + cVar, z + dVar);
+
+    
+    this.makeParticle(x + sVar, y + cVar, z + dVar + (fVar * 0.6));
+    this.makeParticle(x + cVar, y + fVar, z + gVar + (sVar * 0.6));
     // }
   };
 
   makeParticle = (mx, my, mz) => {
+    const geometry = new THREE.BoxBufferGeometry(this.size, this.size, this.size);
     const sphere = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(this.size, this.size, this.size),
-      this.basicMaterial,
+      geometry,
+      new THREE.MeshPhongMaterial({ color: 0xFFFFFF, specular: 0x999999 })
     );
     sphere.castShadow = true;
     sphere.receiveShadow = true;
+
     const point = new Particle({
-      size: this.size - Math.random() * 1,
+      size: this.size,
       x: mx,
       y: my,
       z: mz,
-      vx: -(0.0 - mx) * 0.05,
-      vy: -(0.0 - my) * 0.05,
-      vz: 3.0,
+      vx: 0.0001, // -(0.0 - mx) * 0.015,
+      vy: 0.0001, // -(0.0 - my) * 0.015,
+      vz: 4.5,
       box: this.box,
       settings: this.settings,
       ref: sphere,
-      decay: 0.00015
+      decay: 0.000015
     });
+
     sphere.position.set(mx, my, mz);
+    sphere.scale.x = this.size;
+    sphere.scale.y = this.size;
+    sphere.scale.z = this.size;
+    const ex = this.emitter.x;
+    const ey = this.emitter.y;
+    const ry = Math.atan2(my - ey, mx - ex) * Math.PI / 180;
+
+    sphere.rotateZ((15 + ry) * 180 / Math.PI);
+    
+    // const cRed = Math.sin(this.frames * 0.25 * Math.PI / 180);
+    // const cGreen = Math.cos(this.frames * 0.25 * Math.PI / 180);
+    // const cBlue = 0.9 - Math.sin(this.frames * 0.25 * Math.PI / 180);
+    // sphere.material.color.setRGB(cRed, cGreen ,cBlue);
+    // const offsetColor  = 0.85 - Math.abs(Math.cos(this.frames * 0.25 * Math.PI / 180) );
+    // sphere.material.color.setRGB(offsetColor, offsetColor, offsetColor);
+    const particleColor = Math.abs(Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
+    sphere.material.color.setHSL(particleColor,1,0.5);
+
     this.particles.push(point);
     this.scene.add(sphere);
   };
@@ -235,7 +260,7 @@ export default class Render {
       part.ref.scale.x = 1.0 * part.size;
       part.ref.scale.y = 1.0 * part.size;
       part.ref.scale.z = 1.0 * part.size;
-      part.ref.material.color.setHex(this.particleColor);
+
       if (part.life > 800 || part.size < 0.0) {
         this.scene.remove(part.ref);
         this.particles.splice(i, 1);
@@ -294,10 +319,12 @@ export default class Render {
   };
 
   renderLoop = () => {
+    this.frames ++;
+
     if (this.frames % 1 === 0) {
       this.checkParticles();
     }
-    if(Math.random() * 200 > 100 && this.particles.length < 500) {
+    if(this.frames % 2 === 0 && this.particles.length < 1800) {
       this.hitRnd();
     }
     this.cameraLoop();

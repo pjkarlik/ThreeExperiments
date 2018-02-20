@@ -1,4 +1,4 @@
-import Render from './ParticleDrift/index-fzz';
+import Render from './ParticleViews/index';
 
 import { description, version } from '../version.json';
 
