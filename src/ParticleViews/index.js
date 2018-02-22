@@ -1,5 +1,5 @@
 import dat from 'dat-gui';
-import THREE from '../Three';
+import THREE from './Three';
 import Particle from './Particle';
 
 // Render Class Object //
@@ -12,12 +12,13 @@ export default class Render {
     this.camera = undefined;
     this.render = undefined;
     this.skybox = undefined;
+    this.clock = new THREE.Clock();
     // Camera Stuff and Viewport //
     this.width = window.innerWidth;
     this.height = window.innerHeight;
     this.aspect = this.width / this.height;
     this.devicePixelRatio = window.devicePixelRatio;
-    this.viewAngle = 35;
+    this.viewAngle = 55;
     this.aspect = this.width / this.height;
     this.near = 0.1;
     this.far = 20000;
@@ -33,7 +34,7 @@ export default class Render {
     };
     // Particles Stuff //
 
-    this.background = 0x333333;
+    this.background = 0x000000;
     this.mirror = 0;
     this.amount = 30;
     this.particles = [];
@@ -43,16 +44,22 @@ export default class Render {
       y: 100,
       z: 0
     };
+    const bsize = 5000;
     this.box = {
-      top: 3000,
-      left: -3000,
-      bottom: -500,
-      right: 3000,
+      top: bsize,
+      left: -bsize,
+      bottom: -bsize,
+      right: bsize,
     };
     this.settings = {
       gravity: 0.0,
       bounce: 0.35,
     };
+
+    this.threshold = 0.9;
+    this.strength = 1.7;
+    this.radius = 0.82;
+
     this.camTimeoutx = true;
     this.camTimeouty = true;
     this.camTimeoutz = true;
@@ -66,7 +73,9 @@ export default class Render {
     );
     window.addEventListener('resize', this.resize, true);
     this.setRender();
+    this.createGUI();
     this.setEffects();
+    // this.music();
     this.renderLoop();
   }
 
@@ -79,47 +88,62 @@ export default class Render {
   
   createGUI = () => {
     this.options = {
-      gravity: this.settings.gravity * 100,
-      bounce: this.settings.bounce * 100,
-      mirror: this.mirror,
-      color: [0, 255, 51],
-      light: [255, 255, 255],
-      cube: [255, 255, 255]
+      threshold: this.threshold,
+      strength: this.strength,
+      radius: this.radius
     };
     this.gui = new dat.GUI();
-    const folderRender = this.gui.addFolder('Particle Options');
-    folderRender.add(this.options, 'gravity', 0, 100).step(1)
+    const folderRender = this.gui.addFolder('Bloom Options');
+    folderRender.add(this.options, 'threshold', 0, 1).step(0.01)
       .onFinishChange((value) => {
-        this.settings.gravity = value * 0.01;
+        this.bloomPass.threshold = 1.0 - value;
       });
-    folderRender.add(this.options, 'bounce', 0, 100).step(1)
-      .onFinishChange((value) => {
-        this.settings.bounce = value * 0.01;
-      });
-    folderRender.add(this.options, 'mirror', 0, 4).step(1)
+    folderRender.add(this.options, 'strength', 0, 4).step(0.1)
     .onFinishChange((value) => {
-      this.effect.uniforms.side.value = value;
+      this.bloomPass.strength = value;
     });
-    folderRender.addColor(this.options, 'color')
-      .onChange((value) => {
-        const hue = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
-        this.ambient.color.setHex(hue);
-      });
-    folderRender.addColor(this.options, 'light')
-    .onChange((value) => {
-      const hue = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
-      this.pointLight.color.setHex(hue);
+    folderRender.add(this.options, 'radius', 0, 1).step(0.01)
+    .onFinishChange((value) => {
+      this.bloomPass.radius = value;
     });
-    folderRender.addColor(this.options, 'cube')
-    .onChange((value) => {
-      const hue = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
-      this.particleColor = hue;
-    });
+    folderRender.open();
   }
 
   rgbToHex = (r, g, b) => {
     const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     return `0x${hex}`;
+  };
+
+  music = () => {
+    const youtube = document.createElement('iframe');
+    youtube.width=1;
+    youtube.height=1;
+    const videoid = '3vnZnuqgh7U';
+    youtube.wmode='transparent';
+    const html ='https://www.youtube.com/embed/5_OsxjXggOc?rel=0&autoplay=1';
+    youtube.src = encodeURI(html); // 'data:text/html;charset=utf-8,' + // e4GJsV3PzsI // gkyFQTUR-rA
+    youtube.frameborder=0;
+    document.body.appendChild(youtube);
+    const overlay = document.createElement('div');
+    const link = document.createElement('a');
+    const image = document.createElement('img');
+    image.src = 'https://img.youtube.com/vi/5_OsxjXggOc/sddefault.jpg';
+    image.width = 60;
+    image.height = 45;
+    image.style.float = 'left';
+    image.style.margin = '0 0 0 15px';
+    link.href = html;
+    link.innerHTML = 'Music by Above & Beyond | Celestial';
+    overlay.style.position = 'absolute';
+    overlay.style.bottom = '15px';
+    overlay.style.left = '0';
+    overlay.style.lineHeight = '45px';
+    overlay.style.zIndex = '9999';
+    link.style.color = '#FFF';
+    link.style.padding = '15px';
+    overlay.appendChild(image);
+    overlay.appendChild(link);
+    document.body.appendChild(overlay);
   };
 
   setRender = () => {
@@ -158,34 +182,42 @@ export default class Render {
     ambient.position.set(800, 850, -150);
     this.scene.add(ambient);
   };
-
+  
   setEffects = () => {
-    this.effect = new THREE.AnaglyphEffect(this.renderer);
-    this.effect.setSize(this.width, this.height);
+    // this.effect = new THREE.AnaglyphEffect(this.renderer);
+    // this.effect.setSize(this.width, this.height);
 
-    // let effect;
+    let effect;
  
-    // this.composer = new THREE.EffectComposer(this.renderer);
-    // this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
+    this.composer = new THREE.EffectComposer(this.renderer);
+    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
-    // this.effect = new THREE.ShaderPass(THREE.MirrorShader);
-    // this.effect.uniforms.side.value = this.mirror;
-    // this.composer.addPass(this.effect);
+    // this.mirror = new THREE.ShaderPass(THREE.MirrorShader);
+    // this.mirror.uniforms.side.value = 0;
+    // this.composer.addPass(this.mirror);
 
-    // effect = new THREE.ShaderPass(THREE.RGBShiftShader);
-    // effect.uniforms.amount.value = 0.001;
-    // effect.uniforms.angle.value = 0.0;
-    // effect.renderToScreen = true;
-    // this.composer.addPass(effect);
+    this.bloomPass = new THREE.UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+     this.strength, this.radius, 1.0 - this.threshold
+    );
+
+    this.composer.addPass(this.bloomPass);
+
+    const copyEffect = new THREE.ShaderPass(THREE.CopyShader);
+    copyEffect.renderToScreen = true;
+    this.composer.addPass(copyEffect);
+
+
+    
   }
 
   hitRnd = () => {
     const { x, y, z } = this.emitter;
-    // const amount = Math.abs(Math.random() * 10);
+
     const iter = 2;
     const amps = 225;
     const amps2 = amps *2;
-    // for (let i = 0; i < amount; i++) {
+
     this.frames++;
     const frame = this.frames;
     const gVar = amps2 * Math.sin((frame * 0.4) * iter * Math.PI / 180);
@@ -194,11 +226,11 @@ export default class Render {
     const sVar = amps * Math.sin(frame * iter * Math.PI / 180);
     const cVar = gVar * Math.cos(frame * iter * Math.PI / 180);
     const dVar = amps * Math.cos((frame * 0.5) * Math.PI / 180);
-
     
     this.makeParticle(x + sVar, y + cVar, z + dVar + (fVar * 0.6));
     this.makeParticle(x + cVar, y + fVar, z + gVar + (sVar * 0.6));
-    // }
+    this.makeParticle(x + fVar, y + gVar, z + sVar - (cVar * 1.6));
+
   };
 
   makeParticle = (mx, my, mz) => {
@@ -215,9 +247,9 @@ export default class Render {
       x: mx,
       y: my,
       z: mz,
-      vx: 0.0001, // -(0.0 - mx) * 0.015,
-      vy: 0.0001, // -(0.0 - my) * 0.015,
-      vz: 4.5,
+      vx: 0.00001,
+      vy: 0.00001,
+      vz: 8.5,
       box: this.box,
       settings: this.settings,
       ref: sphere,
@@ -269,10 +301,10 @@ export default class Render {
   };
 
   cameraLoop = () => {
-    const damp = 0.01;
+    const damp = 0.008;
     this.camPosition.x = this.camPosition.x - (this.camPosition.x - this.trsPosition.x) * damp;
     this.camPosition.y = this.camPosition.y - (this.camPosition.y - this.trsPosition.y) * damp;
-    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.004;
+    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.003;
 
     this.camera.position.set(
       this.camPosition.x,
@@ -292,9 +324,9 @@ export default class Render {
       );
     }
     if(!this.camTimeouty && Math.random() * 260 > 200) {
-      const tempRand = 100 + Math.random() * 1000;
+      const tempRand = 100 + Math.random() * 500;
       this.trsPosition.y = Math.random() * 255 > 200 ?
-        Math.random() * 250 > 100 ? tempRand : -(tempRand) : 0;
+        Math.random() * 250 > 100 ? tempRand : -(tempRand * 3) : 0;
       this.camTimeouty = true;
       setTimeout(
         () => { this.camTimeouty = false; },
@@ -313,8 +345,8 @@ export default class Render {
   };
 
   renderScene = () => {
-    // this.composer.render();
-    this.renderer.render(this.scene, this.camera);
+    this.composer.render(this.clock.getDelta());
+    // this.renderer.render(this.scene, this.camera);
     // this.effect.render(this.scene, this.camera);
   };
 
@@ -324,11 +356,12 @@ export default class Render {
     if (this.frames % 1 === 0) {
       this.checkParticles();
     }
-    if(this.frames % 2 === 0 && this.particles.length < 1800) {
+    if(this.frames % 2 === 0 && this.particles.length < 2800) {
       this.hitRnd();
     }
     this.cameraLoop();
     this.renderScene();
+
     window.requestAnimationFrame(this.renderLoop);
   };
 }
