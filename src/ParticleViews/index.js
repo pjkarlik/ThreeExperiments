@@ -73,8 +73,8 @@ export default class Render {
     this.createGUI();
     this.setEffects();
     // e4GJsV3PzsI // gkyFQTUR-rA // 3vnZnuqgh7U // tek7oOqsUj0 // zqkD9PpH8W8
-    // FLe52f0oEHM // _xlw6lHjvx4 // MPK5qsUEeMQ
-    this.music('MPK5qsUEeMQ', 'Earth | A Bureaucratic Desire For Revenge (Part 2)');
+    // FLe52f0oEHM // _xlw6lHjvx4 // MPK5qsUEeMQ // 0mzXjWxn1r0
+    this.music('0mzXjWxn1r0', 'Final | Arise');
     this.renderLoop();
   }
 
@@ -303,8 +303,6 @@ export default class Render {
       sphere.material.color.setRGB(offsetColor, offsetColor, offsetColor);
     }
     
-
-
     this.particles.push(point);
     this.scene.add(sphere);
   };
@@ -334,7 +332,7 @@ export default class Render {
     const damp = 0.008;
     this.camPosition.x = this.camPosition.x - (this.camPosition.x - this.trsPosition.x) * damp;
     this.camPosition.y = this.camPosition.y - (this.camPosition.y - this.trsPosition.y) * damp;
-    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.003;
+    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.006;
 
     this.camera.position.set(
       this.camPosition.x,
