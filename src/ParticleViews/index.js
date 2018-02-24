@@ -6,7 +6,6 @@ import Particle from './Particle';
 export default class Render {
   constructor() {
     this.frames = 360;
-    this.size = 3;
     this.controls = undefined;
     this.scene = undefined;
     this.camera = undefined;
@@ -48,13 +47,16 @@ export default class Render {
       right: bsize,
     };
     this.settings = {
-      gravity: 0.0,
-      bounce: 0.35,
+      gravity: 0.01,
+      bounce: 0.15,
     };
-    this.threshold = 0.9;
-    this.strength = 3.5;
-    this.radius = 0.75;
-    this.mirrorValue = 1;
+    this.threshold = 0.65;
+    this.strength = 1.75;
+    this.radius = 0.55;
+    this.mirrorValue = 4;
+    this.size = 4.5;
+    this.length = 11;
+    this.color = true;
     this.camTimeoutx = true;
     this.camTimeouty = true;
     this.camTimeoutz = true;
@@ -70,7 +72,9 @@ export default class Render {
     this.setRender();
     this.createGUI();
     this.setEffects();
-    this.music('3vnZnuqgh7U', 'LORN | Stuck in the Sytem');
+    // e4GJsV3PzsI // gkyFQTUR-rA // 3vnZnuqgh7U // tek7oOqsUj0 // zqkD9PpH8W8
+    // FLe52f0oEHM // _xlw6lHjvx4 // MPK5qsUEeMQ
+    this.music('MPK5qsUEeMQ', 'Earth | A Bureaucratic Desire For Revenge (Part 2)');
     this.renderLoop();
   }
 
@@ -86,33 +90,54 @@ export default class Render {
       threshold: this.threshold,
       strength: this.strength,
       radius: this.radius,
-      mirror: this.mirrorValue
+      mirror: this.mirrorValue,
+      gravity: this.settings.gravity,
+      length: this.length,
+      size: this.size,
+      color: this.color
     };
     this.gui = new dat.GUI();
-    const folderRender = this.gui.addFolder('Bloom Options');
-    folderRender.add(this.options, 'threshold', 0, 1).step(0.01)
+    const folderBloom = this.gui.addFolder('Bloom Options');
+    folderBloom.add(this.options, 'threshold', 0, 1).step(0.01)
       .onFinishChange((value) => {
         this.bloomPass.threshold = 1.0 - value;
       });
-    folderRender.add(this.options, 'strength', 0, 4).step(0.1)
+    folderBloom.add(this.options, 'strength', 0, 4).step(0.1)
     .onFinishChange((value) => {
       this.bloomPass.strength = value;
     });
-    folderRender.add(this.options, 'radius', 0, 1).step(0.01)
+    folderBloom.add(this.options, 'radius', 0, 1).step(0.01)
     .onFinishChange((value) => {
       this.bloomPass.radius = value;
     });
-    folderRender.add(this.options, 'mirror', 0, 4).step(1)
+
+    const folderObject = this.gui.addFolder('Object Options');
+    folderObject.add(this.options, 'size', 0, 25).step(0.01)
+    .onFinishChange((value) => {
+      this.size  = value;
+    });
+    folderObject.add(this.options, 'length', 0, 45).step(0.01)
+    .onFinishChange((value) => {
+      this.length  = value;
+    });
+    folderObject.add(this.options, 'color')
+    .onFinishChange((value) => {
+      this.color = value;
+    });
+
+    const folderEnv = this.gui.addFolder('Environment Options');
+    folderEnv.add(this.options, 'gravity', 0, 1).step(0.01)
+    .onFinishChange((value) => {
+      console.log(value);
+      this.settings.gravity = value;
+    });
+    folderEnv.add(this.options, 'mirror', 0, 4).step(1)
     .onFinishChange((value) => {
       this.mirror.uniforms.side.value = value;
     });
-    folderRender.open();
+    
+    folderBloom.open();
   }
-
-  rgbToHex = (r, g, b) => {
-    const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-    return `0x${hex}`;
-  };
 
   music = (videoID, songTitle) => {
     const youtube = document.createElement('iframe');
@@ -123,7 +148,7 @@ export default class Render {
     const videoid = '3vnZnuqgh7U';
     youtube.wmode='transparent';
 
-    youtube.src = encodeURI(videoURL); // 'data:text/html;charset=utf-8,' + // e4GJsV3PzsI // gkyFQTUR-rA
+    youtube.src = encodeURI(videoURL); // 'data:text/html;charset=utf-8,' +
     youtube.frameborder=0;
     document.body.appendChild(youtube);
     const overlay = document.createElement('div');
@@ -177,13 +202,16 @@ export default class Render {
 
     // Set Lights //
     let pointLight = new THREE.PointLight(0xDDDDDD);
-    pointLight.position.set(450, 450, -800);
+    pointLight.position.set(250, 250, -900);
     this.scene.add(pointLight);
     pointLight = new THREE.PointLight(0xEEEEEE);
-    pointLight.position.set(-150, -850, 800);
+    pointLight.position.set(-250, -250, 900);
     this.scene.add(pointLight);
     let ambient = new THREE.AmbientLight(0x9f9f9f);
-    ambient.position.set(800, 850, -150);
+    ambient.position.set(0, 650, -150);
+    this.scene.add(ambient);
+    ambient = new THREE.AmbientLight(0x9f9f9f);
+    ambient.position.set(-800, -850, 250);
     this.scene.add(ambient);
   };
   
@@ -235,7 +263,7 @@ export default class Render {
   };
 
   makeParticle = (mx, my, mz) => {
-    const geometry = new THREE.BoxGeometry(this.size, this.size, this.size);
+    const geometry = new THREE.BoxGeometry(this.size, this.size * this.length, this.size);
     const sphere = new THREE.Mesh(
       geometry,
       new THREE.MeshPhongMaterial({ color: 0xFFFFFF, specular: 0x999999 })
@@ -266,15 +294,16 @@ export default class Render {
     const ry = Math.atan2(my - ey, mx - ex) * Math.PI / 180;
 
     sphere.rotateZ((15 + ry) * 180 / Math.PI);
+
+    if (this.color) {
+      const particleColor = Math.abs(Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
+      sphere.material.color.setHSL(particleColor,1,0.5);
+    } else {
+      const offsetColor  = 0.85 - Math.abs(Math.cos(this.frames * 0.25 * Math.PI / 180) );
+      sphere.material.color.setRGB(offsetColor, offsetColor, offsetColor);
+    }
     
-    // const cRed = Math.sin(this.frames * 0.25 * Math.PI / 180);
-    // const cGreen = Math.cos(this.frames * 0.25 * Math.PI / 180);
-    // const cBlue = 0.9 - Math.sin(this.frames * 0.25 * Math.PI / 180);
-    // sphere.material.color.setRGB(cRed, cGreen ,cBlue);
-    // const offsetColor  = 0.85 - Math.abs(Math.cos(this.frames * 0.25 * Math.PI / 180) );
-    // sphere.material.color.setRGB(offsetColor, offsetColor, offsetColor);
-    const particleColor = Math.abs(Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
-    sphere.material.color.setHSL(particleColor,1,0.5);
+
 
     this.particles.push(point);
     this.scene.add(sphere);
