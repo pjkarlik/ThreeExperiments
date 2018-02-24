@@ -35,7 +35,7 @@ export default class Render {
     // Particles Stuff //
 
     this.background = 0x000000;
-    this.mirror = 0;
+    this.mirrorValue = 1;
     this.amount = 30;
     this.particles = [];
     this.particleColor = 0xFFFFFF;
@@ -90,7 +90,8 @@ export default class Render {
     this.options = {
       threshold: this.threshold,
       strength: this.strength,
-      radius: this.radius
+      radius: this.radius,
+      mirror: this.mirrorValue
     };
     this.gui = new dat.GUI();
     const folderRender = this.gui.addFolder('Bloom Options');
@@ -106,6 +107,17 @@ export default class Render {
     .onFinishChange((value) => {
       this.bloomPass.radius = value;
     });
+    folderRender.add(this.options, 'mirror', 0, 4).step(1)
+    .onFinishChange((value) => {
+      this.mirror.uniforms.side.value = value;
+    });
+    // folderRender.add(this.options, 'mirror').onFinishChange((value) => {
+    //   if (value){
+    //     this.mirror.uniforms.side.value = 1;
+    //   } else {
+    //     this.mirror.uniforms.side.value = 4;
+    //   }
+    // });
     folderRender.open();
   }
 
@@ -197,7 +209,7 @@ export default class Render {
     this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
     this.mirror = new THREE.ShaderPass(THREE.MirrorShader);
-    this.mirror.uniforms.side.value = 1;
+    this.mirror.uniforms.side.value = this.mirrorValue;
     this.composer.addPass(this.mirror);
 
     this.bloomPass = new THREE.UnrealBloomPass(
