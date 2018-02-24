@@ -50,12 +50,12 @@ export default class Render {
       gravity: 0.01,
       bounce: 0.15,
     };
-    this.threshold = 0.65;
-    this.strength = 1.75;
-    this.radius = 0.55;
-    this.mirrorValue = 4;
-    this.size = 4.5;
-    this.length = 11;
+    this.threshold = 0.55;
+    this.strength = 1.65;
+    this.radius = 0.45;
+    this.mirrorValue = 1;
+    this.size = 3.5;
+    this.length = 8;
     this.color = true;
     this.camTimeoutx = true;
     this.camTimeouty = true;
