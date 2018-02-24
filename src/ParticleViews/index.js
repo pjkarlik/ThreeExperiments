@@ -32,13 +32,9 @@ export default class Render {
       y: -90.0,
       z: -200.0
     };
-    // Particles Stuff //
-
     this.background = 0x000000;
-    this.mirrorValue = 1;
-    this.amount = 30;
-    this.particles = [];
     this.particleColor = 0xFFFFFF;
+    this.particles = [];
     this.emitter = {
       x: 0,
       y: 100,
@@ -55,11 +51,10 @@ export default class Render {
       gravity: 0.0,
       bounce: 0.35,
     };
-
-    this.threshold = 0.9;
-    this.strength = 1.7;
-    this.radius = 0.82;
-
+    this.threshold = 0.95;
+    this.strength = 3.5;
+    this.radius = 0.95;
+    this.mirrorValue = 1;
     this.camTimeoutx = true;
     this.camTimeouty = true;
     this.camTimeoutz = true;
@@ -111,13 +106,6 @@ export default class Render {
     .onFinishChange((value) => {
       this.mirror.uniforms.side.value = value;
     });
-    // folderRender.add(this.options, 'mirror').onFinishChange((value) => {
-    //   if (value){
-    //     this.mirror.uniforms.side.value = 1;
-    //   } else {
-    //     this.mirror.uniforms.side.value = 4;
-    //   }
-    // });
     folderRender.open();
   }
 
@@ -200,9 +188,6 @@ export default class Render {
   };
   
   setEffects = () => {
-    // this.effect = new THREE.AnaglyphEffect(this.renderer);
-    // this.effect.setSize(this.width, this.height);
-
     let effect;
  
     this.composer = new THREE.EffectComposer(this.renderer);
@@ -250,7 +235,7 @@ export default class Render {
   };
 
   makeParticle = (mx, my, mz) => {
-    const geometry = new THREE.BoxBufferGeometry(this.size, this.size, this.size);
+    const geometry = new THREE.BoxGeometry(this.size, this.size, this.size);
     const sphere = new THREE.Mesh(
       geometry,
       new THREE.MeshPhongMaterial({ color: 0xFFFFFF, specular: 0x999999 })
@@ -367,17 +352,13 @@ export default class Render {
   };
 
   renderLoop = () => {
-    this.frames ++;
-
-    if (this.frames % 1 === 0) {
-      this.checkParticles();
-    }
+    this.frames ++; 
     if(this.frames % 2 === 0 && this.particles.length < 2600) {
       this.hitRnd();
     }
+    this.checkParticles();
     this.cameraLoop();
     this.renderScene();
-
     window.requestAnimationFrame(this.renderLoop);
   };
 }
