@@ -337,13 +337,13 @@ export default class Render {
         6000 + (1000 * Math.random() * 20)
       );
     }
-    if(!this.camTimeoutz && Math.random() * 255 > 253) {
-      const tempRand = 200 + (20 * Math.random() * 10);
-      this.trsPosition.z = Math.random() * 200 > 150 ? tempRand : -(tempRand);
+    if(!this.camTimeoutz && Math.random() * 255 > 225) {
+      const tempRand = 400 + (25 * Math.random() * 20);
+      this.trsPosition.z = Math.random() * 200 > 100 ? tempRand * 4 : -(tempRand);
       this.camTimeoutz = true;
       setTimeout(
         () => { this.camTimeoutz = false; },
-        18000 + (1100 * Math.random() * 7)
+        18000 + (1000 * Math.random() * 7)
       );
     }
   };
@@ -360,7 +360,7 @@ export default class Render {
     if (this.frames % 1 === 0) {
       this.checkParticles();
     }
-    if(this.frames % 2 === 0 && this.particles.length < 2800) {
+    if(this.frames % 2 === 0 && this.particles.length < 2600) {
       this.hitRnd();
     }
     this.cameraLoop();
