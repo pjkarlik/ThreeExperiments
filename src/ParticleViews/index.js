@@ -75,7 +75,7 @@ export default class Render {
     this.setRender();
     this.createGUI();
     this.setEffects();
-    // this.music();
+    this.music('3vnZnuqgh7U', 'LORN | Stuck in the Sytem');
     this.renderLoop();
   }
 
@@ -114,33 +114,37 @@ export default class Render {
     return `0x${hex}`;
   };
 
-  music = () => {
+  music = (videoID, songTitle) => {
     const youtube = document.createElement('iframe');
+    const videoURL = `https://www.youtube.com/embed/${videoID}?rel=0&autoplay=1`;
+    const thumbURL = `https://img.youtube.com/vi/${videoID}/sddefault.jpg`;
     youtube.width=1;
     youtube.height=1;
     const videoid = '3vnZnuqgh7U';
     youtube.wmode='transparent';
-    const html ='https://www.youtube.com/embed/5_OsxjXggOc?rel=0&autoplay=1';
-    youtube.src = encodeURI(html); // 'data:text/html;charset=utf-8,' + // e4GJsV3PzsI // gkyFQTUR-rA
+
+    youtube.src = encodeURI(videoURL); // 'data:text/html;charset=utf-8,' + // e4GJsV3PzsI // gkyFQTUR-rA
     youtube.frameborder=0;
     document.body.appendChild(youtube);
     const overlay = document.createElement('div');
     const link = document.createElement('a');
     const image = document.createElement('img');
-    image.src = 'https://img.youtube.com/vi/5_OsxjXggOc/sddefault.jpg';
+    image.src = thumbURL;
     image.width = 60;
     image.height = 45;
     image.style.float = 'left';
     image.style.margin = '0 0 0 15px';
-    link.href = html;
-    link.innerHTML = 'Music by Above & Beyond | Celestial';
     overlay.style.position = 'absolute';
     overlay.style.bottom = '15px';
     overlay.style.left = '0';
     overlay.style.lineHeight = '45px';
     overlay.style.zIndex = '9999';
+    link.href = videoURL;
+    link.innerHTML = songTitle;
+    link.style.textDecoration = 'none';
     link.style.color = '#FFF';
     link.style.padding = '15px';
+    link.style.fontSize = '12px';
     overlay.appendChild(image);
     overlay.appendChild(link);
     document.body.appendChild(overlay);
@@ -192,9 +196,9 @@ export default class Render {
     this.composer = new THREE.EffectComposer(this.renderer);
     this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
-    // this.mirror = new THREE.ShaderPass(THREE.MirrorShader);
-    // this.mirror.uniforms.side.value = 0;
-    // this.composer.addPass(this.mirror);
+    this.mirror = new THREE.ShaderPass(THREE.MirrorShader);
+    this.mirror.uniforms.side.value = 1;
+    this.composer.addPass(this.mirror);
 
     this.bloomPass = new THREE.UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -247,8 +251,8 @@ export default class Render {
       x: mx,
       y: my,
       z: mz,
-      vx: 0.00001,
-      vy: 0.00001,
+      vx: -(1 - mx) * 0.0001,
+      vy: -(1 - my) * 0.0001,
       vz: 8.5,
       box: this.box,
       settings: this.settings,
@@ -334,7 +338,7 @@ export default class Render {
       );
     }
     if(!this.camTimeoutz && Math.random() * 255 > 253) {
-      const tempRand = 300 + Math.random() * 300;
+      const tempRand = 200 + (20 * Math.random() * 10);
       this.trsPosition.z = Math.random() * 200 > 150 ? tempRand : -(tempRand);
       this.camTimeoutz = true;
       setTimeout(
