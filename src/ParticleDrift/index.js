@@ -22,7 +22,7 @@ export default class Render {
 
     this.particles = [];
     this.particleColor = 360;
-    this.background = 0x3e3e3e;
+    this.background = 0x000000;
     this.emitter = {
       x: 0,
       y: 0,
@@ -170,8 +170,8 @@ export default class Render {
     });
   
     sphere.position.set(mx, my, mz);
-    sphere.material.color.setRGB(particleColor, particleColor ,particleColor);
-    // sphere.material.color.setHSL(particleColor,1,0.5);
+    // sphere.material.color.setRGB(particleColor, particleColor ,particleColor);
+    sphere.material.color.setHSL(particleColor,1,0.5);
 
     this.particles.push(point);
     this.scene.add(sphere);

@@ -27,7 +27,7 @@ export default class Render {
 
     this.particles = [];
     this.particleColor = 360;
-    this.background = 0x999999;
+    this.background = 0x000000;
     this.camPosition = {
       x: -1500.0,
       y: -90.0,
