@@ -1,4 +1,4 @@
-import Render from './Particle/index';
+import Render from './ParticleViews/index';
 
 import { description, version } from '../version.json';
 
