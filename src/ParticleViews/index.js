@@ -47,16 +47,17 @@ export default class Render {
       right: bsize,
     };
     this.settings = {
-      gravity: 0.02,
+      gravity: 0.001,
       bounce: 0.15,
     };
-    this.threshold = 0.7;
+    this.threshold = 0.6;
     this.strength = 2.0;
-    this.radius = 0.65;
+    this.radius = 0.85;
     this.mirrorValue = 4;
     this.size = 2.5;
     this.length = 24;
     this.color = true;
+    this.isWrireframe = false;
     this.camTimeoutx = true;
     this.camTimeouty = true;
     this.camTimeoutz = true;
@@ -94,7 +95,8 @@ export default class Render {
       gravity: this.settings.gravity,
       length: this.length,
       size: this.size,
-      color: this.color
+      color: this.color,
+      wireframe: this.isWrireframe
     };
     this.gui = new dat.GUI();
     const folderBloom = this.gui.addFolder('Bloom Options');
@@ -124,7 +126,10 @@ export default class Render {
     .onFinishChange((value) => {
       this.color = value;
     });
-
+    folderObject.add(this.options, 'wireframe')
+    .onFinishChange((value) => {
+      this.isWrireframe = value;
+    });
     const folderEnv = this.gui.addFolder('Environment Options');
     folderEnv.add(this.options, 'gravity', 0, 1).step(0.01)
     .onFinishChange((value) => {
@@ -266,7 +271,11 @@ export default class Render {
     const geometry = new THREE.BoxGeometry(this.size, this.size * this.length, this.size);
     const sphere = new THREE.Mesh(
       geometry,
-      new THREE.MeshPhongMaterial({ color: 0xFFFFFF, specular: 0x999999 })
+      new THREE.MeshPhongMaterial({
+        color: 0xFFFFFF,
+        specular: 0x999999,
+        wireframe: this.isWrireframe
+      })
     );
     sphere.castShadow = true;
     sphere.receiveShadow = true;

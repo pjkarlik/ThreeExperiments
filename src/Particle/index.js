@@ -22,10 +22,8 @@ export default class Render {
     this.near = 0.1;
     this.far = 20000;
     // Particles Stuff //
-    this.mirror = 0;
-    this.amount = 30;
+    this.mirror = 4;
     this.particles = [];
-    this.particleColor = '0xFFFFFF';
     this.box = {
       top: 3000,
       left: -3000,
@@ -37,6 +35,7 @@ export default class Render {
       bounce: 0.35,
     };
     window.addEventListener('resize', this.resize, true);
+    // window.addEventListener('click', () => { console.log(this.camera.position); }, false);
     this.setRender();
     this.setEffects();
     this.createGUI();
@@ -57,7 +56,6 @@ export default class Render {
       mirror: this.mirror,
       color: [0, 255, 51],
       light: [255, 255, 255],
-      cube: [255, 255, 255]
     };
     this.gui = new dat.GUI();
     const folderRender = this.gui.addFolder('Particle Options');
@@ -83,17 +81,7 @@ export default class Render {
       const hue = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
       this.pointLight.color.setHex(hue);
     });
-    folderRender.addColor(this.options, 'cube')
-    .onChange((value) => {
-      const hue = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
-      this.particleColor = hue;
-    });
   }
-
-  rgbToHex = (r, g, b) => {
-    const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-    return `0x${hex}`;
-  };
 
   setRender = () => {
     // Set Render and Scene //
@@ -112,30 +100,24 @@ export default class Render {
         this.far
     );
 
-    this.camera.position.set(0, 250, 500);
+    this.camera.position.set(183, 138, -509);
     this.camera.lookAt(new THREE.Vector3(0, 50, 0));
-
     this.controls = new THREE.OrbitControls(this.camera);
     this.controls.maxDistance = 2500;
     this.controls.minDistance = 0;
 
-    // Set AmbientLight //
+    // Set Light //
     this.pointLight = new THREE.PointLight(0xFFFFFF);
-    this.pointLight.position.set(20, 350, 300);
+    this.pointLight.position.set(250, 250, -900);
     this.scene.add(this.pointLight);
 
     this.ambient = new THREE.AmbientLight(0x00FF33);
-    this.ambient.position.set(-30, 300, -100);
-    this.scene.add(this.ambient);
-
-    this.basicMaterial = new THREE.MeshPhongMaterial({
-      color: this.particleColor
-    }); 
+    this.ambient.position.set(0, 650, -150);
+    this.scene.add(this.ambient); 
   };
 
   setEffects = () => {
     let effect;
- 
     this.composer = new THREE.EffectComposer(this.renderer);
     this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
@@ -158,9 +140,13 @@ export default class Render {
   }
 
   makeParticle = (mx, my, mz) => {
+    const geometry = new THREE.BoxGeometry(this.size, this.size, this.size);
     const sphere = new THREE.Mesh(
-      new THREE.BoxBufferGeometry(this.size, this.size, this.size),
-      this.basicMaterial,
+      geometry,
+      new THREE.MeshPhongMaterial({
+        color: 0xFFFFFF,
+        specular: 0x999999
+      })
     );
     sphere.castShadow = true;
     sphere.receiveShadow = true;
@@ -173,6 +159,8 @@ export default class Render {
       settings: this.settings,
       ref: sphere
     });
+    const particleColor = Math.sin(this.frames * 0.25 * Math.PI / 180);
+    sphere.material.color.setHSL(particleColor,1,0.5);
     sphere.position.set(mx, my, mz);
     this.particles.push(point);
     this.scene.add(sphere);
@@ -181,7 +169,6 @@ export default class Render {
   checkParticles = () => {
     for (let i = 0; i < this.particles.length; i++) {
       const part = this.particles[i];
-      // part.settings = this.settings;
       part.update();
       part.ref.position.set(
         part.x, 
@@ -191,7 +178,6 @@ export default class Render {
       part.ref.scale.x = 1.0 * part.size;
       part.ref.scale.y = 1.0 * part.size;
       part.ref.scale.z = 1.0 * part.size;
-      part.ref.material.color.setHex(this.particleColor);
       if (part.life > 800 || part.size < 0.0) {
         this.scene.remove(part.ref);
         this.particles.splice(i, 1);
@@ -213,7 +199,7 @@ export default class Render {
       this.hitRnd();
     }
     this.renderScene();
-    this.frames ++;
+    this.frames++;
     window.requestAnimationFrame(this.renderLoop);
   };
 }
