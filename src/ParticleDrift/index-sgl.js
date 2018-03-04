@@ -1,7 +1,7 @@
 require('../shader/OscFragment');
 
 import dat from 'dat-gui';
-import THREE from '../Three';
+import THREE from '../ThreeLight';
 import Particle from './Particle-alt';
 
 // Render Class Object //
@@ -57,6 +57,9 @@ export default class Render {
       gravity: 0.0,
       bounce: 0.35,
     };
+    this.threshold = 0.6;
+    this.strength = 2.0;
+    this.radius = 0.85;
     this.camTimeoutx = true;
     this.camTimeouty = true;
     this.camTimeoutz = true;
@@ -186,10 +189,12 @@ export default class Render {
     const renderPass = new THREE.RenderPass(this.scene, this.camera);
     this.composer.addPass(renderPass);
 
-    this.effect = new THREE.ShaderPass(THREE.MirrorShader);
-    this.effect.uniforms.side.value = this.mirror;
+    this.bloomPass = new THREE.UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+     this.strength, this.radius, 1.0 - this.threshold
+    );
 
-    this.composer.addPass(this.effect);
+    this.composer.addPass(this.bloomPass);
 
     this.rfrag = new THREE.ShaderPass(THREE.RenderFragment);
     // this.rfrag.uniforms.scale.value = this.scale;
@@ -270,7 +275,10 @@ export default class Render {
       part.ref.scale.y = part.size;
       part.ref.scale.z = part.size;
       if (part.life > 800 || part.size < 0.0) {
+        part.ref.geometry.dispose();
+        part.ref.material.dispose();
         this.scene.remove(part.ref);
+        part.ref = undefined;
         this.particles.splice(i, 1);
       }
     }

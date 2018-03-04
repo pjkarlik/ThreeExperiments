@@ -1,6 +1,6 @@
 require('../shader/BWShiftFragment');
 import dat from 'dat-gui';
-import THREE from '../Three';
+import THREE from '../ThreeLight';
 import Particle from './Particle-alt';
 
 // Render Class Object //
@@ -239,7 +239,10 @@ export default class Render {
       part.ref.rotateX((part.x * 0.01) * Math.PI/180);
       part.ref.rotateY((part.y * 0.01) * Math.PI/180);
       if (part.life > 800 || part.size < 0.0) {
+        part.ref.geometry.dispose();
+        part.ref.material.dispose();
         this.scene.remove(part.ref);
+        part.ref = undefined;
         this.particles.splice(i, 1);
       }
     }

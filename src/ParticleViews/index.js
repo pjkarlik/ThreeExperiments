@@ -53,7 +53,7 @@ export default class Render {
     this.threshold = 0.6;
     this.strength = 2.0;
     this.radius = 0.85;
-    this.mirrorValue = 4;
+    this.mirrorValue = 0;
     this.size = 2.5;
     this.length = 24;
     this.color = true;
@@ -240,9 +240,6 @@ export default class Render {
     const copyEffect = new THREE.ShaderPass(THREE.CopyShader);
     copyEffect.renderToScreen = true;
     this.composer.addPass(copyEffect);
-
-
-    
   }
 
   hitRnd = () => {
@@ -287,7 +284,7 @@ export default class Render {
       z: mz,
       vx: -(1 - mx) * 0.0001,
       vy: -(1 - my) * 0.0001,
-      vz: 8.5,
+      vz: 3.5,
       box: this.box,
       settings: this.settings,
       ref: sphere,
@@ -331,7 +328,10 @@ export default class Render {
       part.ref.scale.z = 1.0 * part.size;
 
       if (part.life > 800 || part.size < 0.0) {
+        part.ref.geometry.dispose();
+        part.ref.material.dispose();
         this.scene.remove(part.ref);
+        part.ref = undefined;
         this.particles.splice(i, 1);
       }
     }

@@ -1,5 +1,5 @@
 import dat from 'dat-gui';
-import THREE from '../Three';
+import THREE from '../ThreeLight';
 import Particle from './Particle-alt';
 
 // Render Class Object //
@@ -22,7 +22,7 @@ export default class Render {
 
     this.particles = [];
     this.particleColor = 360;
-    this.background = 0x222222;
+    this.background = 0x333333;
     this.camPosition = {
       x: -1546.7881,
       y: -93.118,
@@ -48,6 +48,9 @@ export default class Render {
       gravity: 0.0,
       bounce: 0.0,
     };
+    this.threshold = 0.3;
+    this.strength = 1.2;
+    this.radius = 0.45;
     this.camTimeoutx = true;
     this.camTimeouty = true;
     this.camTimeoutz = true;
@@ -62,7 +65,7 @@ export default class Render {
     );
     window.addEventListener('resize', this.resize, true);
     this.setRender();
-    // this.setEffects();
+    this.setEffects();
     // this.createGUI();
     this.renderLoop();
     // this.music();
@@ -76,20 +79,6 @@ export default class Render {
   };
   
   createGUI = () => {
-    // this.options = {
-    //   gravity: this.settings.gravity * 100,
-    //   bounce: this.settings.bounce * 100
-    // };
-    // this.gui = new dat.GUI();
-    // const folderRender = this.gui.addFolder('Particle Options');
-    // folderRender.add(this.options, 'gravity', 0, 100).step(1)
-    //   .onFinishChange((value) => {
-    //     this.settings.gravity = value * 0.01;
-    //   });
-    // folderRender.add(this.options, 'bounce', 0, 100).step(1)
-    //   .onFinishChange((value) => {
-    //     this.settings.bounce = value * 0.01;
-    //   });
   }
 
   setRender = () => {
@@ -142,23 +131,25 @@ export default class Render {
   }
 
   setEffects = () => {
-    // this.effect = new THREE.AnaglyphEffect(this.renderer);
-    // this.effect.setSize(this.width, this.height);
-    // let effect;
- 
-    // this.composer = new THREE.EffectComposer(this.renderer);
-    // this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
+    this.composer = new THREE.EffectComposer(this.renderer);
+    this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
-    // effect = new THREE.ShaderPass(THREE.MirrorShader);
-    // effect.uniforms.side.value = 4;
-    // this.composer.addPass(effect);
+    this.bloomPass = new THREE.UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+     this.strength, this.radius, 1.0 - this.threshold
+    );
 
-    // effect = new THREE.ShaderPass(THREE.RGBShiftShader);
-    // effect.uniforms.amount.value = 0.001;
-    // effect.uniforms.angle.value = 0.0;
-    // effect.renderToScreen = true;
-    // this.composer.addPass(effect);
+    this.composer.addPass(this.bloomPass);
+
+    const copyEffect = new THREE.ShaderPass(THREE.CopyShader);
+    copyEffect.renderToScreen = true;
+    this.composer.addPass(copyEffect);
   }
+  
+  rgbToHex = (r, g, b) => {
+    const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    return `0x${hex}`;
+  };
   
   hitRnd = () => {
     const { x, y, z } = this.emitter;
@@ -250,7 +241,10 @@ export default class Render {
       part.ref.scale.y = part.size;
       part.ref.scale.z = part.size;
       if (part.life > 800 || part.size < 0.0) {
+        part.ref.geometry.dispose();
+        part.ref.material.dispose();
         this.scene.remove(part.ref);
+        part.ref = undefined;
         this.particles.splice(i, 1);
       }
     }
@@ -300,8 +294,8 @@ export default class Render {
   };
 
   renderScene = () => {
-    // this.composer.render();
-    this.renderer.render(this.scene, this.camera);
+    this.composer.render();
+    // this.renderer.render(this.scene, this.camera);
     // this.effect.render(this.scene, this.camera);
   };
 

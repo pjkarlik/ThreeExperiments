@@ -9,4 +9,7 @@ require('three/examples/js/postprocessing/EffectComposer.js');
 require('three/examples/js/postprocessing/RenderPass.js');
 require('three/examples/js/postprocessing/ShaderPass.js');
 
+require('three/examples/js/postprocessing/UnrealBloomPass.js');
+require('three/examples/js/shaders/LuminosityHighPassShader');
+
 export default THREE;

@@ -190,7 +190,10 @@ export default class Render {
       part.ref.scale.y = part.size;
       part.ref.scale.z = part.size;
       if (part.life > 800 || part.size < 0.0) {
+        part.ref.geometry.dispose();
+        part.ref.material.dispose();
         this.scene.remove(part.ref);
+        part.ref = undefined;
         this.particles.splice(i, 1);
       }
     }

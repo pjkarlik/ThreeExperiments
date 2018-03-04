@@ -1,5 +1,5 @@
 import dat from 'dat-gui';
-import THREE from '../Three';
+import THREE from '../ThreeLight';
 import Particle from './Particle';
 
 // Render Class Object //
@@ -22,7 +22,6 @@ export default class Render {
     this.near = 0.1;
     this.far = 20000;
     // Particles Stuff //
-    this.mirror = 4;
     this.particles = [];
     this.box = {
       top: 3000,
@@ -34,6 +33,12 @@ export default class Render {
       gravity: 0.9,
       bounce: 0.35,
     };
+    this.threshold = 0.6;
+    this.strength = 2.0;
+    this.radius = 0.85;
+    this.mirrorValue = 4;
+    this.size = 3.5;
+    this.isWrireframe = false;
     window.addEventListener('resize', this.resize, true);
     // window.addEventListener('click', () => { console.log(this.camera.position); }, false);
     this.setRender();
@@ -51,37 +56,64 @@ export default class Render {
   
   createGUI = () => {
     this.options = {
-      gravity: this.settings.gravity * 100,
-      bounce: this.settings.bounce * 100,
-      mirror: this.mirror,
-      color: [0, 255, 51],
+      gravity: this.settings.gravity,
+      bounce: this.settings.bounce,
+      threshold: this.threshold,
+      strength: this.strength,
+      radius: this.radius,
+      mirror: this.mirrorValue,
+      gravity: this.settings.gravity,
+      size: this.size,
+      wireframe: this.isWrireframe,
       light: [255, 255, 255],
     };
     this.gui = new dat.GUI();
-    const folderRender = this.gui.addFolder('Particle Options');
-    folderRender.add(this.options, 'gravity', 0, 100).step(1)
+    const folderBloom = this.gui.addFolder('Bloom Options');
+    folderBloom.add(this.options, 'threshold', 0, 1).step(0.01)
       .onFinishChange((value) => {
-        this.settings.gravity = value * 0.01;
+        this.bloomPass.threshold = 1.0 - value;
       });
-    folderRender.add(this.options, 'bounce', 0, 100).step(1)
+    folderBloom.add(this.options, 'strength', 0, 4).step(0.1)
+    .onFinishChange((value) => {
+      this.bloomPass.strength = value;
+    });
+    folderBloom.add(this.options, 'radius', 0, 1).step(0.01)
+    .onFinishChange((value) => {
+      this.bloomPass.radius = value;
+    });
+    const folderObject = this.gui.addFolder('Object Options');
+    folderObject.add(this.options, 'size', 0, 25).step(0.01)
+    .onFinishChange((value) => {
+      this.size  = value;
+    });
+    folderObject.add(this.options, 'gravity', 0, 1).step(0.01)
       .onFinishChange((value) => {
-        this.settings.bounce = value * 0.01;
+        this.settings.gravity = value;
       });
-    folderRender.add(this.options, 'mirror', 0, 4).step(1)
+    folderObject.add(this.options, 'bounce', 0, 1).step(0.01)
+    .onFinishChange((value) => {
+      this.settings.bounce = value;
+    });
+    folderObject.add(this.options, 'wireframe')
+    .onFinishChange((value) => {
+      this.isWrireframe = value;
+    });
+    const folderEnv = this.gui.addFolder('Environment Options');
+    folderEnv.add(this.options, 'mirror', 0, 4).step(1)
     .onFinishChange((value) => {
       this.effect.uniforms.side.value = value;
     });
-    folderRender.addColor(this.options, 'color')
-      .onChange((value) => {
-        const hue = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
-        this.ambient.color.setHex(hue);
-      });
-    folderRender.addColor(this.options, 'light')
+    folderEnv.addColor(this.options, 'light')
     .onChange((value) => {
       const hue = this.rgbToHex(~~(value[0]), ~~(value[1]), ~~(value[2]));
       this.pointLight.color.setHex(hue);
     });
   }
+  
+  rgbToHex = (r, g, b) => {
+    const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    return `0x${hex}`;
+  };
 
   setRender = () => {
     // Set Render and Scene //
@@ -122,18 +154,22 @@ export default class Render {
     this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
 
     this.effect = new THREE.ShaderPass(THREE.MirrorShader);
-    this.effect.uniforms.side.value = this.mirror;
+    this.effect.uniforms.side.value = this.mirrorValue;
     this.composer.addPass(this.effect);
 
-    effect = new THREE.ShaderPass(THREE.RGBShiftShader);
-    effect.uniforms.amount.value = 0.001;
-    effect.uniforms.angle.value = 0.0;
-    effect.renderToScreen = true;
-    this.composer.addPass(effect);
+    this.bloomPass = new THREE.UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+     this.strength, this.radius, 1.0 - this.threshold
+    );
+    this.composer.addPass(this.bloomPass);
+
+    const copyEffect = new THREE.ShaderPass(THREE.CopyShader);
+    copyEffect.renderToScreen = true;
+    this.composer.addPass(copyEffect);
   }
 
   hitRnd = () => {
-    const amount = Math.abs(Math.random() * 10);
+    const amount = 3 + Math.abs(Math.random() * 12);
     for (let i = 0; i < amount; i++) {
       this.makeParticle(0, 300, 0);
     }
@@ -145,7 +181,8 @@ export default class Render {
       geometry,
       new THREE.MeshPhongMaterial({
         color: 0xFFFFFF,
-        specular: 0x999999
+        specular: 0x999999,
+        wireframe: this.isWrireframe
       })
     );
     sphere.castShadow = true;
@@ -179,7 +216,10 @@ export default class Render {
       part.ref.scale.y = 1.0 * part.size;
       part.ref.scale.z = 1.0 * part.size;
       if (part.life > 800 || part.size < 0.0) {
+        part.ref.geometry.dispose();
+        part.ref.material.dispose();
         this.scene.remove(part.ref);
+        part.ref = undefined;
         this.particles.splice(i, 1);
       }
     }

@@ -239,6 +239,8 @@ export default class Render {
       part.ref.scale.y = part.size * 0.2;
       part.ref.scale.z = part.size * 0.2;
       if (part.life > 800 || part.size < 0.0) {
+        part.ref.geometry.dispose();
+        part.ref.material.dispose();
         this.scene.remove(part.ref);
         this.particles.splice(i, 1);
       }
@@ -246,10 +248,10 @@ export default class Render {
   };
 
   cameraLoop = () => {
-    const damp = 0.01;
+    const damp = 0.008;
     this.camPosition.x = this.camPosition.x - (this.camPosition.x - this.trsPosition.x) * damp;
     this.camPosition.y = this.camPosition.y - (this.camPosition.y - this.trsPosition.y) * damp;
-    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * damp;
+    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.006;
 
     this.camera.position.set(
       this.camPosition.x,
@@ -258,30 +260,33 @@ export default class Render {
     );
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    if(!this.camTimeoutx && Math.random() * 255 > 200) {
-      const tempRand = 700 + Math.random() * 2200;
-      this.trsPosition.x = Math.random() * 255 > 200 ? Math.random() * 200 > 100 ? -(tempRand) : tempRand : 0;
+    if(!this.camTimeoutx && Math.random() * 260 > 200) {
+      const tempRand = 100 + Math.random() * 1000;
+      this.trsPosition.x = Math.random() * 255 > 200 ?
+        Math.random() * 250 > 100 ? -(tempRand) : tempRand : 0;
       this.camTimeoutx = true;
       setTimeout(
         () => { this.camTimeoutx = false; },
-        3000 + Math.random() * 6000
+        6000 + (1000 * Math.random() * 20)
       );
     }
-    if(!this.camTimeouty && Math.random() * 255 > 200) {
-      const tempRand = 800 + Math.random() * 2200;
-      this.trsPosition.y = Math.random() * 255 > 230 ? Math.random() * 200 > 100 ? tempRand : -(tempRand) : 0;
+    if(!this.camTimeouty && Math.random() * 260 > 200) {
+      const tempRand = 100 + Math.random() * 500;
+      this.trsPosition.y = Math.random() * 255 > 200 ?
+        Math.random() * 250 > 100 ? tempRand : -(tempRand * 3) : 0;
       this.camTimeouty = true;
       setTimeout(
         () => { this.camTimeouty = false; },
-        3000 + Math.random() * 4000
+        6000 + (1000 * Math.random() * 20)
       );
     }
-    if(!this.camTimeoutz && Math.random() * 255 > 254) {
-      this.trsPosition.z = Math.random() * 200 > 160 ? 50 : -1100 + Math.random() * 700;
+    if(!this.camTimeoutz && Math.random() * 255 > 225) {
+      const tempRand = 400 + (25 * Math.random() * 20);
+      this.trsPosition.z = Math.random() * 200 > 100 ? tempRand * 4 : -(tempRand);
       this.camTimeoutz = true;
       setTimeout(
         () => { this.camTimeoutz = false; },
-        3000 + Math.random() * 8000
+        18000 + (1000 * Math.random() * 7)
       );
     }
   };

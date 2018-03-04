@@ -252,17 +252,20 @@ export default class Render {
       part.ref.scale.y = part.size * 0.2;
       part.ref.scale.z = part.size * 0.2;
       if (part.life > 800 || part.size < 0.0) {
+        part.ref.geometry.dispose();
+        part.ref.material.dispose();
         this.scene.remove(part.ref);
+        part.ref = undefined;
         this.particles.splice(i, 1);
       }
     }
   };
 
   cameraLoop = () => {
-    const damp = 0.01;
+    const damp = 0.008;
     this.camPosition.x = this.camPosition.x - (this.camPosition.x - this.trsPosition.x) * damp;
     this.camPosition.y = this.camPosition.y - (this.camPosition.y - this.trsPosition.y) * damp;
-    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.004;
+    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.006;
 
     this.camera.position.set(
       this.camPosition.x,
@@ -282,25 +285,23 @@ export default class Render {
       );
     }
     if(!this.camTimeouty && Math.random() * 260 > 200) {
-      const tempRand = 100 + Math.random() * 1000;
+      const tempRand = 100 + Math.random() * 500;
       this.trsPosition.y = Math.random() * 255 > 200 ?
-        Math.random() * 250 > 100 ? tempRand : -(tempRand) : 0;
+        Math.random() * 250 > 100 ? tempRand : -(tempRand * 3) : 0;
       this.camTimeouty = true;
       setTimeout(
         () => { this.camTimeouty = false; },
         6000 + (1000 * Math.random() * 20)
       );
     }
-    if(!this.camTimeoutz && Math.random() * 255 > 253) {
-      this.trsPosition.z = Math.random() * 200 > 150 ? 100 + Math.random() * 100 : -(100 + Math.random() * 100);
+    if(!this.camTimeoutz && Math.random() * 255 > 225) {
+      const tempRand = 400 + (25 * Math.random() * 20);
+      this.trsPosition.z = Math.random() * 200 > 100 ? tempRand * 4 : -(tempRand);
       this.camTimeoutz = true;
       setTimeout(
         () => { this.camTimeoutz = false; },
-        18000 + (1100 * Math.random() * 7)
+        18000 + (1000 * Math.random() * 7)
       );
-    }
-    if (this.camPosition.x == 0 && this.camPosition.y == 0 ) {
-      this.camera.rotationZ((this.frames * 0.1) * Math.PI / 180);
     }
   };
 
