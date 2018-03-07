@@ -22,7 +22,7 @@ export default class Render {
     this.height = window.innerHeight;
     this.aspect = this.width / this.height;
     this.devicePixelRatio = window.devicePixelRatio;
-    this.viewAngle = 55;
+    this.viewAngle = 45;
     this.aspect = this.width / this.height;
     this.near = 1;
     this.far = 20000;
@@ -58,8 +58,8 @@ export default class Render {
       bounce: 0.35,
     };
     this.threshold = 0.6;
-    this.strength = 2.0;
-    this.radius = 0.85;
+    this.strength = 1.7;
+    this.radius = 0.65;
     this.camTimeoutx = true;
     this.camTimeouty = true;
     this.camTimeoutz = true;
@@ -193,9 +193,11 @@ export default class Render {
       new THREE.Vector2(window.innerWidth, window.innerHeight),
      this.strength, this.radius, 1.0 - this.threshold
     );
-
     this.composer.addPass(this.bloomPass);
 
+    // const copyEffect = new THREE.ShaderPass(THREE.CopyShader);
+    // copyEffect.renderToScreen = true;
+    // this.composer.addPass(copyEffect);
     this.rfrag = new THREE.ShaderPass(THREE.RenderFragment);
     // this.rfrag.uniforms.scale.value = this.scale;
     // this.rfrag.uniforms.ratio.value = this.ratio;
@@ -297,7 +299,7 @@ export default class Render {
     );
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    if(!this.camTimeoutx && Math.random() * 260 > 200) {
+    if(!this.camTimeoutx && Math.random() * 260 > 250) {
       const tempRand = 100 + Math.random() * 1000;
       this.trsPosition.x = Math.random() * 255 > 200 ?
         Math.random() * 250 > 100 ? -(tempRand) : tempRand : 0;
@@ -307,9 +309,9 @@ export default class Render {
         6000 + (1000 * Math.random() * 20)
       );
     }
-    if(!this.camTimeouty && Math.random() * 260 > 200) {
+    if(!this.camTimeouty && Math.random() * 260 > 240) {
       const tempRand = 100 + Math.random() * 1000;
-      this.trsPosition.y = Math.random() * 255 > 200 ?
+      this.trsPosition.y = Math.random() * 255 > 170 ?
         Math.random() * 250 > 100 ? tempRand : -(tempRand) : 0;
       this.camTimeouty = true;
       setTimeout(
