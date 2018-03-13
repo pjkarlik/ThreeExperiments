@@ -74,8 +74,8 @@ export default class Render {
     this.createGUI();
     this.setEffects();
     // e4GJsV3PzsI // gkyFQTUR-rA // 3vnZnuqgh7U // tek7oOqsUj0 // zqkD9PpH8W8
-    // FLe52f0oEHM // _xlw6lHjvx4 // MPK5qsUEeMQ // 0mzXjWxn1r0
-    this.music('0mzXjWxn1r0', 'Final | Arise');
+    // FLe52f0oEHM // _xlw6lHjvx4 // MPK5qsUEeMQ // 0mzXjWxn1r0 // oJP69NEFQ4s
+    this.music('oJP69NEFQ4s', '8 Bit Weapon | Phase I: Lexical Analysis');
     this.renderLoop();
   }
 
