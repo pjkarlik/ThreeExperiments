@@ -20,3 +20,88 @@ canvas.circle {
   top: 50%;
   transform: translate(-50%, -50%);
 }
+
+#threeCanvas,
+#canvas {
+  position: absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index: 1;
+}
+#bgcanvas {
+  position: absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index: 0;
+}
+.inputbox {
+  background: #000;
+  position: absolute;
+  top: -50px;
+  left: 0;
+  padding: 1em;
+  color: #FFF;
+  z-index: 9999;
+  opacity: 0.5;
+  transition: top 200ms ease-in, opacity 200ms ease-in;
+}
+.inputbox:hover {
+  top: 0;
+  opacity: 1;
+}
+.video {
+  display: none;
+  position: absolute;
+  top: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 75px;
+  /*top: -3000px;
+  left: -3000px;*/
+}
+#testCanvas {
+  position: absolute;
+  top: 75px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 75px;
+  z-index: 999;
+  border: 1px solid #ff0000;
+  /*top: -3000px;
+  left: -3000px;*/
+}
+@media screen and (max-width : 768px) {
+  .inputbox {
+    top: 0;
+    opacity: 1;
+  }
+  .inputbox:hover {
+    top: 0;
+    opacity: 1;
+  }
+}
+.inputbox input {
+  border-right: 1px solid #FFF;
+  background: rgba(255,255,255,0.1);
+  margin: 1em;
+  clear: both;
+}
+
+.inputbox span {
+  display: block;
+  text-align: left;
+  font-size: .75em;
+  padding: .313em 1em 0;
+}
+
+.wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
