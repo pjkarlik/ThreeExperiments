@@ -6,8 +6,14 @@
     "node": true,
     "es6": true
   },
-  "ecmaFeatures": {
-    "modules": true
+  "parserOptions": {
+    "ecmaVersion": 9,
+    "ecmaFeatures": {
+      "modules": true,
+      "arrowFunctions": true,
+      "classes": true
+    },
+    "sourceType": "module"
   },
   "rules": {
     "no-undef": 2,

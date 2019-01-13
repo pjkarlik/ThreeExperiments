@@ -1,4 +1,4 @@
-import Render from './ParticleViews/index';
+import Render from './Shadow/tree.js';
 
 import { description, version } from '../version.json';
 
