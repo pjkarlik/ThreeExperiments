@@ -15,12 +15,12 @@ import { Generator } from '../utils/SimplexGenerator';
 export default class Render {
   constructor() {
     this.generator = new Generator(10);
-    this.amount = 20;
+    this.amount = 25;
     this.size = 50;
-    this.strength = 1.25;
-    this.iteration = 0.35;
+    this.strength = 2.25;
+    this.iteration = 0.05;
     this.spacing = this.size / this.amount;
-
+    this.background = 0xaaaaaa;
     this.frames = 0;
     this.controls = undefined;
     this.scene = undefined;
@@ -28,7 +28,10 @@ export default class Render {
     this.render = undefined;
     this.treeSet = [];
     this.cameraPos = {
-      x: 0, y: 37, z: -50
+      // x: 0, y: -0.1, z: -5
+      // x: 4.78, y: 6.16, z: -12.5
+      x: -28, y: 27, z: 32
+      // x: -3.41, y: 19.39, z: 3.5
     };
     this.cameraTrg = {
       x: 0, y: 0, z: 0
@@ -90,6 +93,9 @@ export default class Render {
     this.controls.maxDistance = 1500;
     this.controls.minDistance = 0;
 
+    // this.scene.fog = new THREE.FogExp2(this.background, 0.1);
+    // this.scene.background = new THREE.Color(this.background);
+
     // Skybox //
     const urls = [xpos, xneg, ypos, yneg, zpos, zneg];
     const skybox = new THREE.CubeTextureLoader().load(urls);
@@ -98,7 +104,6 @@ export default class Render {
   };
 
   createRoom = () => {
-    const texloader = new THREE.TextureLoader();
     this.ambient = new THREE.AmbientLight( 0xaaaaaa, 1);
     this.ambient.position.set( 0, 20, 0 );
     this.scene.add( this.ambient );
@@ -107,23 +112,16 @@ export default class Render {
     this.spotLight.position.set( 0, 40, 0 );
     this.spotLight.angle = Math.PI / 3;
     this.spotLight.penumbra = 0.05;
-    this.spotLight.decay = 2;
-    this.spotLight.distance = 100;
-
+    this.spotLight.decay = 0;
+    this.spotLight.distance = 200;
+    this.mapSize = [1024, 2048, 4106, 8212];
+    this.mapLevel = 3;
     this.spotLight.castShadow = true;
-    this.spotLight.shadow.mapSize.width = 1024;
-    this.spotLight.shadow.mapSize.height = 1024;
-    this.spotLight.shadow.camera.near = 10;
+    this.spotLight.shadow.mapSize.width = this.mapSize[this.mapLevel];
+    this.spotLight.shadow.mapSize.height = this.mapSize[this.mapLevel];
+    this.spotLight.shadow.camera.near = 1;
     this.spotLight.shadow.camera.far = 100;
     this.scene.add( this.spotLight );
-
-    // this.lightHelper = new THREE.SpotLightHelper( this.spotLight );
-    // this.scene.add( this.lightHelper );
-    // let texture = texloader.load(stone, () => {
-    //   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    //   texture.offset.set(0, 0);
-    //   texture.repeat.set(6, 6);
-    // });
 
     this.sun = new THREE.Mesh( 
       new THREE.SphereBufferGeometry(2, 6, 6),
@@ -137,12 +135,7 @@ export default class Render {
     this.scene.add(this.sun);
 
     this.makeGround();
-
-    for(let i = 0; i < 10; i ++) {
-      this.makeTree();
-    }
-
-    // this.makeSnowman();
+    this.makeTrees(50);
   };
 
   makeGround = () => {
@@ -152,7 +145,8 @@ export default class Render {
     const mesh = new THREE.Mesh( 
       this.geometry, 
       new THREE.MeshPhongMaterial({ 
-        color: 0xFFFFFF,
+        color: 0xeeeeee,
+        specular: 0xffffff,
         dithering: true,
         flatShading: true,
         side: THREE.DoubleSide
@@ -178,8 +172,8 @@ export default class Render {
           y * this.iteration,
           this.frames,
         );
-        // vertices[vy + vx + 0] = (-offset) + x * this.spacing;
-        // vertices[vy + vx + 1] = ((-offset) + y * this.spacing);
+        vertices[vy + vx + 0] = (-offset) + x * this.spacing;
+        vertices[vy + vx + 1] = ((-offset) + y * this.spacing);
         vertices[vy + vx + 2] = (noiseX * this.strength);
       }
     }
@@ -187,114 +181,118 @@ export default class Render {
     this.geometry.computeVertexNormals();
   };
 
-  makeTree = () => {
-    const position = {
-      x: 20 - (Math.random() * 40),
-      y: 20 - (Math.random() * 40),
+  getRandomPostion = () => {
+    const spatial = this.size * 0.85;
+    return {
+      x: (spatial / 2) - (Math.random() * spatial),
+      y: (spatial / 2) - (Math.random() * spatial),
       z: 0
     };
-
-    const tree_material = new THREE.MeshPhongMaterial({ 
-      color: 0x00aa33,
-      dithering: true,
-      flatShading: true
-    });
-    const base_material = new THREE.MeshPhongMaterial({ 
-      color: 0x5d2700,
-      dithering: true,
-      flatShading: true
-    });
-
-    const height = 4.5 + Math.random() * 8.5;
-    const radius = 1.5 + Math.random() * 1.5;
-    const treeObject = new THREE.Object3D();
-    const tree_geometry = new THREE.ConeBufferGeometry(radius, height, 5);
-    const base_geometry = new THREE.CylinderGeometry( radius / 4, radius / 4, 3, 6 );
-
-    const tree = new THREE.Mesh( tree_geometry, tree_material );
-    const base = new THREE.Mesh( base_geometry, base_material );
-
-    tree.position.set( position.x, position.z + (height/2.15) + 1, position.y );
-    tree.receiveShadow = true;
-    tree.castShadow = true;
- 
-    base.position.set( position.x, position.z, position.y );
-    base.receiveShadow = true;
-    base.castShadow = true;
-
-    treeObject.add(tree);
-    treeObject.add(base);
-
-    this.scene.add(treeObject);
-    this.treeSet.push({
-      id: this.treeSet.length,
-      tree: treeObject,
-      position
-    });
+    
   };
 
-  makeSnowman = () => {
-    const position = {
-      x: 5 - (Math.random() * 10),
-      y: 5 - (Math.random() * 10),
-      z: 0
-    };
+  checkPosition = (position, radius) => {
+    if (this.treeSet.length < 0 ) return true;
 
-    const snow_material = new THREE.MeshPhongMaterial({ 
-      color: 0xaeaeae,
-      dithering: true,
-      flatShading: true
-    });
-    const cole_material = new THREE.MeshPhongMaterial({ 
-      color: 0x333333,
-      dithering: true,
-      flatShading: true
-    });
+    for (let i = 0; i < this.treeSet.length; i++) {
+      let tree = this.treeSet[i].pos;
+      let rds = (this.treeSet[i].radius * 2);
 
-    let radius = 1.5 + Math.random() * 1.5;
-    const snowmanObject = new THREE.Object3D();
+      let xf = position.x < (tree.x + rds) && position.x > (tree.x - rds);
 
-    const baseBody = new THREE.Mesh( 
-      new THREE.SphereBufferGeometry(radius, 6, 6),
-      snow_material
-    );
-    baseBody.position.set( position.x, position.z + (radius / 1.5), position.y );
-    baseBody.receiveShadow = true;
-    baseBody.castShadow = true;
+      let yf = position.y < (tree.y + rds) && position.y > (tree.y - rds);
 
-    snowmanObject.add(baseBody);
-    
-    let radiusChest = radius * .65;
+      // console.log(position.x, tree.x, xf);
+      // console.log(position.y, tree.y, yf);
+      // console.log('-----------------');
+      if(xf && yf) { 
+        console.log('false');
+        return false;
+      } 
+    }
+    return true;
+  };
 
-    const baseChest = new THREE.Mesh( 
-      new THREE.SphereBufferGeometry(radiusChest, 6, 6),
-      snow_material
-    );
-    baseChest.position.set( position.x, position.z + (radius * 2), position.y );
-    baseChest.receiveShadow = true;
-    baseChest.castShadow = true;
+  makeTrees = (amount) => {
+    for(let i = 0; i < amount; i ++) {
+      let position;
+      let check = false;
+      let color = 0x00aa33;
+      const height = 2.5 + Math.random() * 4.5;
+      const radius = 0.5 + Math.random() * 1.0;
 
-    snowmanObject.add(baseChest);
+      while(!check) {
+        position = this.getRandomPostion();
+        check = this.checkPosition(position, radius);
+      }
 
-    let radiusHead = radiusChest * .65;
+      const tree_material = new THREE.MeshPhongMaterial({ 
+        color: color,
+        dithering: true,
+        flatShading: true
+      });
+      
+      const base_material = new THREE.MeshPhongMaterial({ 
+        color: 0x5d2700,
+        dithering: true,
+        flatShading: true
+      });
 
-    const baseHead = new THREE.Mesh( 
-      new THREE.SphereBufferGeometry(radiusHead, 6, 6),
-      snow_material
-    );
-    baseHead.position.set( position.x, position.z + (radius * 2.75), position.y );
-    baseHead.receiveShadow = true;
-    baseHead.castShadow = true;
+      const treeObject = new THREE.Object3D();
+      const tree_geometry = new THREE.ConeBufferGeometry(radius, height, 5);
+      const base_geometry = new THREE.CylinderGeometry( radius / 4, radius / 4, 3, 6 );
+      // const base_geometry = new THREE.BoxGeometry( radius, radius * 4 , radius);
+      const tree = new THREE.Mesh( tree_geometry, tree_material );
+      const base = new THREE.Mesh( base_geometry, base_material );
 
-    snowmanObject.add(baseHead);
+      tree.position.set(0, (height/2.15) + 1, 0);
+      tree.receiveShadow = true;
+      tree.castShadow = true;
+  
+      base.position.set(0, 0, 0);
+      base.receiveShadow = true;
+      base.castShadow = true;
 
-    this.scene.add(snowmanObject);
+      treeObject.add(tree);
+      treeObject.add(base);
 
+      const noiseX = this.generator.simplex3(
+        Math.abs(this.size / position.x) * this.iteration,
+        Math.abs(this.size / position.y) * this.iteration,
+        this.frames,
+      );
+
+      treeObject.position.set( position.x, (noiseX * this.strength), position.y );
+      this.scene.add(treeObject);
+      this.treeSet.push({
+        pos: {
+          x: position.x,
+          y: position.y,
+          z: position.z 
+        },
+        radius: radius,
+        tree: treeObject
+      });
+    }
+  };
+
+  treeNoise = () => {
+    for (let i = 0; i < this.treeSet.length; i ++) {
+      let tree = this.treeSet[i];
+      const noiseX = this.generator.simplex3(
+        Math.abs(this.size / tree.pos.x) * this.iteration,
+        Math.abs(this.size / tree.pos.y) * this.iteration,
+        this.frames,
+      );
+
+      tree.tree.position.set(tree.pos.x, (noiseX * this.strength),tree.pos.y);
+    }
   };
 
   moveLight = () => {
-    const x = 9 * Math.sin(this.frames * Math.PI / 180);
-    const y = 11 * Math.cos(this.frames * Math.PI / 180);
+    let frames = this.frames;
+    const x = 25 * Math.sin(frames * Math.PI / 180);
+    const y = 25 * Math.cos(frames * Math.PI / 180);
     this.sun.position.set( 2 + x, 20, 2 + y);
     this.spotLight.position.set( 2 + x, 20, 2 + y);
     this.spotLight.lookAt(0, 0, 0);
@@ -302,9 +300,10 @@ export default class Render {
   };
 
   renderLoop = () => {
-    this.frames += 0.1;
+    this.frames += 0.01;
     this.moveLight();
     // this.groundNoise();
+    // this.treeNoise();
     this.renderer.render(this.scene, this.camera);
     this.animation = window.requestAnimationFrame(this.renderLoop);
   };
