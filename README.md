@@ -36,5 +36,5 @@
 
 ```bash
 $ yarn install
-$ yarn dev & open http://localhost:2020
+$ yarn dev & open http://localhost:2022
 ```
