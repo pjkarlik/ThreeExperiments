@@ -15,12 +15,12 @@ export default class Render {
     this.viewAngle = 55;
     this.near = 0.1;
     this.far = 20000;
-    this.amount = 20;
+    this.amount = 12;
     this.size = 0.1;
     this.strength = 0.5;
     this.time = 0;
     this.frame = 0;
-    this.speed = 0.05;
+    this.speed = 0.02;
     this.iteration = 0.05;
     this.objects = [];
     this.generator = new Generator(10);
@@ -42,10 +42,10 @@ export default class Render {
     this.scene = new THREE.Scene();
 
     this.camera = new THREE.PerspectiveCamera(
-        this.viewAngle,
-        this.aspect,
-        this.near,
-        this.far
+      this.viewAngle,
+      this.aspect,
+      this.near,
+      this.far
     );
     this.scene.add(this.camera);
 
@@ -77,9 +77,6 @@ export default class Render {
     });
 
     this.randomObjects();
-
-    this.effect = new THREE.AnaglyphEffect(this.renderer);
-    this.effect.setSize(this.width, this.height);
   };
 
   randomObjects = () => {
@@ -87,7 +84,7 @@ export default class Render {
       for (let x = 0; x < this.amount; x++) {
         const object = new THREE.Mesh(
           new THREE.CubeGeometry(this.size, this.size / 2, this.size),
-          this.metalMaterial,
+          this.stockMaterial,
         );
         this.objects.push(object);
         this.scene.add(object);
@@ -136,7 +133,7 @@ export default class Render {
   };
 
   renderScene = () => {
-    this.effect.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera);
   };
 
   renderLoop = () => {

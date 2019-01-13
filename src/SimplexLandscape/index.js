@@ -1,4 +1,4 @@
-import dat from 'dat-gui';
+import dat from 'dat.gui';
 import THREE from '../Three';
 import { Generator } from '../utils/SimplexGenerator';
 
@@ -66,10 +66,10 @@ export default class Render {
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(this.fog, 0.00185);
     this.camera = new THREE.PerspectiveCamera(
-        this.viewAngle,
-        this.aspect,
-        this.near,
-        this.far
+      this.viewAngle,
+      this.aspect,
+      this.near,
+      this.far
     );
     this.scene.add(this.camera);
     this.cameraPosition = { x: -800, y: 300, z: 330 };

@@ -64,10 +64,10 @@ export default class Render {
 
   setCamera = () => {
     this.camera = new THREE.PerspectiveCamera(
-        this.viewAngle,
-        this.aspect,
-        this.near,
-        this.far
+      this.viewAngle,
+      this.aspect,
+      this.near,
+      this.far
     );
     this.scene.add(this.camera);
     this.camera.position.set(0, 12, 24);
@@ -120,8 +120,8 @@ export default class Render {
       fragmentShader,
     });
     this.fireball = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(7, 4),
-        this.meshMaterial
+      new THREE.IcosahedronGeometry(7, 4),
+      this.meshMaterial
     );
     this.scene.add(this.fireball);
 
