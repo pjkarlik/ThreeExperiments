@@ -100,8 +100,12 @@ export default class Render {
       navigator.getUserMedia({video: true, audio: false},
         (stream) => {
           this.video = document.getElementById('video');
-          //this.video.src = window.URL.createObjectURL(stream);
-          this.video.srcObject=stream;
+          try {
+            this.video.srcObject  = stream;
+          } catch (error) {
+            console.log(error);
+            this.video.src = window.URL.createObjectURL(stream);
+          }
           setTimeout(()=>{
             this.drawImageToBackground(this.video);
             this.renderLoop();
