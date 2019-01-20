@@ -1,4 +1,4 @@
-import Render from './Shadow/tree.js';
+import Render from './Webcam/';
 
 import { description, version } from '../version.json';
 

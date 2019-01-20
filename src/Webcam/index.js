@@ -26,7 +26,7 @@ export default class Render {
     this.height = window.innerHeight;
     this.aspect = this.width / this.height;
     this.devicePixelRatio = window.devicePixelRatio;
-    this.viewAngle = 55;
+    this.viewAngle = 65;
     this.aspect = this.width / this.height;
     this.near = 0.1;
     this.far = 20000;
@@ -98,18 +98,19 @@ export default class Render {
 
     if (navigator.getUserMedia) { // get webcam feed if available
       navigator.getUserMedia({video: true, audio: false},
-       (stream) => {
-         this.video = document.getElementById('video');
-         this.video.src = window.URL.createObjectURL(stream);
-         setTimeout(()=>{
-           this.drawImageToBackground(this.video);
-           this.renderLoop();
-         },300);
-       },
-       () => {
-         console.log('error');
-       }
-     );
+        (stream) => {
+          this.video = document.getElementById('video');
+          //this.video.src = window.URL.createObjectURL(stream);
+          this.video.srcObject=stream;
+          setTimeout(()=>{
+            this.drawImageToBackground(this.video);
+            this.renderLoop();
+          },300);
+        },
+        () => {
+          console.log('error');
+        }
+      );
     }
   };
 
@@ -136,10 +137,10 @@ export default class Render {
     this.scene.background = new THREE.Color(this.background);
 
     this.camera = new THREE.PerspectiveCamera(
-        this.viewAngle,
-        this.aspect,
-        this.near,
-        this.far
+      this.viewAngle,
+      this.aspect,
+      this.near,
+      this.far
     );
 
     this.camera.position.set(0, 0, 1200);
@@ -178,7 +179,7 @@ export default class Render {
 
     this.bloomPass = new THREE.UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-     this.strength, this.radius, 1.0 - this.threshold
+      this.strength, this.radius, 1.0 - this.threshold
     );
 
     this.composer.addPass(this.bloomPass);
@@ -273,7 +274,7 @@ export default class Render {
 
   makeParticle = (mx, my, mz, size, color) => {
     // const hexColor = this.rgbToHex(color.r, color.g, color.b);
-    const geometry = new THREE.BoxGeometry(size, size, size);
+    const geometry = new THREE.PlaneGeometry(size, size, 1);
     const blox = new THREE.Mesh(
       geometry,
       new THREE.MeshPhongMaterial({
@@ -301,16 +302,19 @@ export default class Render {
       const point = this.points[i];
       // part.settings = this.settings;
 
+
+      const size = 1.0 - Math.abs(0.45 * point.radius);
+      part.ref.scale.x = size;
+      part.ref.scale.y = size;
+      part.ref.scale.z = size + (point.radius * 0.25);
+
       part.ref.position.set(
         part.x,
         part.y,
-        part.z
+        part.z + (point.radius * 10)
       );
-      const size = 1.0 - Math.abs(0.2 * point.radius);
-      part.ref.scale.x = size;
-      part.ref.scale.y = size;
-      part.ref.scale.z = size + (point.radius * 1.5);
-      const mul = 0.01;
+
+      // const mul = 0.01;
       part.ref.material.color.setHex(
         this.rgbToHex(point.color.r,point.color.b,point.color.g)
       );
@@ -336,7 +340,7 @@ export default class Render {
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     if(!this.camTimeoutx && Math.random() * 260 > 200) {
-      const tempRand = 100 + Math.random() * 1000;
+      const tempRand = 400 + Math.random() * 1000;
       this.trsPosition.x = Math.random() * 255 > 200 ?
         Math.random() * 250 > 100 ? -(tempRand) : tempRand : -5;
       this.camTimeoutx = true;
@@ -346,7 +350,7 @@ export default class Render {
       );
     }
     if(!this.camTimeouty && Math.random() * 260 > 200) {
-      const tempRand = 100 + Math.random() * 500;
+      const tempRand = 400 + Math.random() * 500;
       this.trsPosition.y = Math.random() * 255 > 200 ?
         Math.random() * 250 > 100 ? tempRand : -(tempRand * 3) : 45;
       this.camTimeouty = true;
@@ -356,7 +360,7 @@ export default class Render {
       );
     }
     if(!this.camTimeoutz && Math.random() * 255 > 225) {
-      const tempRand = 500 + (25 * Math.random() * 15);
+      const tempRand = 900 + (25 * Math.random() * 15);
       this.trsPosition.z = Math.random() * 200 > 100 ? tempRand : -(tempRand);
       this.camTimeoutz = true;
       setTimeout(
@@ -387,7 +391,7 @@ export default class Render {
 
   drawImageToBackground = (image) => {
     this.bgContext.drawImage( image, 0, 0, this.bgCanvas.width,
-    this.bgCanvas.height);
+      this.bgCanvas.height);
     this.preparePoints();
   };
 
