@@ -1,15 +1,14 @@
-import THREE from '../Three';
+import THREE from "../Three";
 
 // Skybox image imports //
-import xpos from '../../resources/images/sky/posx.jpg';
-import xneg from '../../resources/images/sky/negx.jpg';
-import ypos from '../../resources/images/sky/posy.jpg';
-import yneg from '../../resources/images/sky/negy.jpg';
-import zpos from '../../resources/images/sky/posz.jpg';
-import zneg from '../../resources/images/sky/negz.jpg';
+import xpos from "../../resources/images/sky/posx.jpg";
+import xneg from "../../resources/images/sky/negx.jpg";
+import ypos from "../../resources/images/sky/posy.jpg";
+import yneg from "../../resources/images/sky/negy.jpg";
+import zpos from "../../resources/images/sky/posz.jpg";
+import zneg from "../../resources/images/sky/negz.jpg";
 
-
-import { Generator } from '../utils/SimplexGenerator';
+import { Generator } from "../utils/SimplexGenerator";
 
 // Render Class Object //
 export default class Render {
@@ -30,19 +29,25 @@ export default class Render {
     this.cameraPos = {
       // x: 0, y: -0.1, z: -5
       // x: 4.78, y: 6.16, z: -12.5
-      x: -28, y: 27, z: 32
+      x: -28,
+      y: 27,
+      z: 32
       // x: -3.41, y: 19.39, z: 3.5
     };
     this.cameraTrg = {
-      x: 0, y: 0, z: 0
+      x: 0,
+      y: 0,
+      z: 0
     };
     this.lightPos = {
-      x: 5, y: 5, z: 20
+      x: 5,
+      y: 5,
+      z: 20
     };
     this.setViewport();
 
-    window.addEventListener('resize', this.resize, true);
-    window.addEventListener('click', this.stats, true);
+    window.addEventListener("resize", this.resize, true);
+    window.addEventListener("click", this.stats, true);
 
     this.setRender();
     this.createRoom();
@@ -86,7 +91,11 @@ export default class Render {
       this.far
     );
 
-    this.camera.position.set(this.cameraPos.x, this.cameraPos.y, this.cameraPos.z);
+    this.camera.position.set(
+      this.cameraPos.x,
+      this.cameraPos.y,
+      this.cameraPos.z
+    );
     this.camera.lookAt(new THREE.Vector3());
 
     this.controls = new THREE.OrbitControls(this.camera);
@@ -104,12 +113,12 @@ export default class Render {
   };
 
   createRoom = () => {
-    this.ambient = new THREE.AmbientLight( 0xaaaaaa, 1);
-    this.ambient.position.set( 0, 20, 0 );
-    this.scene.add( this.ambient );
+    this.ambient = new THREE.AmbientLight(0xaaaaaa, 1);
+    this.ambient.position.set(0, 20, 0);
+    this.scene.add(this.ambient);
 
-    this.spotLight = new THREE.SpotLight( 0xffffff, 1 );
-    this.spotLight.position.set( 0, 40, 0 );
+    this.spotLight = new THREE.SpotLight(0xffffff, 1);
+    this.spotLight.position.set(0, 40, 0);
     this.spotLight.angle = Math.PI / 3;
     this.spotLight.penumbra = 0.05;
     this.spotLight.decay = 0;
@@ -121,14 +130,14 @@ export default class Render {
     this.spotLight.shadow.mapSize.height = this.mapSize[this.mapLevel];
     this.spotLight.shadow.camera.near = 1;
     this.spotLight.shadow.camera.far = 100;
-    this.scene.add( this.spotLight );
+    this.scene.add(this.spotLight);
 
-    this.sun = new THREE.Mesh( 
+    this.sun = new THREE.Mesh(
       new THREE.SphereBufferGeometry(2, 6, 6),
-      new THREE.MeshPhongMaterial({ 
-        color: 0xFFFF00,
+      new THREE.MeshPhongMaterial({
+        color: 0xffff00,
         dithering: true,
-        flatShading: true,
+        flatShading: true
       })
     );
 
@@ -139,24 +148,28 @@ export default class Render {
   };
 
   makeGround = () => {
+    this.geometry = new THREE.PlaneBufferGeometry(
+      this.size,
+      this.size,
+      this.amount,
+      this.amount
+    );
 
-    this.geometry = new THREE.PlaneBufferGeometry(this.size, this.size, this.amount, this.amount);
-
-    const mesh = new THREE.Mesh( 
-      this.geometry, 
-      new THREE.MeshPhongMaterial({ 
+    const mesh = new THREE.Mesh(
+      this.geometry,
+      new THREE.MeshPhongMaterial({
         color: 0xeeeeee,
         specular: 0xffffff,
         dithering: true,
         flatShading: true,
         side: THREE.DoubleSide
-      } ) 
+      })
     );
 
-    mesh.rotation.set(90 * Math.PI / 180, 0, 0);
+    mesh.rotation.set((90 * Math.PI) / 180, 0, 0);
     mesh.position.set(0, -1, 0);
     mesh.receiveShadow = true;
-    this.scene.add( mesh );
+    this.scene.add(mesh);
     this.groundNoise();
   };
 
@@ -170,11 +183,11 @@ export default class Render {
         const noiseX = this.generator.simplex3(
           x * this.iteration,
           y * this.iteration,
-          this.frames,
+          this.frames
         );
-        vertices[vy + vx + 0] = (-offset) + x * this.spacing;
-        vertices[vy + vx + 1] = ((-offset) + y * this.spacing);
-        vertices[vy + vx + 2] = (noiseX * this.strength);
+        vertices[vy + vx + 0] = -offset + x * this.spacing;
+        vertices[vy + vx + 1] = -offset + y * this.spacing;
+        vertices[vy + vx + 2] = noiseX * this.strength;
       }
     }
     this.geometry.attributes.position.needsUpdate = true;
@@ -184,55 +197,54 @@ export default class Render {
   getRandomPostion = () => {
     const spatial = this.size * 0.85;
     return {
-      x: (spatial / 2) - (Math.random() * spatial),
-      y: (spatial / 2) - (Math.random() * spatial),
+      x: spatial / 2 - Math.random() * spatial,
+      y: spatial / 2 - Math.random() * spatial,
       z: 0
     };
-    
   };
 
   checkPosition = (position, radius) => {
-    if (this.treeSet.length < 0 ) return true;
+    if (this.treeSet.length < 0) return true;
 
     for (let i = 0; i < this.treeSet.length; i++) {
       let tree = this.treeSet[i].pos;
-      let rds = (this.treeSet[i].radius * 2);
+      let rds = this.treeSet[i].radius * 2;
 
-      let xf = position.x < (tree.x + rds) && position.x > (tree.x - rds);
+      let xf = position.x < tree.x + rds && position.x > tree.x - rds;
 
-      let yf = position.y < (tree.y + rds) && position.y > (tree.y - rds);
+      let yf = position.y < tree.y + rds && position.y > tree.y - rds;
 
       // console.log(position.x, tree.x, xf);
       // console.log(position.y, tree.y, yf);
       // console.log('-----------------');
-      if(xf && yf) { 
-        console.log('false');
+      if (xf && yf) {
+        console.log("false");
         return false;
-      } 
+      }
     }
     return true;
   };
 
-  makeTrees = (amount) => {
-    for(let i = 0; i < amount; i ++) {
+  makeTrees = amount => {
+    for (let i = 0; i < amount; i++) {
       let position;
       let check = false;
       let color = 0x00aa33;
       const height = 2.5 + Math.random() * 4.5;
       const radius = 0.5 + Math.random() * 1.0;
 
-      while(!check) {
+      while (!check) {
         position = this.getRandomPostion();
         check = this.checkPosition(position, radius);
       }
 
-      const tree_material = new THREE.MeshPhongMaterial({ 
+      const tree_material = new THREE.MeshPhongMaterial({
         color: color,
         dithering: true,
         flatShading: true
       });
-      
-      const base_material = new THREE.MeshPhongMaterial({ 
+
+      const base_material = new THREE.MeshPhongMaterial({
         color: 0x5d2700,
         dithering: true,
         flatShading: true
@@ -240,15 +252,20 @@ export default class Render {
 
       const treeObject = new THREE.Object3D();
       const tree_geometry = new THREE.ConeBufferGeometry(radius, height, 5);
-      const base_geometry = new THREE.CylinderGeometry( radius / 4, radius / 4, 3, 6 );
+      const base_geometry = new THREE.CylinderGeometry(
+        radius / 4,
+        radius / 4,
+        3,
+        6
+      );
       // const base_geometry = new THREE.BoxGeometry( radius, radius * 4 , radius);
-      const tree = new THREE.Mesh( tree_geometry, tree_material );
-      const base = new THREE.Mesh( base_geometry, base_material );
+      const tree = new THREE.Mesh(tree_geometry, tree_material);
+      const base = new THREE.Mesh(base_geometry, base_material);
 
-      tree.position.set(0, (height/2.15) + 1, 0);
+      tree.position.set(0, height / 2.15 + 1, 0);
       tree.receiveShadow = true;
       tree.castShadow = true;
-  
+
       base.position.set(0, 0, 0);
       base.receiveShadow = true;
       base.castShadow = true;
@@ -259,16 +276,16 @@ export default class Render {
       const noiseX = this.generator.simplex3(
         Math.abs(this.size / position.x) * this.iteration,
         Math.abs(this.size / position.y) * this.iteration,
-        this.frames,
+        this.frames
       );
 
-      treeObject.position.set( position.x, (noiseX * this.strength), position.y );
+      treeObject.position.set(position.x, noiseX * this.strength, position.y);
       this.scene.add(treeObject);
       this.treeSet.push({
         pos: {
           x: position.x,
           y: position.y,
-          z: position.z 
+          z: position.z
         },
         radius: radius,
         tree: treeObject
@@ -277,24 +294,24 @@ export default class Render {
   };
 
   treeNoise = () => {
-    for (let i = 0; i < this.treeSet.length; i ++) {
+    for (let i = 0; i < this.treeSet.length; i++) {
       let tree = this.treeSet[i];
       const noiseX = this.generator.simplex3(
         Math.abs(this.size / tree.pos.x) * this.iteration,
         Math.abs(this.size / tree.pos.y) * this.iteration,
-        this.frames,
+        this.frames
       );
 
-      tree.tree.position.set(tree.pos.x, (noiseX * this.strength),tree.pos.y);
+      tree.tree.position.set(tree.pos.x, noiseX * this.strength, tree.pos.y);
     }
   };
 
   moveLight = () => {
     let frames = this.frames;
-    const x = 25 * Math.sin(frames * Math.PI / 180);
-    const y = 25 * Math.cos(frames * Math.PI / 180);
-    this.sun.position.set( 2 + x, 20, 2 + y);
-    this.spotLight.position.set( 2 + x, 20, 2 + y);
+    const x = 25 * Math.sin((frames * Math.PI) / 180);
+    const y = 25 * Math.cos((frames * Math.PI) / 180);
+    this.sun.position.set(2 + x, 20, 2 + y);
+    this.spotLight.position.set(2 + x, 20, 2 + y);
     this.spotLight.lookAt(0, 0, 0);
     // this.lightHelper.update();
   };

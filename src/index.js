@@ -1,18 +1,18 @@
-import Render from './ParticleDrift/index-sgl';
+import Render from "./Particle/index-pxl";
+// import Render from "./PostRenderEffects/index";
+import { description, version } from "../version.json";
 
-import { description, version } from '../version.json';
-
-require('../resources/styles/styles.css');
+require("../resources/styles/styles.css");
 
 const args = [
   `\n${description} %c ver ${version} \n\n`,
-  'background: #000; padding:5px 0;border-top-left-radius:10px;border-bottom-left-radius:10px;',
+  "background: #000; padding:5px 0;border-top-left-radius:10px;border-bottom-left-radius:10px;"
 ];
 
 try {
   window.console.log.apply(console, args);
 } catch (e) {
-  window.console.log(description + ' : ' + version);
+  window.console.log(description + " : " + version);
 }
 
 window.onload = () => {

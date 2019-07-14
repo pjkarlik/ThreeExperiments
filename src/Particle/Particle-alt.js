@@ -1,7 +1,7 @@
 /**
-* Basic Particle Class Object
-* WIP - pjkarlik@gmail.com
-**/
+ * Basic Particle Class Object
+ * WIP - pjkarlik@gmail.com
+ **/
 export default class Particle {
   constructor(config) {
     this.size = config.size;
@@ -12,10 +12,10 @@ export default class Particle {
     this.z = config.z;
     const min = config.min || 5;
     const max = config.max || 10;
-    this.vx = config.vx || (Math.abs(Math.random() * max) - min);
-    this.vy = config.vy || (Math.abs(Math.random() * max) - min);
-    this.vz = config.vz || (Math.abs(Math.random() * max) - min);
-    
+    this.vx = config.vx || Math.abs(Math.random() * max) - min;
+    this.vy = config.vy || Math.abs(Math.random() * max) - min;
+    this.vz = config.vz || Math.abs(Math.random() * max) - min;
+
     this.settings = config.settings;
     this.box = config.box;
     this.update();
@@ -56,7 +56,7 @@ export default class Particle {
 
     this.vy -= gravity;
 
-    this.size -= (this.life * 0.0002);
+    this.size -= this.life * 0.00006;
     this.life++;
-  }
+  };
 }

@@ -1,8 +1,8 @@
-require('../shader/OscFragment');
+require("../shader/OscFragment");
 
-import dat from 'dat.gui';
-import THREE from '../ThreeLight';
-import Particle from './Particle-alt';
+import dat from "dat.gui";
+import THREE from "../ThreeLight";
+import Particle from "./Particle-alt";
 
 // Render Class Object //
 export default class Render {
@@ -51,11 +51,11 @@ export default class Render {
       top: bsize,
       left: -bsize,
       bottom: -bsize,
-      right: bsize,
+      right: bsize
     };
     this.settings = {
       gravity: 0.0,
-      bounce: 0.35,
+      bounce: 0.35
     };
     this.threshold = 0.6;
     this.strength = 1.7;
@@ -63,18 +63,19 @@ export default class Render {
     this.camTimeoutx = true;
     this.camTimeouty = true;
     this.camTimeoutz = true;
-    setTimeout(
+    setTimeout(() => {
+      this.camTimeoutx = false;
+      this.camTimeouty = false;
+      this.camTimeoutz = false;
+    }, 3000 + 600 * Math.random() * 10);
+    window.addEventListener("resize", this.resize, true);
+    window.addEventListener(
+      "click",
       () => {
-        this.camTimeoutx = false;
-        this.camTimeouty = false;
-        this.camTimeoutz = false;
+        console.log(this.camera.position);
       },
-      3000 + (600 * Math.random() * 10)
+      true
     );
-    window.addEventListener('resize', this.resize, true);
-    window.addEventListener('click', () => {
-      console.log(this.camera.position);
-    }, true);
     this.setRender();
     this.setEffects();
     // this.createGUI();
@@ -96,7 +97,7 @@ export default class Render {
       amps: this.amps
     };
     this.gui = new dat.GUI();
-    const folderRender = this.gui.addFolder('Particle Options');
+    const folderRender = this.gui.addFolder("Particle Options");
     // folderRender.add(this.options, 'gravity', 0, 100).step(1)
     //   .onFinishChange((value) => {
     //     this.settings.gravity = value * 0.01;
@@ -105,11 +106,13 @@ export default class Render {
     //   .onFinishChange((value) => {
     //     this.settings.bounce = value * 0.01;
     //   });
-    folderRender.add(this.options, 'amps', 0, 800).step(1)
-      .onFinishChange((value) => {
+    folderRender
+      .add(this.options, "amps", 0, 800)
+      .step(1)
+      .onFinishChange(value => {
         this.amps = value;
       });
-  }
+  };
 
   setRender = () => {
     // Set Render and Scene //
@@ -137,10 +140,10 @@ export default class Render {
     this.controls.minDistance = 0;
 
     // Set Lights //
-    let pointLight = new THREE.PointLight(0xDDDDDD);
+    let pointLight = new THREE.PointLight(0xdddddd);
     pointLight.position.set(450, 450, -800);
     this.scene.add(pointLight);
-    pointLight = new THREE.PointLight(0xEEEEEE);
+    pointLight = new THREE.PointLight(0xeeeeee);
     pointLight.position.set(-250, -850, 800);
     this.scene.add(pointLight);
     let ambient = new THREE.AmbientLight(0x9f9f9f);
@@ -149,36 +152,36 @@ export default class Render {
   };
 
   music = () => {
-    const youtube = document.createElement('iframe');
-    youtube.width=1;
-    youtube.height=1;
-    const videoid = '3vnZnuqgh7U';
-    youtube.wmode='transparent';
-    const html ='https://www.youtube.com/embed/n6tVkGsaE94?rel=0&autoplay=1';
+    const youtube = document.createElement("iframe");
+    youtube.width = 1;
+    youtube.height = 1;
+    const videoid = "3vnZnuqgh7U";
+    youtube.wmode = "transparent";
+    const html = "https://www.youtube.com/embed/n6tVkGsaE94?rel=0&autoplay=1";
     youtube.src = encodeURI(html); // 'data:text/html;charset=utf-8,' + // e4GJsV3PzsI // gkyFQTUR-rA
-    youtube.frameborder=0;
+    youtube.frameborder = 0;
     document.body.appendChild(youtube);
-    const overlay = document.createElement('div');
-    const link = document.createElement('a');
-    const image = document.createElement('img');
-    image.src = 'https://img.youtube.com/vi/n6tVkGsaE94/sddefault.jpg';
+    const overlay = document.createElement("div");
+    const link = document.createElement("a");
+    const image = document.createElement("img");
+    image.src = "https://img.youtube.com/vi/n6tVkGsaE94/sddefault.jpg";
     image.width = 60;
     image.height = 45;
-    image.style.float = 'left';
-    image.style.margin = '0 0 0 15px';
+    image.style.float = "left";
+    image.style.margin = "0 0 0 15px";
     link.href = html;
-    link.innerHTML = 'Music by Lorn | Shelter';
-    overlay.style.position = 'absolute';
-    overlay.style.bottom = '15px';
-    overlay.style.left = '0';
-    overlay.style.lineHeight = '45px';
-    overlay.style.zIndex = '9999';
-    link.style.color = '#FFF';
-    link.style.padding = '15px';
+    link.innerHTML = "Music by Lorn | Shelter";
+    overlay.style.position = "absolute";
+    overlay.style.bottom = "15px";
+    overlay.style.left = "0";
+    overlay.style.lineHeight = "45px";
+    overlay.style.zIndex = "9999";
+    link.style.color = "#FFF";
+    link.style.padding = "15px";
     overlay.appendChild(image);
     overlay.appendChild(link);
     document.body.appendChild(overlay);
-  }
+  };
 
   setEffects = () => {
     // this.effect = new THREE.AnaglyphEffect(this.renderer);
@@ -191,7 +194,9 @@ export default class Render {
 
     this.bloomPass = new THREE.UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      this.strength, this.radius, 1.0 - this.threshold
+      this.strength,
+      this.radius,
+      1.0 - this.threshold
     );
     this.composer.addPass(this.bloomPass);
 
@@ -210,19 +215,24 @@ export default class Render {
     const { x, y, z } = this.emitter;
     this.frames++;
     let iter = 2.0;
-    let amps = 40 + Math.abs(this.amps * Math.cos((this.frames * 0.2 ) * Math.PI / 180));
-    let sVar = amps * Math.sin(this.frames * iter * Math.PI / 180);
-    let cVar = amps * Math.cos(this.frames * iter * Math.PI / 180);
-    let dVar = amps * Math.cos((this.frames * 0.4 ) * 8 * Math.PI / 180);
+    let amps =
+      40 + Math.abs(this.amps * Math.cos((this.frames * 0.2 * Math.PI) / 180));
+    let sVar = amps * Math.sin((this.frames * iter * Math.PI) / 180);
+    let cVar = amps * Math.cos((this.frames * iter * Math.PI) / 180);
+    let dVar = amps * Math.cos((this.frames * 0.4 * 8 * Math.PI) / 180);
     this.makeParticle(x + sVar, y + cVar, z + dVar);
     this.makeParticle(x - sVar, y - cVar, z + dVar);
   };
 
   makeParticle = (mx, my, mz) => {
-    const geometry = new THREE.BoxBufferGeometry(this.size / 2, this.size  * 3, this.size * 8);
+    const geometry = new THREE.BoxBufferGeometry(
+      this.size / 2,
+      this.size * 3,
+      this.size * 8
+    );
     const sphere = new THREE.Mesh(
       geometry,
-      new THREE.MeshPhongMaterial({ color: 0xFFFFFF, specular: 0x999999 })
+      new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0x999999 })
     );
     sphere.castShadow = true;
     sphere.receiveShadow = true;
@@ -247,16 +257,17 @@ export default class Render {
     sphere.scale.z = this.size;
     const ex = this.emitter.x;
     const ey = this.emitter.y;
-    const ry = Math.atan2(my - ey, mx - ex) * Math.PI / 180;
+    const ry = (Math.atan2(my - ey, mx - ex) * Math.PI) / 180;
 
-    sphere.rotateZ((15 + ry) * 180 / Math.PI);
-    
+    sphere.rotateZ(((15 + ry) * 180) / Math.PI);
+
     // const cRed = Math.sin(this.frames * 0.25 * Math.PI / 180);
     // const cGreen = Math.cos(this.frames * 0.25 * Math.PI / 180);
     // const cBlue = 0.9 - Math.sin(this.frames * 0.25 * Math.PI / 180);
     // sphere.material.color.setRGB(cRed, cGreen ,cBlue);
     // const particleColor = Math.abs(Math.sin(this.frames * 0.25 * Math.PI / 180) * 0.75);
-    const offsetColor  = 0.85 - Math.abs(Math.cos(this.frames * 0.25 * Math.PI / 180) );
+    const offsetColor =
+      0.85 - Math.abs(Math.cos((this.frames * 0.25 * Math.PI) / 180));
     sphere.material.color.setRGB(offsetColor, offsetColor, offsetColor);
     // sphere.material.color.setHSL(particleColor,1,0.5);
 
@@ -268,11 +279,7 @@ export default class Render {
     for (let i = 0; i < this.particles.length; i++) {
       const part = this.particles[i];
       part.update();
-      part.ref.position.set(
-        part.x,
-        part.y,
-        part.z
-      );
+      part.ref.position.set(part.x, part.y, part.z);
       part.ref.scale.x = part.size;
       part.ref.scale.y = part.size;
       part.ref.scale.z = part.size;
@@ -288,9 +295,12 @@ export default class Render {
 
   cameraLoop = () => {
     const damp = 0.01;
-    this.camPosition.x = this.camPosition.x - (this.camPosition.x - this.trsPosition.x) * damp;
-    this.camPosition.y = this.camPosition.y - (this.camPosition.y - this.trsPosition.y) * damp;
-    this.camPosition.z = this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.004;
+    this.camPosition.x =
+      this.camPosition.x - (this.camPosition.x - this.trsPosition.x) * damp;
+    this.camPosition.y =
+      this.camPosition.y - (this.camPosition.y - this.trsPosition.y) * damp;
+    this.camPosition.z =
+      this.camPosition.z - (this.camPosition.z - this.trsPosition.z) * 0.004;
 
     this.camera.position.set(
       this.camPosition.x,
@@ -299,42 +309,50 @@ export default class Render {
     );
     this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    if(!this.camTimeoutx && Math.random() * 260 > 250) {
+    if (!this.camTimeoutx && Math.random() * 260 > 250) {
       const tempRand = 100 + Math.random() * 1000;
-      this.trsPosition.x = Math.random() * 255 > 200 ?
-        Math.random() * 250 > 100 ? -(tempRand) : tempRand : 0;
+      this.trsPosition.x =
+        Math.random() * 255 > 200
+          ? Math.random() * 250 > 100
+            ? -tempRand
+            : tempRand
+          : 0;
       this.camTimeoutx = true;
-      setTimeout(
-        () => { this.camTimeoutx = false; },
-        6000 + (1000 * Math.random() * 20)
-      );
+      setTimeout(() => {
+        this.camTimeoutx = false;
+      }, 6000 + 1000 * Math.random() * 20);
     }
-    if(!this.camTimeouty && Math.random() * 260 > 240) {
+    if (!this.camTimeouty && Math.random() * 260 > 240) {
       const tempRand = 100 + Math.random() * 1000;
-      this.trsPosition.y = Math.random() * 255 > 170 ?
-        Math.random() * 250 > 100 ? tempRand : -(tempRand) : 0;
+      this.trsPosition.y =
+        Math.random() * 255 > 170
+          ? Math.random() * 250 > 100
+            ? tempRand
+            : -tempRand
+          : 0;
       this.camTimeouty = true;
-      setTimeout(
-        () => { this.camTimeouty = false; },
-        6000 + (1000 * Math.random() * 20)
-      );
+      setTimeout(() => {
+        this.camTimeouty = false;
+      }, 6000 + 1000 * Math.random() * 20);
     }
-    if(!this.camTimeoutz && Math.random() * 255 > 253) {
-      this.trsPosition.z = Math.random() * 200 > 150 ? 100 + Math.random() * 100 : -(100 + Math.random() * 100);
+    if (!this.camTimeoutz && Math.random() * 255 > 253) {
+      this.trsPosition.z =
+        Math.random() * 200 > 150
+          ? 100 + Math.random() * 100
+          : -(100 + Math.random() * 100);
       this.camTimeoutz = true;
-      setTimeout(
-        () => { this.camTimeoutz = false; },
-        18000 + (1100 * Math.random() * 7)
-      );
+      setTimeout(() => {
+        this.camTimeoutz = false;
+      }, 18000 + 1100 * Math.random() * 7);
     }
-    if (this.camPosition.x == 0 && this.camPosition.y == 0 ) {
-      this.camera.rotationZ((this.frames * 0.1) * Math.PI / 180);
+    if (this.camPosition.x == 0 && this.camPosition.y == 0) {
+      this.camera.rotationZ((this.frames * 0.1 * Math.PI) / 180);
     }
   };
 
-  dist = (a, b, c, d) =>{
-    return Math.sqrt(((a - c) * (a - c) + (b - d) * (b - d)));
-  }
+  dist = (a, b, c, d) => {
+    return Math.sqrt((a - c) * (a - c) + (b - d) * (b - d));
+  };
   renderScene = () => {
     this.composer.render();
     // this.renderer.render(this.scene, this.camera);
@@ -344,11 +362,11 @@ export default class Render {
   renderLoop = () => {
     this.checkParticles();
 
-    if(Math.random() * 255 > 245){
+    if (Math.random() * 255 > 245) {
       this.speed = 5.0 + Math.random() * 10;
     }
 
-    if(this.particles.length < 1800 && this.frames % 3 == 0) {
+    if (this.particles.length < 1800 && this.frames % 3 == 0) {
       this.hitRnd();
     }
 
