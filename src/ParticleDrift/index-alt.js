@@ -1,4 +1,4 @@
-import dat from 'dat-gui';
+import dat from 'dat.gui';
 import THREE from '../ThreeLight';
 import Particle from './Particle-alt';
 
@@ -93,10 +93,10 @@ export default class Render {
     this.scene.background = new THREE.Color(this.background);
 
     this.camera = new THREE.PerspectiveCamera(
-        this.viewAngle,
-        this.aspect,
-        this.near,
-        this.far
+      this.viewAngle,
+      this.aspect,
+      this.near,
+      this.far
     );
 
     this.camera.position.set(0, 0, 1200);
@@ -136,7 +136,7 @@ export default class Render {
 
     this.bloomPass = new THREE.UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-     this.strength, this.radius, 1.0 - this.threshold
+      this.strength, this.radius, 1.0 - this.threshold
     );
 
     this.composer.addPass(this.bloomPass);
